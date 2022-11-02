@@ -1,0 +1,22 @@
+Liten forklaring av GetPortfolio funksjon.
+
+Målet med denne funksjon:
+Det er å beregne forskjellige nytige informasjoner som kan vises til brukeren.
+Dette gjør at vi kan vise informasjon om portfolio sjenerelt som:
+-verdi til portfolio
+-kostnad til portfolio
+-tilgjengelige midler brukeren har
+-hvor mye brukeren har vunnet eller tapt inntil nå.
+Vi bruker denne funksjon også for å kunne vise noen informasjon om hver aksje: 
+-vanlig informasjon om en aksje
+-hvor mye man har tjent eller tapt med en aksje
+-hvor høy prosent hver aksje representerer i forhold til hele portfolio.
+
+For å kunne vise disse informasjoner så må vi beregne en del ting.
+For hver aksje så må vi hente oppdatert verdien til aksjen. Disse kan ha forskjelige valuta. 
+Så vi henter vekslingskurs fra EcbCurrencyHandler hver gang det trengs sånn at vi kan ha verdien til hver aksje i brukerens valuta.
+Vi henter fra database total kostnad av en aksje. Så trekker vi fra den til dagens totalverdi av denne aksjen som brukeren har.
+Har den kostet mer enn den er verdt vil tallet være negativ. Vi gjør dette med hver aksje som er i portfolio til brukeren.
+Vi legger til også kostnad av hver aksje til total kostnad av hele portfolio.
+vi deler totalverdi til en aksje med verdien til hele portfolio og ganger med 100 for å se hvor mye hver aksje representerer i forhold til portfolio i prosent.
+vi trekker fra total verdi brukt til total verdi av portfolio for kunne vise brukeren hvor mye han har tjent eller tapt

@@ -1,0 +1,6 @@
+Liten forklaring av Transactions NAVBAR? FRONTEND?.
+
+Transaksjon side viser de forskjellige tansaksjoner som brukeren har gjort tidligere.
+"Update" og "clear all" knapper er de 2 eneste knapper her.
+"Clear all" sletter visning av alle transaksjon og etter at man har trykket på den så kan man ikke lenger se gamle transaksjoner.
+Oppdatering av transaksjoner skjer automatisk men i noen få spesiele tilfeller vil "Update" være nytig og forsikre at transaksjoner har blitt oppdatert.

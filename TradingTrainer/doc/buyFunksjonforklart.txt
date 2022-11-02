@@ -1,0 +1,23 @@
+Hvordan funker kjøpe funksjon?
+
+En bruker kan kjøpre aksjer via portfolio eller via en egen favorittlist. 
+For å kunne bruke "buy" funksjon så må brukeren har valgt en aksje ved å trykke på den. 
+Eller vil en vindu opnes der brukeren får beskjedd om at har må velge en aksje først.
+Når det er gjort og man trykker på "Buy" knappen så kommer det en ny vindu der man kan velge antall av aksjer som man ønsker å kjøpe.
+En javascript funksjon sender da dataene til vår tradingController med 3 parametre (userId, aksjeSymbol (primærnøkkel av en aksje) og antall av aksje
+som ble valgt av brukeren). Til slutt kaller javascript funksjon "updatePortfolioList" for å vise portfolio når den har blitt oppdatert.
+
+I TradingController så bruke vi en funksjon kjøpe med de 3 parametre som man fikk.
+Man skjekker først om antall er en positiv heltall ellers får brukeren en feil melding. Vi skjekker at informasjon om aksje (pris, osv) er oppdatert.
+Hvis ikke henter vi oppdatert informasjon fra AlphaVantage API. Funksjon skjekker også at valuta fra aksje er den samme som brukeren har i bruk. Hvis ikke kaller
+den i funksjon fra EcbCurrencyHandler for å få tilbake vekslingskurs for å beregne hvor mye transaksjon vil koste med brukerens valuta.
+Funksjon skjekker da om transaksjon koster mindre enn det brukeren har tilgjenglig på kontoen sin. Hvis ikke det er tilfelle får brukeren beskjedd at han ikke
+har nok penger på konto.
+Etter det kaller man en funksjon "buyStockTransaksjon" med 4 parametre (brukeren, aksje, saldo, antall) fra TradingRepository.
+Til slutt så returneres oppdatert portfolio til javascript sånn at det kan oppdateres i frontend.
+
+I TradingRepository så bruke vi funksjon "buyStockTransaksjon" for å oppdatere databasen.
+Vi lager ny "Stockownership" mellom brukeren og aksje om brukeren ikke hadde kjøpt den fra før. Ellers så oppdatere vi bare saldo og antall i StockOwnership.
+Det oppdateres også penger tilgjengelig på konto.
+Transaksjon blir også lagret i database sånn at brukeren kan se det (fra transaksjon i navbar).
+

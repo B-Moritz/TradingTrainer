@@ -1,0 +1,9 @@
+Liten forklaring av user-info fra frontend.
+
+Her kan brukeren modifisere navn, e-post og valuta. 
+Man skal trykke på update knap for å begå endringer.
+Vi har ikke tatt være på sikkerhet. Vi har ikke implementert passord hverken input validering.
+Valg av valuta: Det forandrer valuta som er brukt i portfolio for å vise diverse informasjoner til brukeren.
+Det vises også hvor mye penger brukeren har brukt og hvor mye som er igjen på konto.
+reset knap: det sletter ikke alle user-info men det sletter portfolio, 
+favorittlist og gamle transaksjon. Man starter på nytt med 1 000 000 nok etter det.
