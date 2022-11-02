@@ -7,6 +7,15 @@
 *.userosscache
 *.sln.docstates
 
+# Custom ignores
+node_modules
+*.db-shm
+*.db-wal
+.vs
+ConnectionStatusCache.json
+TradingSchema.db
+Migrations/
+
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
 

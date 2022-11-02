@@ -5,6 +5,10 @@ VisualStudioVersion = 17.3.32929.385
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TradingTrainer", "TradingTrainer\TradingTrainer.csproj", "{847A1DCA-CA06-4A18-89BC-81964A752BB5}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AlphaVantageInterface", "AlphaVantageInterface\AlphaVantageInterface.csproj", "{690DC864-C3DE-4EEF-8EF9-62AF3B029964}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EcbCurrencyInterface", "EcbCurrencyInterface\EcbCurrencyInterface.csproj", "{F3246348-B3E4-4694-BF54-DFC19BFCC71E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +19,14 @@ Global
 		{847A1DCA-CA06-4A18-89BC-81964A752BB5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{847A1DCA-CA06-4A18-89BC-81964A752BB5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{847A1DCA-CA06-4A18-89BC-81964A752BB5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{690DC864-C3DE-4EEF-8EF9-62AF3B029964}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{690DC864-C3DE-4EEF-8EF9-62AF3B029964}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{690DC864-C3DE-4EEF-8EF9-62AF3B029964}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{690DC864-C3DE-4EEF-8EF9-62AF3B029964}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F3246348-B3E4-4694-BF54-DFC19BFCC71E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F3246348-B3E4-4694-BF54-DFC19BFCC71E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F3246348-B3E4-4694-BF54-DFC19BFCC71E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F3246348-B3E4-4694-BF54-DFC19BFCC71E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
