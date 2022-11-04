@@ -1,4 +1,4 @@
-﻿namespace Webapplikasjoner_oblig.Model
+﻿namespace TradingTrainer.Model
 {
     /***
      * This class models the stock objects that should be added to the StockList property of the SearchResult objects

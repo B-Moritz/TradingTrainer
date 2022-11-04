@@ -1,8 +1,8 @@
 ﻿using System.Text;
 using AlphaVantageInterface.Models;
-using Webapplikasjoner_oblig.Model;
+using TradingTrainer.Model;
 
-namespace Webapplikasjoner_oblig.DAL
+namespace TradingTrainer.DAL
 {
     public interface ITradingRepository
     {
@@ -16,13 +16,13 @@ namespace Webapplikasjoner_oblig.DAL
 
         Task<User> GetUserAsync(int userId);
         Task<StockQuotes> AddStockQuoteAsync(AlphaVantageInterface.Models.StockQuote stockQuote);
-        Task<FavoriteList> GetFavoriteListAsync(int userId);
+        Task<List<Stocks>> GetFavoriteListAsync(int userId);
         Task AddToFavoriteListAsync(int userId, string symbol);
         Task DeleteFromFavoriteListAsync(int userId, string symbol);
 
         Task<Users?> GetUsersAsync(int userId);
 
-        Task<User> ResetPortfolio(int userId);
+        Task<User> ResetProfile(int userId);
 
         Task UpdateUserAsync(User curUser);
 

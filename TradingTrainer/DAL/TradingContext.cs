@@ -4,13 +4,13 @@
 
 using System.Reflection;
 using Microsoft.EntityFrameworkCore;
-using Webapplikasjoner_oblig.Model;
+using TradingTrainer.Model;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using AlphaVantageInterface.Models;
 using Microsoft.EntityFrameworkCore.Update;
 
-namespace Webapplikasjoner_oblig.DAL
+namespace TradingTrainer.DAL
 {
 
 

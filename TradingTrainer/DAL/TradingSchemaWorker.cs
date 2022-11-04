@@ -5,7 +5,7 @@
 
 // Resources used: https://learn.microsoft.com/en-us/aspnet/core/fundamentals/host/hosted-services?view=aspnetcore-6.0&tabs=netcore-cli
 
-using Webapplikasjoner_oblig.DAL;
+using TradingTrainer.DAL;
 using System.Diagnostics;
 
 namespace TradingSchemaSp;

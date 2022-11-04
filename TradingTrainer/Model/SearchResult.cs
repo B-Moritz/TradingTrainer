@@ -1,4 +1,4 @@
-﻿namespace Webapplikasjoner_oblig.Model
+﻿namespace TradingTrainer.Model
 {
     /***
      * This class models the Search result objects used to contains a list of sotcks that match the search keyword.

@@ -4,7 +4,7 @@
 // the database to related to buying, selling or searching for stocks.
 
 using Microsoft.EntityFrameworkCore;
-using Webapplikasjoner_oblig.Model;
+using TradingTrainer.Model;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -14,8 +14,9 @@ using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 using EcbCurrencyInterface;
 using Microsoft.EntityFrameworkCore.Query.Internal;
+using Serilog.Sinks.SystemConsole.Themes;
 
-namespace Webapplikasjoner_oblig.DAL
+namespace TradingTrainer.DAL
 {
     public class TradingRepository : ITradingRepository
     {
@@ -128,35 +129,20 @@ namespace Webapplikasjoner_oblig.DAL
          *      (int) userId: The user to find the favorite list for.
          *  Return: FavoriteList object containing the favorite list of the given user
          */
-        public async Task<FavoriteList> GetFavoriteListAsync(int userId)
+        public async Task<List<Stock>> GetFavoriteListAsync(int userId)
         {
             // Find the user in the database
             Users oneUser = await _db.Users.SingleAsync(u => u.UsersId == userId);
             // Getting the favorites of a user
             List<Stocks>? favorites = oneUser.Favorites;
-            // Declaring the new favorite list containing StockBase objects
-            List<StockBase>? stockFavorite = new List<StockBase>();
-            StockBase currentStockDetail;
 
-            foreach (Stocks currentStock in favorites)
+            if (favorites == null) 
             {
-                // Foreach favorite in the favorite list, create a new StockBase object and add it to the favorites list
-                currentStockDetail = new StockBase
-                {
-                    StockName = currentStock.StockName,
-                    Symbol = currentStock.Symbol,
-                    Type = currentStock.Type,
-                    LastUpdated = currentStock.LastUpdated
-                };
-                stockFavorite.Add(currentStockDetail);
+                favorites = new List<Stocks>();
             }
-            // Create the favorite list if all stocks have been iterated over.
-            var currentFavorite = new FavoriteList
-            {
-                LastUpdated = DateTime.Now,
-                StockList = stockFavorite
-            };
-            return currentFavorite;
+
+            return favorites;
+
         }
 
         /**
@@ -409,7 +395,7 @@ namespace Webapplikasjoner_oblig.DAL
          * Parameters:
          *      (int) userId: The user that should be resetted.
          */
-        public async Task<User> ResetPortfolio(int userId) {
+        public async Task<User> ResetProfile(int userId) {
             // Obtain the user entity
             Users curUser = await _db.Users.SingleAsync<Users>(u => u.UsersId == userId);
             // Remove trade history of user

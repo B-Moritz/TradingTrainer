@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using TradingSchemaSp;
-using Webapplikasjoner_oblig.DAL;
+using TradingTrainer.DAL;
 
 var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.

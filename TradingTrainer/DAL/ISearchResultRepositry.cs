@@ -1,6 +1,6 @@
-﻿using Webapplikasjoner_oblig.Model;
+﻿using TradingTrainer.Model;
 
-namespace Webapplikasjoner_oblig.DAL
+namespace TradingTrainer.DAL
 {
     public interface ISearchResultRepositry
     {
