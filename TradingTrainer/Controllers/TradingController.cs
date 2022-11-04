@@ -241,10 +241,16 @@ namespace Webapplikasjoner_oblig.Controllers
          * Return: The method returns a Portfolio object containing data about the portfolio of the user specified 
          * as an argument to this method.
          */
-        public async Task<Portfolio> GetPortfolio(int userId)
+        public async Task<ActionResult> GetPortfolio(int userId)
         {
             // Obtaining the user entity from the database
-            Users curUser = await _tradingRepo.GetUsersAsync(userId);
+            Users? curUser = await _tradingRepo.GetUsersAsync(userId);
+
+            if (curUser == null) {
+                //_logger.LogInformation("User {0} not found");
+                NotFound("The provided user was not found in the database");
+            }
+
             // Definition and initialization of the Portfolio object that should be returned
             Portfolio outPortfolio = new Portfolio();
             // Definition and initialization of an empty StockPortfolio list used to contain the found portfolio stocks later
@@ -343,7 +349,7 @@ namespace Webapplikasjoner_oblig.Controllers
             outPortfolio.PortfolioCurrency = userCurrency;
             outPortfolio.LastUpdate = DateTime.Now;
             // The Portfolio object is returned
-            return outPortfolio;        
+            return Ok(outPortfolio);        
         }
 
         /**

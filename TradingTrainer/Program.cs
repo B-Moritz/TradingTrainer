@@ -20,25 +20,24 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
-/*
 app.UseHttpsRedirection();
 app.UseAuthorization();
 app.UseStaticFiles();
 app.MapControllers();
 
 app.Run();
-*/
 
 
-app.UseHttpsRedirection();
+
+/*app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
 
-/*
+
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller}/{action=Index}/{id?}");*/
+    pattern: "{controller}/{action=Index}/{id?}");
 app.MapControllers();
-app.MapFallbackToFile("index.html"); ;
+app.MapFallbackToFile("index.html");
 
-app.Run();
+app.Run();*/
