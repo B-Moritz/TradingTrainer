@@ -75,35 +75,11 @@ namespace TradingTrainer.DAL
          *      (AlphaVantageInterface.Models.StockQuote) stockQuote: The stock quote that should be added to the database
          * Return: The StockQuotes object that was added to the database
          */
-        public async Task<StockQuotes> AddStockQuoteAsync(AlphaVantageInterface.Models.StockQuote stockQuote)
+        public async Task<StockQuotes> AddStockQuoteAsync(StockQuotes newTableRow)
         {
-            // Parse the LatestTradingDay to datetime object
-            Regex LatestTradingdayPattern = new Regex("([0-9]*)-([0-9]*)-([0-9]*)");
-            Match matches = LatestTradingdayPattern.Match(stockQuote.LatestTradingDay);
-            GroupCollection gc = matches.Groups;
-            // Converting the Alpha Vantage StockQuote to a StockQuotes object
-            StockQuotes newTableRow = new StockQuotes
-            {
-                StocksId = stockQuote.Symbol,
-                Timestamp = DateTime.Now,
-                LatestTradingDay = new DateTime(
-                                                int.Parse(gc[1].ToString()),
-                                                int.Parse(gc[2].ToString()),
-                                                int.Parse(gc[3].ToString())
-                                                ),
-                Open = stockQuote.Open,
-                Low = stockQuote.Low,
-                High = stockQuote.High,
-                Price = stockQuote.Price,
-                Volume = stockQuote.Volume,
-                PreviousClose = stockQuote.PreviousClose,
-                Change = stockQuote.Change,
-                ChangePercent = stockQuote.ChangePercent,
-            };
-
             // Adding the new object to the database.
             // InvalidOperationException will be thrown if the coresponding Stocks object is not in the database
-            Stocks curStock = await _db.Stocks.SingleAsync<Stocks>(s => s.Symbol == stockQuote.Symbol);
+            Stocks curStock = await _db.Stocks.SingleAsync<Stocks>(s => s.Symbol == newTableRow.StocksId);
             curStock.StockQuotes.Add(newTableRow);
             // Apply the changes to the database
             _db.SaveChanges();
@@ -129,7 +105,7 @@ namespace TradingTrainer.DAL
          *      (int) userId: The user to find the favorite list for.
          *  Return: FavoriteList object containing the favorite list of the given user
          */
-        public async Task<List<Stock>> GetFavoriteListAsync(int userId)
+        public async Task<List<Stocks>> GetFavoriteListAsync(int userId)
         {
             // Find the user in the database
             Users oneUser = await _db.Users.SingleAsync(u => u.UsersId == userId);
@@ -140,7 +116,6 @@ namespace TradingTrainer.DAL
             {
                 favorites = new List<Stocks>();
             }
-
             return favorites;
 
         }
@@ -175,30 +150,6 @@ namespace TradingTrainer.DAL
             // Save the changes 
             _db.SaveChanges();
 
-        }
-
-        /**
-         * This method return the user object containing information about the user
-         * Parameters:
-         *      (int) userId: The user to find information about.
-         * Return: The User object containing information about the user
-         */
-        public async Task<User> GetUserAsync(int userId)
-        {
-            // Get the user
-            Users curUser = await _db.Users.SingleAsync(t => t.UsersId == userId);
-            // Create the client User object
-            User convertedUser = new User
-            {
-                Id = curUser.UsersId,
-                FirstName = curUser.FirstName,
-                LastName = curUser.LastName,
-                Email = curUser.Email,
-                FundsSpent = string.Format("{0:N} {1}",curUser.FundsSpent, curUser.PortfolioCurrency),
-                FundsAvailable = string.Format("{0:N} {1}",curUser.FundsAvailable, curUser.PortfolioCurrency),
-                Currency = curUser.PortfolioCurrency
-            };
-            return convertedUser;
         }
 
         /**
@@ -338,42 +289,6 @@ namespace TradingTrainer.DAL
         }
 
         /**
-         * This method collects all the trade records for a spesific user. This list will consist of descriptions 
-         * of buy and sell transactions executed by the user.
-         * Parameters:
-         *      (int) userId: The user to get the trade history for
-         * Return: A list of Trade objects representing the transaction history of a user.
-         */ 
-        public async Task<List<Trade>> GetAllTradesAsync(int userId)
-        {
-            // Getting the user from db - InvalidOperationException if not found
-            Users dbUser = await _db.Users.SingleAsync(u => u.UsersId == userId);
-            // Getting the trades list containing the Trade records
-            List<Trades> curTrades = dbUser.Trades;
-            // Definition of the new transaction list containing Trade objects
-            // used for representing trades on the client side
-            List<Trade> transactions = new List<Trade>();
-
-            foreach(Trades curTrade in curTrades)
-            {
-                // Foreach trade in the user trades list, create a new Trade object
-                var newTrade = new Trade
-                {
-                    Id = curTrade.TradesId,
-                    StockSymbol = curTrade.StocksId,
-                    Date = curTrade.TradeTime,
-                    UserId = curTrade.UsersId,
-                    TransactionType = (curTrade.UserIsBying ? "Buying" : "Selling"),
-                    StockCount = curTrade.StockCount,
-                    Saldo = string.Format("{0:N} {1}", curTrade.Saldo, dbUser.PortfolioCurrency)
-                };
-                // Adding the new Trade object to the transaction list
-                transactions.Add(newTrade);
-            }
-            return transactions;
-        }
-
-        /**
          * This method removes the trading history saved in the database for a given user.
          * Parameters:
          *      (int) userId: The user that the trade history should be resetted for.
@@ -385,7 +300,6 @@ namespace TradingTrainer.DAL
             enUser.Trades.Clear();
             // Applying changes to database
             _db.SaveChanges();
-
         }
 
         /**
@@ -395,7 +309,7 @@ namespace TradingTrainer.DAL
          * Parameters:
          *      (int) userId: The user that should be resetted.
          */
-        public async Task<User> ResetProfile(int userId) {
+        public async Task<Users> ResetProfile(int userId) {
             // Obtain the user entity
             Users curUser = await _db.Users.SingleAsync<Users>(u => u.UsersId == userId);
             // Remove trade history of user
@@ -410,18 +324,8 @@ namespace TradingTrainer.DAL
             curUser.PortfolioCurrency = "NOK";
             // Applying the changes to the database
             _db.SaveChanges();
-            // Creating the updated user object
-            User outObj = new User
-            {
-                Id = curUser.UsersId,
-                FirstName = curUser.FirstName,
-                LastName = curUser.LastName,
-                Email = curUser.Email,
-                FundsAvailable = string.Format("{0:N} {1}", curUser.FundsAvailable, curUser.PortfolioCurrency),
-                FundsSpent = string.Format("{0:N} {1}", curUser.FundsSpent, curUser.PortfolioCurrency),
-                Currency = curUser.PortfolioCurrency
-            };
-            return outObj;
+
+            return curUser;
         }
         
         /**

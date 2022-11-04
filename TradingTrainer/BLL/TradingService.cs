@@ -9,6 +9,8 @@ using TradingTrainer.Model;
 using AlphaVantageInterface;
 using AlphaVantageInterface.Models;
 using Microsoft.AspNetCore.Mvc;
+using System.Text.RegularExpressions;
+using Microsoft.EntityFrameworkCore;
 
 namespace TradingTrainer.BLL
 {
@@ -93,7 +95,8 @@ namespace TradingTrainer.BLL
                 // Getting a new quote from Alpha vantage api if the stock quote was not found the in the database
                 AlphaVantageInterface.Models.StockQuote newQuote = await AlphaV.GetStockQuoteAsync(symbol);
                 // Adding stock quote to db and get the StockQuotes object 
-                StockQuotes newConvertedQuote = await _tradingRepo.AddStockQuoteAsync(newQuote);
+                StockQuotes newQuotesEntity = CreateNewStockQuoteEntity(newQuote);
+                StockQuotes newConvertedQuote = await _tradingRepo.AddStockQuoteAsync(newQuotesEntity);
                 // Set the new StockQuotes object as current quote
                 curStockQuote = newConvertedQuote;
             }
@@ -109,11 +112,39 @@ namespace TradingTrainer.BLL
                     _tradingRepo.RemoveStockQuotes(symbol);
                     AlphaVantageInterface.Models.StockQuote newQuote = await AlphaV.GetStockQuoteAsync(symbol);
                     // Adding stock quote to db
-                    StockQuotes newConvertedQuote = await _tradingRepo.AddStockQuoteAsync(newQuote);
+                    StockQuotes newQuotesEntity = CreateNewStockQuoteEntity(newQuote);
+                    StockQuotes newConvertedQuote = await _tradingRepo.AddStockQuoteAsync(newQuotesEntity);
                     curStockQuote = newConvertedQuote;
                 }
             }
             return curStockQuote;
+        }
+
+        private StockQuotes CreateNewStockQuoteEntity(AlphaVantageInterface.Models.StockQuote stockQuote)
+        {
+            // Parse the LatestTradingDay to datetime object
+            Regex LatestTradingdayPattern = new Regex("([0-9]*)-([0-9]*)-([0-9]*)");
+            Match matches = LatestTradingdayPattern.Match(stockQuote.LatestTradingDay);
+            GroupCollection gc = matches.Groups;
+            // Converting the Alpha Vantage StockQuote to a StockQuotes object
+            StockQuotes newStockQuoteEntity = new StockQuotes
+            {
+                StocksId = stockQuote.Symbol,
+                Timestamp = DateTime.Now,
+                LatestTradingDay = new DateTime(int.Parse(gc[1].ToString()),
+                                                int.Parse(gc[2].ToString()),
+                                                int.Parse(gc[3].ToString())),
+                Open = stockQuote.Open,
+                Low = stockQuote.Low,
+                High = stockQuote.High,
+                Price = stockQuote.Price,
+                Volume = stockQuote.Volume,
+                PreviousClose = stockQuote.PreviousClose,
+                Change = stockQuote.Change,
+                ChangePercent = stockQuote.ChangePercent,
+            };
+
+            return newStockQuoteEntity;
         }
 
         /**
@@ -377,7 +408,6 @@ namespace TradingTrainer.BLL
 
 
         // -----[ Favorites ] --------------------------------------------------------------------
-
         public async Task<FavoriteList> CreateFavoriteListAsync(int userId)
         {
             // Input validation needs to be implemented
@@ -411,7 +441,6 @@ namespace TradingTrainer.BLL
             return currentFavorite;
 
         }
-
         public async Task<FavoriteList> DeleteFromFavoriteListAsync(int userId, string symbol)
         {
             // Input validation needs to be implemented
@@ -421,7 +450,6 @@ namespace TradingTrainer.BLL
             // Return the current favorite list of the user
             return await CreateFavoriteListAsync(userId);
         }
-
         public async Task<FavoriteList> AddToFavoriteListAsync(int userId, string symbol)
         {
             // Adding the stock to the favorite list in the database
@@ -431,7 +459,6 @@ namespace TradingTrainer.BLL
         }
 
         // -----[ Buy/sell/quotes stocks ] --------------------------------------------------------------
-
         public async Task BuyStock(int userId, string symbol, int count)
         {
             // Validate count input value
@@ -476,7 +503,6 @@ namespace TradingTrainer.BLL
             // Execute the buy transaction with the database
             await _tradingRepo.BuyStockTransactionAsync(curUser, curStock, saldo, count); 
         }
-
         public async Task SellStock(int userId, string symbol, int count)
         {
             // Check if the stock exists in the database
@@ -515,7 +541,6 @@ namespace TradingTrainer.BLL
             // Execute the sell transaction against the database
             await _tradingRepo.SellStockTransactionAsync(userId, symbol, saldo, count);
         }
-
         public async Task<Model.StockQuote> GetStockQuoteAsync(string symbol)
         {
             // Get the latest stock quote
@@ -542,11 +567,40 @@ namespace TradingTrainer.BLL
         }
 
         // -------[ Trades ] ----------------------------------------------------------------------
-
+        /**
+         * This method collects all the trade records for a spesific user. This list will consist of descriptions 
+         * of buy and sell transactions executed by the user.
+         * Parameters:
+         *      (int) userId: The user to get the trade history for
+         * Return: A list of Trade objects representing the transaction history of a user.
+         */
         public async Task<List<Trade>> GetAllTradesAsync(int userId)
         {
-            // Get all the trades related to the provided userId
-            return await _tradingRepo.GetAllTradesAsync(userId);
+            // Get the user entity from server
+            Users curUser = await _tradingRepo.GetUsersAsync(userId);
+            // Getting the trades list containing the Trade records
+            List<Trades> curTrades = curUser.Trades;
+            // Definition of the new transaction list containing Trade objects
+            // used for representing trades on the client side
+            List<Trade> transactions = new List<Trade>();
+
+            foreach (Trades curTrade in curTrades)
+            {
+                // Foreach trade in the user trades list, create a new Trade object
+                var newTrade = new Trade
+                {
+                    Id = curTrade.TradesId,
+                    StockSymbol = curTrade.StocksId,
+                    Date = curTrade.TradeTime,
+                    UserId = curTrade.UsersId,
+                    TransactionType = (curTrade.UserIsBying ? "Buying" : "Selling"),
+                    StockCount = curTrade.StockCount,
+                    Saldo = string.Format("{0:N} {1}", curTrade.Saldo, curUser.PortfolioCurrency)
+                };
+                // Adding the new Trade object to the transaction list
+                transactions.Add(newTrade);
+            }
+            return transactions;
         }
 
         public async Task ClearAllTradeHistoryAsync(int userId)
@@ -560,7 +614,18 @@ namespace TradingTrainer.BLL
         public async Task<User> GetUserAsync(int userId)
         {
             // Obtaining the user from the database
-            return await _tradingRepo.GetUserAsync(userId);
+            Users curUser =  await _tradingRepo.GetUsersAsync(userId);
+            User convertedUser = new User
+            {
+                Id = curUser.UsersId,
+                FirstName = curUser.FirstName,
+                LastName = curUser.LastName,
+                Email = curUser.Email,
+                FundsSpent = string.Format("{0:N} {1}", curUser.FundsSpent, curUser.PortfolioCurrency),
+                FundsAvailable = string.Format("{0:N} {1}", curUser.FundsAvailable, curUser.PortfolioCurrency),
+                Currency = curUser.PortfolioCurrency
+            };
+            return convertedUser;
         }
 
         public async Task<User> UpdateUserAsync(User curUser)
@@ -573,7 +638,20 @@ namespace TradingTrainer.BLL
 
         public async Task<User> ResetProfileAsync(int userId)
         {
-            return await _tradingRepo.ResetProfile(userId);
+            // Reset data through the data access layer
+            Users curUser = await _tradingRepo.ResetProfileAsync(userId);
+            // Convert the returned user entity to the User object used for presentation
+            User convertedUser = new User
+            {
+                Id = curUser.UsersId,
+                FirstName = curUser.FirstName,
+                LastName = curUser.LastName,
+                Email = curUser.Email,
+                FundsSpent = string.Format("{0:N} {1}", curUser.FundsSpent, curUser.PortfolioCurrency),
+                FundsAvailable = string.Format("{0:N} {1}", curUser.FundsAvailable, curUser.PortfolioCurrency),
+                Currency = curUser.PortfolioCurrency
+            };
+            return convertedUser;
         }
 
     }
