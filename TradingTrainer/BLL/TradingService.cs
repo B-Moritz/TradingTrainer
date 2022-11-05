@@ -641,7 +641,6 @@ namespace TradingTrainer.BLL
             // Reset data through the data access layer
             Users curUser = await _tradingRepo.ResetProfileAsync(userId);
             // Convert the returned user entity to the User object used for presentation
-            string.Empty
             User convertedUser = new User
             {
                 Id = curUser.UsersId,

@@ -35,8 +35,22 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="ClientApp\src\index.tsx" />
+    <None Remove="ClientApp\src\Main.tsx" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\AlphaVantageInterface\AlphaVantageInterface.csproj" />
     <ProjectReference Include="..\EcbCurrencyInterface\EcbCurrencyInterface.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="ClientApp\public\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <TypeScriptCompile Include="ClientApp\src\index.tsx" />
+    <TypeScriptCompile Include="ClientApp\src\Main.tsx" />
   </ItemGroup>
 
   <Target Name="DebugEnsureNodeEnv" BeforeTargets="Build" Condition=" '$(Configuration)' == 'Debug' And !Exists('$(SpaRoot)node_modules') ">
