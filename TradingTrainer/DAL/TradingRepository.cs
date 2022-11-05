@@ -309,7 +309,7 @@ namespace TradingTrainer.DAL
          * Parameters:
          *      (int) userId: The user that should be resetted.
          */
-        public async Task<Users> ResetProfile(int userId) {
+        public async Task<Users> ResetProfileAsync(int userId) {
             // Obtain the user entity
             Users curUser = await _db.Users.SingleAsync<Users>(u => u.UsersId == userId);
             // Remove trade history of user
