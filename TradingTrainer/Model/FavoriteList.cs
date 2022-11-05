@@ -1,4 +1,4 @@
-﻿namespace Webapplikasjoner_oblig.Model
+﻿namespace TradingTrainer.Model
 {
     /***
      * This class models the objects that should contian the favorite lists of each user. 

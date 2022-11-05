@@ -1,4 +1,4 @@
-﻿namespace Webapplikasjoner_oblig.Model
+﻿namespace TradingTrainer.Model
 {
     /***
      * The Trade class models an object containing information about a buy or sell trade.

@@ -1,8 +1,8 @@
 ﻿using System.Text;
 using AlphaVantageInterface.Models;
-using Webapplikasjoner_oblig.Model;
+using TradingTrainer.Model;
 
-namespace Webapplikasjoner_oblig.DAL
+namespace TradingTrainer.DAL
 {
     public interface ITradingRepository
     {

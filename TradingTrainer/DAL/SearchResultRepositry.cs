@@ -1,4 +1,4 @@
-﻿using Webapplikasjoner_oblig.Model;
+﻿using TradingTrainer.Model;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using System.Diagnostics;
 
-namespace Webapplikasjoner_oblig.DAL
+namespace TradingTrainer.DAL
 {
     public class SearchResultRepositry : ISearchResultRepositry
     {

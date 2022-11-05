@@ -1,4 +1,4 @@
-﻿namespace Webapplikasjoner_oblig.Model
+﻿namespace TradingTrainer.Model
 {
     /***
      * A extention to the User class for cases where the password of the user is handeled.

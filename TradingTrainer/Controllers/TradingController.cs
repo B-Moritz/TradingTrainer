@@ -9,10 +9,10 @@ using AlphaVantageInterface;
 using AlphaVantageInterface.Models;
 using EcbCurrencyInterface;
 using Microsoft.AspNetCore.Mvc;
-using Webapplikasjoner_oblig.DAL;
-using Webapplikasjoner_oblig.Model;
+using TradingTrainer.DAL;
+using TradingTrainer.Model;
 
-namespace Webapplikasjoner_oblig.Controllers
+namespace TradingTrainer.Controllers
 {
 
     [Route("[controller]/[action]")]

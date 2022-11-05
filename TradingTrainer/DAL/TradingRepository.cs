@@ -4,7 +4,7 @@
 // the database to related to buying, selling or searching for stocks.
 
 using Microsoft.EntityFrameworkCore;
-using Webapplikasjoner_oblig.Model;
+using TradingTrainer.Model;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -15,7 +15,7 @@ using System.Diagnostics;
 using EcbCurrencyInterface;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 
-namespace Webapplikasjoner_oblig.DAL
+namespace TradingTrainer.DAL
 {
     public class TradingRepository : ITradingRepository
     {

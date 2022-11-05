@@ -1,6 +1,6 @@
-﻿using Webapplikasjoner_oblig.DAL;
+﻿using TradingTrainer.DAL;
 
-namespace Webapplikasjoner_oblig.Model
+namespace TradingTrainer.Model
 {
     /***
      * This class models the Stock used to represent the stock quote data. It is inheriting from the StockBase
