@@ -1,9 +1,10 @@
 ﻿import react from 'react';
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import Main from './Main';
 import 'bootstrap/dist/css/bootstrap.css';
+import './index.css';
 
-ReactDOM.render(
-    <Main />,
-    document.getElementById("root")
-);
+const rootContainer : any = document.getElementById("root");
+const root = createRoot(rootContainer);
+
+root.render(<Main />);

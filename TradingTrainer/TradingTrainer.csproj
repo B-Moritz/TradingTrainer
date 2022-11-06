@@ -35,8 +35,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="ClientApp\src\ErrorComponent.tsx" />
     <None Remove="ClientApp\src\index.tsx" />
     <None Remove="ClientApp\src\Main.tsx" />
+    <None Remove="ClientApp\src\PrimaryContainer.tsx" />
+    <None Remove="ClientApp\src\TradingComponents\TradingDashboard.tsx" />
   </ItemGroup>
 
   <ItemGroup>
@@ -49,8 +52,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <TypeScriptCompile Include="ClientApp\src\ErrorComponent.tsx" />
     <TypeScriptCompile Include="ClientApp\src\index.tsx" />
     <TypeScriptCompile Include="ClientApp\src\Main.tsx" />
+    <TypeScriptCompile Include="ClientApp\src\PrimaryContainer.tsx" />
+    <TypeScriptCompile Include="ClientApp\src\TradingComponents\TradingDashboard.tsx" />
   </ItemGroup>
 
   <Target Name="DebugEnsureNodeEnv" BeforeTargets="Build" Condition=" '$(Configuration)' == 'Debug' And !Exists('$(SpaRoot)node_modules') ">
