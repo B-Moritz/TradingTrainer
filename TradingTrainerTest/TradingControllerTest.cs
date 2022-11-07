@@ -1,7 +1,51 @@
-﻿namespace TradingTrainerTest
+﻿using Moq;
+using TradingTrainer.Controllers;
+using TradingTrainer.DAL;
+using TradingTrainer.Model;
+using Xunit;
+
+namespace TradingTrainerTest
 {
     public class TradingControllerTest
     {
+        [Fact]
+        public async Task GetFavoriteListAsync()
+        {
+            // arange 
+            List<StockBase>? stockfavorits = new List<StockBase>();
+            StockBase curstockDetail;
+            foreach(var currstock in stockfavorits)
+            {
+                curstockDetail = new StockBase
+                {
+                    StockName = currstock.StockName,
+                    Symbol = currstock.Symbol,
+                    Type = currstock.Type,
+                    LastUpdated = currstock.LastUpdated
+                };
+                stockfavorits.Add(curstockDetail);
+            }
+            var curentFavorite = new FavoriteList
+            {
+                LastUpdated = DateTime.Now,
+                StockList = stockfavorits
+            };
+
+            var mock = new Mock<ITradingRepository>();
+            mock.Setup(s => s.GetFavoriteList()).ReturnsAsync(curentFavorite);
+            var tradingController = await new TradingController(mock.Object);
+
+            // act
+            List<FavoriteList> result = await tradingController.GetFavoriteList();
+
+            // assert
+            Assert.Equal<List<FavoriteList>>(curentFavorite,result);
+
+        }
+
+
+
+
         [Fact]
         public async Task Getportfolio_LogetInn_Ok()
         {
@@ -30,6 +74,7 @@
         [Fact]
         public async Task GetFavoriteList_LogetInn_Ok()
         {
+
 
         }
         [Fact]
