@@ -6,7 +6,6 @@ namespace TradingTrainer.DAL
 {
     public interface ITradingRepository
     {
-        Task<List<Trade>> GetAllTradesAsync(int userId);
         Task<Stocks?> GetStockAsync(string symbol);
         Task<StockQuotes?> GetStockQuoteAsync(string symbol);
 
@@ -15,14 +14,14 @@ namespace TradingTrainer.DAL
         void RemoveStockQuotes(string symbol);
 
         Task<User> GetUserAsync(int userId);
-        Task<StockQuotes> AddStockQuoteAsync(AlphaVantageInterface.Models.StockQuote stockQuote);
-        Task<FavoriteList> GetFavoriteListAsync(int userId);
+        Task<StockQuotes> AddStockQuoteAsync(StockQuotes newTableRow);
+        Task<List<Stocks>> GetFavoriteListAsync(int userId);
         Task AddToFavoriteListAsync(int userId, string symbol);
         Task DeleteFromFavoriteListAsync(int userId, string symbol);
 
         Task<Users?> GetUsersAsync(int userId);
 
-        Task<User> ResetPortfolio(int userId);
+        Task<Users> ResetProfileAsync(int userId);
 
         Task UpdateUserAsync(User curUser);
 
