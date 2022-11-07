@@ -15,6 +15,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="6.0.10" />
+    <PackageReference Include="Microsoft.AspNetCore.Session" Version="2.2.0" />
     <PackageReference Include="Microsoft.AspNetCore.SpaProxy" Version="6.0.10" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="6.0.10">
       <PrivateAssets>all</PrivateAssets>
@@ -34,8 +35,28 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="ClientApp\src\ErrorComponent.tsx" />
+    <None Remove="ClientApp\src\index.tsx" />
+    <None Remove="ClientApp\src\Main.tsx" />
+    <None Remove="ClientApp\src\PrimaryContainer.tsx" />
+    <None Remove="ClientApp\src\TradingComponents\TradingDashboard.tsx" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\AlphaVantageInterface\AlphaVantageInterface.csproj" />
     <ProjectReference Include="..\EcbCurrencyInterface\EcbCurrencyInterface.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="ClientApp\public\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <TypeScriptCompile Include="ClientApp\src\ErrorComponent.tsx" />
+    <TypeScriptCompile Include="ClientApp\src\index.tsx" />
+    <TypeScriptCompile Include="ClientApp\src\Main.tsx" />
+    <TypeScriptCompile Include="ClientApp\src\PrimaryContainer.tsx" />
+    <TypeScriptCompile Include="ClientApp\src\TradingComponents\TradingDashboard.tsx" />
   </ItemGroup>
 
   <Target Name="DebugEnsureNodeEnv" BeforeTargets="Build" Condition=" '$(Configuration)' == 'Debug' And !Exists('$(SpaRoot)node_modules') ">

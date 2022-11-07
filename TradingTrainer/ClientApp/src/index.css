@@ -1,0 +1,33 @@
+﻿* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    
+}
+
+#SiteContainer {
+    background-color: #618298;
+    padding: 5rem 10rem 5rem;
+}
+
+#FormContainer {
+    background-color: white;
+    border-style: solid;
+    border-radius: 10px 10px 10px 10px;
+    padding: 5rem;
+}
+
+.tradingTrainerTitle {
+    color: #618298;
+    margin-left: 3rem;
+}
+
+.landingNavigation > * {
+    margin-left: 1rem;
+}
+
+header {
+    margin-bottom: 5rem;
+}

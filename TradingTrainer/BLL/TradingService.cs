@@ -307,7 +307,7 @@ namespace TradingTrainer.BLL
             modelSearchResult.StockList = StockDetailsList;
 
             // SearchResult is passed to a function in searchResultRepositry to be added to the database
-            await _searchResultRepositry.SaveSearchResultAsync(modelSearchResult);
+            await _searchResultRepo.SaveSearchResultAsync(modelSearchResult);
 
             return modelSearchResult;
         }
@@ -633,7 +633,7 @@ namespace TradingTrainer.BLL
             // Update the user in the database
             await _tradingRepo.UpdateUserAsync(curUser);
             // Returning the updated user object
-            return await _tradingRepo.GetUserAsync(curUser.Id);
+            return await GetUserAsync(curUser.Id);
         }
 
         public async Task<User> ResetProfileAsync(int userId)
