@@ -14,7 +14,6 @@ using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 using EcbCurrencyInterface;
 using Microsoft.EntityFrameworkCore.Query.Internal;
-using Serilog.Sinks.SystemConsole.Themes;
 
 namespace TradingTrainer.DAL
 {
