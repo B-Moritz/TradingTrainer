@@ -616,7 +616,7 @@ namespace TradingTrainer.BLL
         public async Task<User> GetUserAsync(int userId)
         {
             // Obtaining the user from the database
-            Users curUser =  await _tradingRepo.GetUsersAsync(userId);
+            Users? curUser =  await _tradingRepo.GetUsersAsync(userId);
             User convertedUser = new User
             {
                 Id = curUser.UsersId,
