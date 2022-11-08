@@ -410,11 +410,6 @@ namespace TradingTrainer.BLL
         // -----[ Favorites ] --------------------------------------------------------------------
         public async Task<FavoriteList> CreateFavoriteListAsync(int userId)
         {
-
-
-
- 
-
             // Input validation needs to be implemented
 
 
@@ -433,7 +428,8 @@ namespace TradingTrainer.BLL
                     StockName = currentStock.StockName,
                     Symbol = currentStock.Symbol,
                     Type = currentStock.Type,
-                    LastUpdated = currentStock.LastUpdated
+                    LastUpdated = currentStock.LastUpdated,
+                    StockCurrency = currentStock.Currency
                 };
                 stockFavorite.Add(currentStockDetail);
             }

@@ -1,4 +1,9 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿
+
+// Resource used to create the unit tests: https://softchris.github.io/pages/dotnet-moq.html#full-code
+
+
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Moq;
 using TradingTrainer.BLL;
@@ -6,6 +11,8 @@ using TradingTrainer.Controllers;
 using TradingTrainer.DAL;
 using TradingTrainer.Model;
 using Xunit;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 
 namespace TradingTrainerTest
@@ -28,10 +35,6 @@ namespace TradingTrainerTest
 
         }
 
-
-
-
-
         [Fact]
         public async Task GetFavoriteListAsync()
         {
@@ -46,7 +49,8 @@ namespace TradingTrainerTest
                 StockName = "facebook",
                 Symbol = "fbc",
                 Type = "Equity",
-                LastUpdated = timeNow
+                LastUpdated = timeNow,
+                StockCurrency = "USD"
             };
             stockfavorits.Add(curstockDetail);
 
@@ -66,8 +70,6 @@ namespace TradingTrainerTest
                 Currency = "USD"
             };
             List<Stocks> mockStocks = new List<Stocks>() { mockStock };
-           
-
             
             tradingRepo.Setup(s => s.GetFavoriteListAsync(1)).ReturnsAsync(mockStocks);
 
@@ -76,9 +78,13 @@ namespace TradingTrainerTest
             // act
 
             FavoriteList result = await tradingService.CreateFavoriteListAsync(1);
+            result.LastUpdated = timeNow;
+
+            string obj1 = JsonSerializer.Serialize(curentFavorite);
+            string obj2 = JsonSerializer.Serialize(result);
 
             // assert
-            Assert.Equal<FavoriteList>(curentFavorite,result);
+            Assert.Equal(obj1, obj2);
             
         }
 

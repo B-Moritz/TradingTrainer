@@ -239,24 +239,24 @@ namespace TradingTrainer.Controllers
             return Ok(await _tradingService.ResetProfileAsync(userId));
         }
 
-        public async Task<ActionResult> Login(string username, string pwd) {
+        public async Task<ActionResult> Login([FromBody]Credentials curCredentials) {
             try
             {
-                bool isAuthenticated = await _authenticationService.LoginAsync(username, pwd);
+                bool isAuthenticated = await _authenticationService.LoginAsync(curCredentials.Username, curCredentials.Password);
                 if (isAuthenticated)
                 {
-                    _logger.LogInformation($"The authentication was positive using username {username} and pwd {pwd}");
+                    _logger.LogInformation($"The authentication was positive using username {curCredentials.Username} and pwd {curCredentials.Password}");
                     HttpContext.Session.SetString(_LoginFlag, "true");
                     return Ok();
                 }
-                _logger.LogInformation($"The authentication was negative using username {username} and pwd {pwd}");
+                _logger.LogInformation($"The authentication was negative using username {curCredentials.Username} and pwd {curCredentials.Password}");
                 HttpContext.Session.SetString(_LoginFlag, "");
                 return Unauthorized();
             }
             catch (Exception ex)
             {
                 // An exception was caught while trying to authenitcate the user
-                _logger.LogInformation($"An exception was thrown while authenticating the user with username {username} and pwd {pwd}");
+                _logger.LogInformation($"An exception was thrown while authenticating the user with username {curCredentials.Username} and pwd {curCredentials.Password}");
                 HttpContext.Session.SetString(_LoginFlag, "");
                 return Unauthorized();
             }
