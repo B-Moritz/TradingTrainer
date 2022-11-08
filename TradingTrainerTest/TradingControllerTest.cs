@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using System.Text.Json;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Moq;
 using TradingTrainer.BLL;
@@ -62,8 +63,7 @@ namespace TradingTrainerTest
                 StockName = "facebook",
                 Symbol = "fbc",
                 Type = "Equity",
-                LastUpdated = timeNow,
-                Currency = "USD"
+                LastUpdated = timeNow
             };
             List<Stocks> mockStocks = new List<Stocks>() { mockStock };
            
@@ -76,9 +76,12 @@ namespace TradingTrainerTest
             // act
 
             FavoriteList result = await tradingService.CreateFavoriteListAsync(1);
+            result.LastUpdated = timeNow;
+            string jsonString1 = JsonSerializer.Serialize(curentFavorite);
+            string jsonString2 = JsonSerializer.Serialize(result);
 
             // assert
-            Assert.Equal<FavoriteList>(curentFavorite,result);
+            Assert.Equal(jsonString1,jsonString2);
             
         }
 

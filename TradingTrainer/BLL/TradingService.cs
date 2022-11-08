@@ -411,10 +411,6 @@ namespace TradingTrainer.BLL
         public async Task<FavoriteList> CreateFavoriteListAsync(int userId)
         {
 
-
-
- 
-
             // Input validation needs to be implemented
 
 
