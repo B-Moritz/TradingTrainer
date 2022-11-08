@@ -9,6 +9,7 @@ using AlphaVantageInterface;
 using AlphaVantageInterface.Models;
 using EcbCurrencyInterface;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging.Configuration;
 using TradingTrainer.BLL;
 using TradingTrainer.DAL;
 using TradingTrainer.Model;
@@ -35,10 +36,11 @@ namespace TradingTrainer.Controllers
         /**
          * This method defines the endpoint used to obtain a list of all stored SearchResult objects from the client.
          */
-        public async Task<List<Model.SearchResult>> GetAllSearchResultsFromDB()
+        public async Task<ActionResult> GetAllSearchResultsFromDB()
         {
             // Collecting all search result objects stored in the database
-            return await _tradingService.GetAllSearchResults();
+            List<Model.SearchResult> results = await _tradingService.GetAllSearchResults();
+                   return Ok(results);
         }
 
         /**
@@ -51,9 +53,26 @@ namespace TradingTrainer.Controllers
          *      (int) userId: The userId of a user, used to identify if a stock is in the watchlist or not.
          * Return: The method returns a SearchResult object
          */
-        public async Task<Model.SearchResult> GetUserSearchResult(string keyword, int userId) 
+        public async Task<ActionResult> GetUserSearchResult(string keyword, int userId) 
         {
-            return await _tradingService.CreateUserSearchResult(keyword, userId);
+            Model.SearchResult searchResult;
+            try
+            {
+                searchResult = await _tradingService.CreateUserSearchResult(keyword, userId);
+            }
+            catch (KeyNotFoundException userNotFoundEx)
+            {
+                // The user was not found
+                _logger.LogWarning("An exception has occured while trying to find the user. \n" +
+                    userNotFoundEx.Message);
+                return NotFound(userNotFoundEx.Message);
+            }
+            catch (Exception generalError)
+            {
+                _logger.LogError("An exception has occured while searching the stock.\n" + generalError.Message);
+                return StatusCode(StatusCodes.Status500InternalServerError, generalError.Message);
+            }
+            return Ok(searchResult);
         }
 
 
@@ -78,6 +97,8 @@ namespace TradingTrainer.Controllers
             catch (KeyNotFoundException userNotFoundEx)
             {
                 // The user was not found
+                _logger.LogWarning("An exception has occured while trying to find the user. \n" +
+                    userNotFoundEx.Message);
                 return NotFound(userNotFoundEx.Message);
             }
             catch (Exception generalError)
@@ -99,10 +120,28 @@ namespace TradingTrainer.Controllers
          *      (int) userId: The user that is connected to the favorite list.
          * Return: A FavoriteList object.
          */
-        public async Task<FavoriteList> GetFavoriteList(int userId)
+        public async Task<ActionResult> GetFavoriteList(int userId)
         {
-            // The favorite list is obtained from the repository
-            return await _tradingService.CreateFavoriteListAsync(userId);
+            FavoriteList outFavoriteList;
+            try
+            {
+                outFavoriteList = await _tradingService.CreateFavoriteListAsync(userId);
+            }
+            catch (InvalidOperationException userNotFound)
+            {
+                // The user was not found
+                _logger.LogWarning("An exception has occured while trying to find the user. \n" +
+                    userNotFound.Message);
+                return NotFound(userNotFound.Message);
+            }
+            catch (Exception generalError)
+            {
+                // An unexpected exception was thrown, log exception and respond with InternalServerError (500)
+                _logger.LogError("An exception has occured while creating the current favoriteList " +
+                    "(TradingService.CreateCurrentPortfolio):\n" + generalError.Message);
+                return StatusCode(StatusCodes.Status500InternalServerError, generalError.Message);
+            }
+            return Ok(outFavoriteList);
         }
 
         /**
@@ -113,9 +152,24 @@ namespace TradingTrainer.Controllers
          *      (string) symbol: The stock id for identifying the stock to remove from the favorite list
          * Return: An updated FavoriteList object.
          */
-        public async Task<FavoriteList> DeleteFromFavoriteList(int userId, string symbol)
+        public async Task<ActionResult> DeleteFromFavoriteList(int userId, string symbol)
         {
-            return await _tradingService.DeleteFromFavoriteListAsync(userId, symbol);
+            FavoriteList deleteFromFavoriteList;
+            try
+            {
+                deleteFromFavoriteList = await _tradingService.DeleteFromFavoriteListAsync(userId, symbol);
+            }
+            catch (InvalidOperationException userOrStockNotFound)
+            {
+                _logger.LogWarning("User or stock not found in database.\n" + userOrStockNotFound.Message);
+                return NotFound(userOrStockNotFound.Message);
+            }
+            catch(Exception generalError)
+            {
+                _logger.LogWarning("There was en error while trying to delete from favoriteList" + generalError.Message);
+                return StatusCode(StatusCodes.Status500InternalServerError, generalError.Message);
+            }
+            return Ok(deleteFromFavoriteList);
         }
 
         /**
@@ -125,10 +179,26 @@ namespace TradingTrainer.Controllers
          *      (string) symbol: The stock id for identifying the stock to remove from the favorite list
          * Return: An updated FavoriteList object.
          */
-        public async Task<FavoriteList> AddToFavoriteList(int userId, string symbol)
+        public async Task<ActionResult> AddToFavoriteList(int userId, string symbol)
         {
+            FavoriteList addFavoriteList;
             // Adding the stock to the favorite list in the database
-            return await _tradingService.AddToFavoriteListAsync(userId, symbol);
+            try
+            {
+                 addFavoriteList = await _tradingService.AddToFavoriteListAsync(userId, symbol);
+            }
+            catch (InvalidOperationException userOrStockNotFound)
+            {
+                _logger.LogWarning("User or stock not found in database.\n" + userOrStockNotFound.Message);
+                return NotFound(userOrStockNotFound.Message);
+            }
+            catch (Exception e)
+            {
+                _logger.LogWarning("There was en error while trying to add to favoriteList" + e.Message);
+                return StatusCode(StatusCodes.Status500InternalServerError, e.Message);
+            }
+            return Ok(addFavoriteList);
+            // invalid
         }
 
         /**
@@ -166,7 +236,29 @@ namespace TradingTrainer.Controllers
          * Return: The StockQuote object matching the provided stock symbol.
          */
         public async Task<ActionResult> GetStockQuote(string symbol) {
-            return Ok(await _tradingService.GetStockQuoteAsync(symbol));
+            Model.StockQuote quotes;
+            try
+            {
+                quotes = await _tradingService.GetStockQuoteAsync(symbol);
+            }
+            //
+            //
+            // håndtere catch av BuildAlphaVantageConnectionAsync ?????????????????????????????????????????
+            //
+            //
+            catch (KeyNotFoundException stockNotFoundEx)
+            {
+                // The user was not found
+                _logger.LogWarning("An exception has occured while trying to find the stock. \n" +
+                    stockNotFoundEx.Message);
+                return NotFound(stockNotFoundEx.Message);
+            }
+            catch (Exception generalError)
+            {
+                _logger.LogError("An exception has occured while searching the stock.\n" + generalError.Message);
+                return StatusCode(StatusCodes.Status500InternalServerError, generalError.Message);
+            }
+            return Ok(quotes);
         }
 
         /**
@@ -177,8 +269,25 @@ namespace TradingTrainer.Controllers
          */
         public async Task<ActionResult> GetAllTrades(int userId)
         {
+            List<Trade> tradeList;
+            try
+            {
+                tradeList = await _tradingService.GetAllTradesAsync(userId);
+            }
+            catch (KeyNotFoundException userNotFoundEx)
+            {
+                // The user was not found
+                _logger.LogWarning("An exception has occured while trying to find the user. \n" +
+                    userNotFoundEx.Message);
+                return NotFound(userNotFoundEx.Message);
+            }
+            catch (Exception generalError)
+            {
+                _logger.LogError("An exception has occured while getting all trades.\n" + generalError.Message);
+                return StatusCode(StatusCodes.Status500InternalServerError, generalError.Message);
+            }
             // Get all the trades related to the provided userId
-            return Ok(await _tradingService.GetAllTradesAsync(userId));
+            return Ok(tradeList);
         }
 
         /**

@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using TradingSchemaSp;
 using TradingTrainer.DAL;
+using Microsoft.Extensions.Logging;
 
 var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
@@ -12,7 +13,9 @@ builder.Services.AddScoped<ISearchResultRepositry, SearchResultRepositry>();
 builder.Services.AddHostedService<TradingSchemaWorker>();
 
 var app = builder.Build();
-
+// Adding logging capabilities
+ILoggerFactory loggerFactory = app.Services.GetRequiredService<ILoggerFactory>();
+loggerFactory.AddFile("Logs/TradingLog.txt");
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
