@@ -22,15 +22,19 @@ namespace TradingTrainer.Controllers
     {
         private readonly ILogger<TradingController> _logger;
         private readonly ITradingService _tradingService;
-        private readonly IConfiguration _config; 
+        private readonly IAuthenticationService _authenticationService;
+        private readonly IConfiguration _config;
+        private readonly string _LoginFlag = "_Login";
 
         public TradingController(IConfiguration config,
                                  ITradingService tradingService,
-                                 ILogger<TradingController> logger)
+                                 ILogger<TradingController> logger,
+                                 IAuthenticationService auth)
         {
             _config = config;
             _tradingService = tradingService;
             _logger = logger;
+            _authenticationService = auth;
         }
 
         /**
@@ -74,8 +78,6 @@ namespace TradingTrainer.Controllers
             }
             return Ok(searchResult);
         }
-
-
 
 
         /**
@@ -344,7 +346,30 @@ namespace TradingTrainer.Controllers
          */
         public async Task<ActionResult> ResetProfile(int userId) {
             return Ok(await _tradingService.ResetProfileAsync(userId));
-        } 
+        }
+
+        public async Task<ActionResult> Login(string username, string pwd) {
+            try
+            {
+                bool isAuthenticated = await _authenticationService.LoginAsync(username, pwd);
+                if (isAuthenticated)
+                {
+                    _logger.LogInformation($"The authentication was positive using username {username} and pwd {pwd}");
+                    HttpContext.Session.SetString(_LoginFlag, "true");
+                    return Ok();
+                }
+                _logger.LogInformation($"The authentication was negative using username {username} and pwd {pwd}");
+                HttpContext.Session.SetString(_LoginFlag, "");
+                return Unauthorized();
+            }
+            catch (Exception ex)
+            {
+                // An exception was caught while trying to authenitcate the user
+                _logger.LogInformation($"An exception was thrown while authenticating the user with username {username} and pwd {pwd}");
+                HttpContext.Session.SetString(_LoginFlag, "");
+                return Unauthorized();
+            }
+        }
 
     }
 }

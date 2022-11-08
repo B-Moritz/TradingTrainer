@@ -1,47 +1,88 @@
-﻿using Moq;
+﻿using System.Text.Json;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+using Moq;
+using TradingTrainer.BLL;
 using TradingTrainer.Controllers;
 using TradingTrainer.DAL;
 using TradingTrainer.Model;
 using Xunit;
 
+
 namespace TradingTrainerTest
 {
     public class TradingControllerTest
     {
+        private TradingService tradingService;
+        private Mock<ILogger<TradingService>> logger;
+        private Mock<ISearchResultRepositry> serchRepo;
+        private Mock<IConfiguration> config;
+        private Mock<ITradingRepository> tradingRepo;
+
+
+        public TradingControllerTest()
+        {
+            logger = new Mock<ILogger<TradingService>>();
+            serchRepo = new Mock<ISearchResultRepositry>();
+            config = new Mock<IConfiguration>();
+            tradingRepo = new Mock<ITradingRepository>();
+
+        }
+
+
+
+
+
         [Fact]
         public async Task GetFavoriteListAsync()
         {
-            /**
-            // arange 
+
+            // arange
+            DateTime timeNow = DateTime.Now;
+
             List<StockBase>? stockfavorits = new List<StockBase>();
             StockBase curstockDetail;
-            foreach(var currstock in stockfavorits)
+            curstockDetail = new StockBase
             {
-                curstockDetail = new StockBase
-                {
-                    StockName = currstock.StockName,
-                    Symbol = currstock.Symbol,
-                    Type = currstock.Type,
-                    LastUpdated = currstock.LastUpdated
-                };
-                stockfavorits.Add(curstockDetail);
-            }
+                StockName = "facebook",
+                Symbol = "fbc",
+                Type = "Equity",
+                LastUpdated = timeNow
+            };
+            stockfavorits.Add(curstockDetail);
+
+
             var curentFavorite = new FavoriteList
             {
-                LastUpdated = DateTime.Now,
+                LastUpdated = timeNow,
                 StockList = stockfavorits
             };
 
-            var mock = new Mock<ITradingRepository>();
-            mock.Setup(s => s.GetFavoriteList()).ReturnsAsync(curentFavorite);
-            var tradingController = await new TradingController(mock.Object);
+            var mockStock = new Stocks
+            {
+                StockName = "facebook",
+                Symbol = "fbc",
+                Type = "Equity",
+                LastUpdated = timeNow
+            };
+            List<Stocks> mockStocks = new List<Stocks>() { mockStock };
+           
+
+            
+            tradingRepo.Setup(s => s.GetFavoriteListAsync(1)).ReturnsAsync(mockStocks);
+
+            var tradingService = new TradingService(tradingRepo.Object,logger.Object, serchRepo.Object,config.Object);
 
             // act
-            List<FavoriteList> result = await tradingController.GetFavoriteList();
+
+            FavoriteList result = await tradingService.CreateFavoriteListAsync(1);
+            result.LastUpdated = timeNow;
+            string jsonString1 = JsonSerializer.Serialize(curentFavorite);
+            string jsonString2 = JsonSerializer.Serialize(result);
 
             // assert
-            Assert.Equal<List<FavoriteList>>(curentFavorite,result);
-            */
+            Assert.Equal(jsonString1,jsonString2);
+            
         }
 
 

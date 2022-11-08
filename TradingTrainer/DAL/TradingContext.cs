@@ -74,7 +74,9 @@ namespace TradingTrainer.DAL
                     FirstName = "Dev",
                     LastName = "User",
                     Email = "DevUser@test.com",
-                    Password = "testpwd",
+                    Password = Convert.FromBase64String("FBqAM9fp5mfCjyAjW0ukPtSv7YTIm0lwg02ulO8pKaw="),
+                    Salt = Convert.FromBase64String("x2FRQXYkGrIZ0vqUeY103YG2Nnswwp0h"),
+                    AlphaVantageApiKey = _configuration["AlphaVantageApi:ApiKey"],
                     FundsAvailable = 1000000M,
                     FundsSpent = 0,
                     PortfolioCurrency = "NOK"
@@ -152,7 +154,9 @@ namespace TradingTrainer.DAL
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public string Email { get; set; }
-        public string Password { get; set; }
+        public byte[] Password { get; set; }
+        public byte[] Salt { get; set; }
+        public string AlphaVantageApiKey { get; set; }
         public decimal FundsAvailable { get; set; }
         public decimal FundsSpent { get; set; }
 
