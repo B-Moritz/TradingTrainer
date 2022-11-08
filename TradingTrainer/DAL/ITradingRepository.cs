@@ -19,8 +19,10 @@ namespace TradingTrainer.DAL
         Task DeleteFromFavoriteListAsync(int userId, string symbol);
         // User
         Task<Users?> GetUsersAsync(int userId);
+        Task<Users?> GetUsersAsync(string username);
         Task UpdateUserAsync(User curUser);
         Task<Users> ResetProfileAsync(int userId);
+
         //Trade history
         Task ClearAllTradeHistoryAsync(int userId);
         Task CleanTradingSchemaAsync();

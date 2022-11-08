@@ -100,6 +100,18 @@ namespace TradingTrainer.DAL
         }
 
         /**
+         * This method retreives the Users entity matching the username (email address) provided as argument.
+         * Parameters:
+         *      (int) userId: The userId of wanted Users entity
+         * Return: The Users object with the matching email address. 
+         *         Null is returned if the user was not found in the database.
+         */
+        public async Task<Users?> GetUsersAsync(string username) {
+            // Get the user based on the email address registered on the user
+            return await _db.Users.FirstOrDefaultAsync(u => u.Email == username);
+        }
+
+        /**
          * This metode will obtain favorites for the user that matches the userId.
          * Parameters: 
          *      (int) userId: The user to find the favorite list for.
