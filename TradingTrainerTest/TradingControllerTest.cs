@@ -1,7 +1,4 @@
-<<<<<<< HEAD
 
-=======
->>>>>>> a70f3a6db15f3eb2809b7bd86565d6e3ea0108c3
 // Resource used to create the unit tests: https://softchris.github.io/pages/dotnet-moq.html#full-code
 
 using Microsoft.Extensions.Configuration;
