@@ -28,7 +28,6 @@ var app = builder.Build();
 ILoggerFactory loggerFactory = app.Services.GetRequiredService<ILoggerFactory>();
 loggerFactory.AddFile("Logs/TradingLog.txt");
 
-
 //app.UseAuthorization();
 app.UseStaticFiles();
 app.MapControllers();

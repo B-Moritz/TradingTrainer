@@ -13,7 +13,7 @@ class LandingComponent extends Component {
                 </article>
                 <nav className="landingNavigation">
                     <Link className="btn btn-lg btn-outline-primary" to="/login">Login</Link>
-                    <Link className="btn btn-lg btn-outline-primary" to="/register">Register</Link>
+                    <Link className="btn btn-lg btn-outline-primary" to="/registerForm">Register</Link>
                 </nav>
 
             </div>

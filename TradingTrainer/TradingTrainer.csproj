@@ -45,6 +45,7 @@
     <None Remove="ClientApp\src\index.tsx" />
     <None Remove="ClientApp\src\Main.tsx" />
     <None Remove="ClientApp\src\PrimaryContainer.tsx" />
+    <None Remove="ClientApp\src\RegisterForm.tsx" />
     <None Remove="ClientApp\src\TradingComponents\TradingDashboard.tsx" />
   </ItemGroup>
 
@@ -58,6 +59,7 @@
     <TypeScriptCompile Include="ClientApp\src\index.tsx" />
     <TypeScriptCompile Include="ClientApp\src\Main.tsx" />
     <TypeScriptCompile Include="ClientApp\src\PrimaryContainer.tsx" />
+    <TypeScriptCompile Include="ClientApp\src\RegisterForm.tsx" />
     <TypeScriptCompile Include="ClientApp\src\TradingComponents\TradingDashboard.tsx" />
   </ItemGroup>
 
