@@ -14,7 +14,7 @@ namespace TradingTrainer.BLL
             _tradingRepo = tradingRepo;
         }
 
-        public async Task<bool> LoginAsync(string username, string pwd) {
+        public async Task<bool> LogInAsync(string username, string pwd) {
             // Get the user from the database
             Users? curUser = await _tradingRepo.GetUsersAsync(username);
 

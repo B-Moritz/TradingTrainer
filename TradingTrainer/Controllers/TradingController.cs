@@ -23,7 +23,7 @@ namespace TradingTrainer.Controllers
         private readonly ITradingService _tradingService;
         private readonly IAuthenticationService _authenticationService;
         private readonly IConfiguration _config;
-        private readonly string _LoginFlag = "_Login";
+        private readonly string _loginFlag = "_Login";
 
         public TradingController(IConfiguration config,
                                  ITradingService tradingService,
@@ -239,28 +239,38 @@ namespace TradingTrainer.Controllers
             return Ok(await _tradingService.ResetProfileAsync(userId));
         }
 
-        public async Task<ActionResult> Login([FromBody]Credentials curCredentials) {
+        public async Task<ActionResult> LogIn([FromBody]Credentials curCredentials) {
             try
             {
-                bool isAuthenticated = await _authenticationService.LoginAsync(curCredentials.Username, curCredentials.Password);
+                bool isAuthenticated = await _authenticationService.LogInAsync(curCredentials.Username, curCredentials.Password);
                 if (isAuthenticated)
                 {
                     _logger.LogInformation($"The authentication was positive using username {curCredentials.Username} and pwd {curCredentials.Password}");
-                    HttpContext.Session.SetString(_LoginFlag, "true");
+                    HttpContext.Session.SetString(_loginFlag, "true");
                     return Ok();
                 }
                 _logger.LogInformation($"The authentication was negative using username {curCredentials.Username} and pwd {curCredentials.Password}");
-                HttpContext.Session.SetString(_LoginFlag, "");
+                HttpContext.Session.SetString(_loginFlag, "");
                 return Unauthorized();
             }
             catch (Exception ex)
             {
                 // An exception was caught while trying to authenitcate the user
                 _logger.LogInformation($"An exception was thrown while authenticating the user with username {curCredentials.Username} and pwd {curCredentials.Password}");
-                HttpContext.Session.SetString(_LoginFlag, "");
+                HttpContext.Session.SetString(_loginFlag, "");
                 return Unauthorized();
             }
         }
 
+        public ActionResult LogOut() {
+            HttpContext.Session.SetString(_loginFlag, "");
+            return Ok("true");
+        }
+
+
+        public ActionResult SessionIsActive() {
+            bool isActive = HttpContext.Session.GetString(_loginFlag) == "true";
+            return Ok(isActive); 
+        }
     }
 }
