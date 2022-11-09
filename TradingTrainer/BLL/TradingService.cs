@@ -623,8 +623,8 @@ namespace TradingTrainer.BLL
                 FirstName = curUser.FirstName,
                 LastName = curUser.LastName,
                 Email = curUser.Email,
-                FundsSpent = string.Format("{0:N} {1}", curUser.FundsSpent, curUser.PortfolioCurrency),
-                FundsAvailable = string.Format("{0:N} {1}", curUser.FundsAvailable, curUser.PortfolioCurrency),
+                FundsSpent = FormatMonetaryValue(curUser.FundsSpent, curUser.PortfolioCurrency),
+                FundsAvailable = FormatMonetaryValue(curUser.FundsAvailable, curUser.PortfolioCurrency),
                 Currency = curUser.PortfolioCurrency
             };
             return convertedUser;

@@ -5,29 +5,34 @@ type LoginProps = {}
 
 function LoginForm(props:LoginProps) : JSX.Element {
 
-    const [usernameInput, setUsernameInput] = useState("");
-    const [pwdInput, setPwdInput] = useState("");
+    const [usernameInput, setUsernameInput] = useState(true);
+    const [pwdInput, setPwdInput] = useState(true);
     const [usr, setUsr] = useState("");
     const [pwd, setPwd] = useState("");
     const [isWaiting, setIsWaiting] = useState(false);
     const [authFailed, setAuthFailed] = useState(false);
+    const [firstRender, setFirstRender] = useState(true);
 
     const navigate = useNavigate();
     
     const validateUsername = (e : React.FormEvent<HTMLInputElement>) : void => {
+        if (firstRender) {
+            setFirstRender(false);
+        }
          const unamePattern : RegExp = /^[a-zA-Z\#\!\%\$\‘\&\+\*\–\/\=\?\^\_\`\.\{\|\}\~]+@[a-zA-Z0-9\-\.]{1,63}$/;
          const username : string = e.currentTarget.value;
          if (unamePattern.test(username)) {
             // The username is valid
             //console.log("The provided username was valid.");
-            setUsernameInput("is-valid");
+            setUsernameInput(true);
             setUsr(username);
 
             return;
          }
          // The user name is not valid
          //console.log("The provided username was not valid.");
-         setUsernameInput("is-valid");
+         setUsernameInput(false);
+         setUsr(username);
     }
 
     const validatePwd = (e : React.FormEvent<HTMLInputElement>) : void => {
@@ -46,8 +51,8 @@ function LoginForm(props:LoginProps) : JSX.Element {
 
     const resetLogin = () : void => {
 
-        setUsernameInput("");
-        setPwdInput("");
+        setUsernameInput(true);
+        setPwdInput(true);
         setUsr("");
         setPwd("");
     }
@@ -100,18 +105,19 @@ function LoginForm(props:LoginProps) : JSX.Element {
         });
     }
 
+
     return (
         <>
             <div className={(isWaiting ? "d-none" : "d-block")}>
                 <h2>Log In to your Trading Trainer account</h2>
                 <form>
                     <div className="form-floating mb-3 mt-3">
-                        <input id="usernameInput" value={usr} onChange={validateUsername} className={"form-control" + " " + usernameInput} type="text" placeholder="Enter Username" />
+                        <input id="usernameInput" value={usr} onChange={validateUsername} className={"form-control" + " " + (firstRender ? "" : (usernameInput ? "is-valid" : "is-invalid"))} type="text" placeholder="Enter Username" />
                         <label htmlFor="usernameInput">Username</label>
                         <div>
                             <p className={
                                 "text-danger" + " " + 
-                                (usernameInput === "is-invalid" ? "d-block" : "d-none")}
+                                (usernameInput ? "d-none" : "d-block")}
                                 >The username is invalid.</p>
                         </div>
                     </div>
@@ -127,7 +133,7 @@ function LoginForm(props:LoginProps) : JSX.Element {
                 </form>
                 <nav className="landingNavigation">
                     <Link className="btn btn-lg btn-outline-secondary" to="/">Cancel login</Link>
-                    <button className="btn btn-lg btn-outline-primary" onClick={initiateLogin}>Login</button>
+                    <button className={"btn btn-lg btn-outline-primary" + (usernameInput && pwdInput ? "" : "disabled")} onClick={(usernameInput && pwdInput ? initiateLogin : () => {})}>Login</button>
                 </nav>
             </div>
             <div className={"WaitingContainer " + (isWaiting ? "d-block" : "d-none")}>

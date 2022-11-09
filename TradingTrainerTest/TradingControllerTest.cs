@@ -1,12 +1,5 @@
-<<<<<<< HEAD
-﻿
-
 // Resource used to create the unit tests: https://softchris.github.io/pages/dotnet-moq.html#full-code
 
-
-=======
-﻿using System.Text.Json;
->>>>>>> 85608611b0667b10d062f44a61bf0d54faca970d
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -39,11 +32,6 @@ namespace TradingTrainerTest
 
         }
 
-<<<<<<< HEAD
-=======
-
-
->>>>>>> 85608611b0667b10d062f44a61bf0d54faca970d
         [Fact]
         public async Task GetFavoriteListAsync()
         {
