@@ -5,6 +5,7 @@ import LandingComponent from './LandingComponent';
 import PrimaryContainer from './PrimaryContainer';
 import ErrorComponent from './ErrorComponent';
 import TradingDashboard from './TradingComponents/TradingDashboard';
+import RegisterForm from './RegisterForm';
 
 
 class Main extends Component {
@@ -20,16 +21,23 @@ class Main extends Component {
                     element: <LandingComponent />
                 },
                 {
-                    path: "/Login",
+                    path: "/login",
                     element: <LoginForm />,
+                },
+                {
+
+                    path: "/registerForm",
+                    element: <RegisterForm />
                 }
+
             ]
         },
         {
-            path: "/TradingDashboard",
+            path: "/tradingDashboard",
             element: <TradingDashboard />,
 
-        }
+        },
+       
 
         
     ]);
