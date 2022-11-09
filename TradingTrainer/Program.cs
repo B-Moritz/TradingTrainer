@@ -24,6 +24,9 @@ builder.Services.AddDistributedMemoryCache();
 builder.Services.AddHostedService<TradingSchemaWorker>();
 
 var app = builder.Build();
+// Adding logging capabilities
+ILoggerFactory loggerFactory = app.Services.GetRequiredService<ILoggerFactory>();
+loggerFactory.AddFile("Logs/TradingLog.txt");
 
 
 // Adding logging capabilities
