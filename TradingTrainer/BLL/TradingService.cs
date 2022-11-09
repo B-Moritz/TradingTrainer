@@ -619,6 +619,7 @@ namespace TradingTrainer.BLL
             Users curUser =  await _tradingRepo.GetUsersAsync(userId);
             User convertedUser = new User
             {
+
                 Id = curUser.UsersId,
                 FirstName = curUser.FirstName,
                 LastName = curUser.LastName,
