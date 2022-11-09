@@ -10,6 +10,7 @@ import RegisterForm from './RegisterForm';
 
 class Main extends Component {
 
+    // The routing feature is created with information from https://reactrouter.com/en/main/start/tutorial#adding-a-router
     private router = createBrowserRouter([
         {
             path: "/",

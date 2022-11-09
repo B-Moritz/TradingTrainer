@@ -368,10 +368,11 @@ namespace TradingTrainer.BLL
                 return new Model.SearchResult();
             }
             // Obtaining the Users object (entity)             
-            Users curUser = await _tradingRepo.GetUsersAsync(userId);
+            Users? curUser = await _tradingRepo.GetUsersAsync(userId);
             if (curUser is null)
             {
-                throw new ArgumentException("The specified user was not recognized");
+                _logger.LogInformation($"User {userId} was not found in the database");
+                throw new KeyNotFoundException("The specified user was not recognized");
             }
             // Obtaining the watchlist of the user, adding an empty list if the favorites property is null
             List<Stocks> favoriteStockList = (curUser.Favorites is null ? new List<Stocks>() : curUser.Favorites);
@@ -428,7 +429,8 @@ namespace TradingTrainer.BLL
                     StockName = currentStock.StockName,
                     Symbol = currentStock.Symbol,
                     Type = currentStock.Type,
-                    LastUpdated = currentStock.LastUpdated
+                    LastUpdated = currentStock.LastUpdated,
+                    StockCurrency = currentStock.Currency
                 };
                 stockFavorite.Add(currentStockDetail);
             }
@@ -577,7 +579,7 @@ namespace TradingTrainer.BLL
         public async Task<List<Trade>> GetAllTradesAsync(int userId)
         {
             // Get the user entity from server
-            Users curUser = await _tradingRepo.GetUsersAsync(userId);
+            Users? curUser = await _tradingRepo.GetUsersAsync(userId);
             // Getting the trades list containing the Trade records
             List<Trades> curTrades = curUser.Trades;
             // Definition of the new transaction list containing Trade objects
