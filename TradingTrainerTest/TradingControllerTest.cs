@@ -31,8 +31,6 @@ namespace TradingTrainerTest
 
 
 
-
-
         [Fact]
         public async Task GetFavoriteListAsync()
         {
@@ -51,7 +49,6 @@ namespace TradingTrainerTest
             };
             stockfavorits.Add(curstockDetail);
 
-
             var curentFavorite = new FavoriteList
             {
                 LastUpdated = timeNow,
@@ -67,22 +64,120 @@ namespace TradingTrainerTest
             };
             List<Stocks> mockStocks = new List<Stocks>() { mockStock };
            
-
-            
             tradingRepo.Setup(s => s.GetFavoriteListAsync(1)).ReturnsAsync(mockStocks);
-
             var tradingService = new TradingService(tradingRepo.Object,logger.Object, serchRepo.Object,config.Object);
 
             // act
-
             FavoriteList result = await tradingService.CreateFavoriteListAsync(1);
             result.LastUpdated = timeNow;
-            string jsonString1 = JsonSerializer.Serialize(curentFavorite);
-            string jsonString2 = JsonSerializer.Serialize(result);
+            string obj1 = JsonSerializer.Serialize(curentFavorite);
+            string obj2 = JsonSerializer.Serialize(result);
 
             // assert
-            Assert.Equal(jsonString1,jsonString2);
+            Assert.Equal(obj1,obj2);
             
+        }
+
+        // den er ikke nødvendig å teste nå kanskje om den er interesant kan tas det senere
+        [Fact]
+        public async Task DeleteFromFavoriteListAsync()
+        {
+            //arrange
+            DateTime timeNow = DateTime.Now;
+
+            List<StockBase>? stockfavorits = new List<StockBase>();
+            StockBase curstockDetail;
+            curstockDetail = new StockBase
+            {
+                StockName = "facebook",
+                Symbol = "fbc",
+                Type = "Equity",
+                LastUpdated = timeNow
+            };
+            stockfavorits.Add(curstockDetail);
+
+            var curentFavorite = new FavoriteList
+            {
+                LastUpdated = timeNow,
+                StockList = stockfavorits
+            };
+
+            var mockStock = new Stocks
+            {
+                StockName = "facebook",
+                Symbol = "fbc",
+                Type = "Equity",
+                LastUpdated = timeNow
+            };
+            List<Stocks> mockStocks = new List<Stocks>() { mockStock };
+
+            tradingRepo.Setup(s => s.GetFavoriteListAsync(1)).ReturnsAsync(mockStocks);
+
+            //tradingRepo.Setup(d => d.DeleteFromFavoriteListAsync(1, "fbc")).
+            var tradingService = new TradingService(tradingRepo.Object, logger.Object, serchRepo.Object, config.Object);
+
+            //act
+            FavoriteList remove = await tradingService.DeleteFromFavoriteListAsync(1, "fbc");
+            remove.LastUpdated = timeNow;
+            string obj = JsonSerializer.Serialize(remove);
+
+            // assert
+           // Assert.Equal(obj);
+
+        }
+
+        [Fact]
+        public async Task GetUserAsync()
+        {
+            // arrange
+            var userMock = new Users
+            {
+                FirstName = "Albert",
+                LastName = "Jhone",
+                Email = "test@gmail.com",
+                UsersId = 1,
+                FundsAvailable = 1000000M,
+                FundsSpent = 0,
+                PortfolioCurrency = "NOK"
+
+            };
+            User expectedResultUser = new User
+            {
+                Id = 1,
+                FirstName = "Albert",
+                LastName = "Jhone",
+                Email = "test@gmail.com",
+                FundsAvailable = "1000000",
+                FundsSpent = "0",
+                Currency = "NOK",
+            };
+
+
+            tradingRepo.Setup(g => g.GetUsersAsync(1)).ReturnsAsync(userMock);
+            var tradingService = new TradingService(tradingRepo.Object,logger.Object,serchRepo.Object,config.Object);
+            //act
+            User getUser = await tradingService.GetUserAsync(1);
+            string obj1 = JsonSerializer.Serialize(expectedResultUser);
+            string obj2 = JsonSerializer.Serialize(getUser);
+
+            //assert
+            Assert.Equal(obj1,obj2);
+
+        }
+
+
+
+
+
+
+
+        [Fact]
+        public async Task GetUpdatedQuoteAsync()
+        {
+            // arrange
+
+
+
         }
 
 

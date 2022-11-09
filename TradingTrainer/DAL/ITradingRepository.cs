@@ -26,7 +26,7 @@ namespace TradingTrainer.DAL
         //Trade history
         Task ClearAllTradeHistoryAsync(int userId);
         Task CleanTradingSchemaAsync();
-
+       
     }
 
 }
