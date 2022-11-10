@@ -328,8 +328,9 @@ namespace TradingTrainer.Controllers
         /**
          * 
          */
-        public async Task CreateUser(int userId) {
-            throw new NotImplementedException();
+        public async Task<bool> CreateUser(User user) {
+
+            return await _tradingService.CreateUser(user);
         }
 
         public async Task DeleteUser(int userId) {

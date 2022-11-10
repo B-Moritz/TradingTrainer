@@ -11,6 +11,9 @@ using AlphaVantageInterface.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Text.RegularExpressions;
 using Microsoft.EntityFrameworkCore;
+using System.Text;
+using System.Security.Cryptography;
+using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 
 namespace TradingTrainer.BLL
 {
@@ -656,5 +659,71 @@ namespace TradingTrainer.BLL
             return convertedUser;
         }
 
+
+        public async Task<bool> CreateUser(User user)
+        {
+            try
+            {
+                //var bytOfString = Tobyte(user.Password).Result;
+                var salt = SaltGenerator().Result;
+
+                var byteString = PasswordHash(user.Password, salt).Result;
+
+
+                var convertedFund = Decimal.Parse(user.FundsAvailable);
+                var convertedFundSpent = Decimal.Parse(user.FundsSpent);
+
+                Users convertedUser = new Users
+                {
+                    FirstName = user.FirstName,
+                    LastName = user.LastName,
+                    Email = user.Email,
+                    Password = byteString,
+                    Salt = salt,
+                    AlphaVantageApiKey = user.AlphaVantageApiKey,
+                    FundsAvailable = convertedFund,
+                    FundsSpent = convertedFundSpent,
+                    PortfolioCurrency = user.Currency,
+                    Favorites = null,
+                    Trades = null,
+                    Portfolio = null,
+
+                };
+                _tradingRepo.AddUser(convertedUser);
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        private async Task<byte[]> Tobyte(string password)
+        {
+            byte[] converted = Encoding.ASCII.GetBytes(password);
+            return converted;
+        }
+
+
+        private async Task<byte[]> PasswordHash(string stringPassword, byte[] toSalt)
+        {
+            var salt = SaltGenerator().Result;
+            byte[] hashed = KeyDerivation.Pbkdf2(
+                password: stringPassword!,
+                salt: toSalt,
+                prf: KeyDerivationPrf.HMACSHA256,
+                iterationCount: 100000,
+                numBytesRequested: 256 / 8
+            );
+
+            return hashed;
+        }
+        private async Task<byte[]> SaltGenerator()
+        {
+            byte[] salt = RandomNumberGenerator.GetBytes(128/8);
+            return salt;
+        }
+
+       
     }
 }

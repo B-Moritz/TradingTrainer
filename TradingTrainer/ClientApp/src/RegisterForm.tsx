@@ -7,6 +7,9 @@ import {Typography } from '@mui/material';
 
 class RegisterForm extends Component {
 
+   
+   
+
     render(): ReactNode {
         return (
             <Box

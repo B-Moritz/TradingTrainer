@@ -30,6 +30,6 @@ namespace TradingTrainer.BLL
         Task<User> GetUserAsync(int userId);
         Task<User> UpdateUserAsync(User curUser);
         Task<User> ResetProfileAsync(int userId);
-
+        Task<bool> CreateUser(User user);
     }
 }

@@ -160,7 +160,7 @@ namespace TradingTrainer.DAL
         public decimal FundsAvailable { get; set; }
         public decimal FundsSpent { get; set; }
 
-        public string PortfolioCurrency { get; set; }
+        public string PortfolioCurrency { get; set; }   
         // Navigation properties
 
         // List containing favorite stocks
