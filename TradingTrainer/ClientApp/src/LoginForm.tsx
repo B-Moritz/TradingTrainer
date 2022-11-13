@@ -105,6 +105,11 @@ function LoginForm(props:LoginProps) : JSX.Element {
         });
     }
 
+    const submit = (event : React.KeyboardEvent) : any => {
+        if (event.key === "Enter") {
+            initiateLogin();
+        }
+    }
 
     return (
         <>
@@ -112,7 +117,12 @@ function LoginForm(props:LoginProps) : JSX.Element {
                 <h2>Log In to your Trading Trainer account</h2>
                 <form>
                     <div className="form-floating mb-3 mt-3">
-                        <input id="usernameInput" value={usr} onChange={validateUsername} className={"form-control" + " " + (firstRender ? "" : (usernameInput ? "is-valid" : "is-invalid"))} type="text" placeholder="Enter Username" />
+                        <input id="usernameInput" value={usr} 
+                               onChange={validateUsername} 
+                               className={"form-control" + " " + (firstRender ? "" : (usernameInput ? "is-valid" : "is-invalid"))} 
+                               type="text" placeholder="Enter Username" 
+                               onKeyDown={submit}
+                               />
                         <label htmlFor="usernameInput">Username</label>
                         <div>
                             <p className={
@@ -122,7 +132,13 @@ function LoginForm(props:LoginProps) : JSX.Element {
                         </div>
                     </div>
                     <div className="form-floating mb-3 mt-3">
-                        <input id="PasswordInput" value={pwd} onChange={validatePwd} className="form-control" type="password" placeholder="Enter Password" />
+                        <input id="PasswordInput" value={pwd} 
+                               onChange={validatePwd} 
+                               className="form-control" 
+                               type="password" 
+                               placeholder="Enter Password"
+                               onKeyDown={submit}
+                                />
                         <label htmlFor="PasswordInput">Password</label>
                         <div className="invalid-feedback"></div>
                     </div>
@@ -133,7 +149,10 @@ function LoginForm(props:LoginProps) : JSX.Element {
                 </form>
                 <nav className="landingNavigation">
                     <Link className="btn btn-lg btn-outline-secondary" to="/">Cancel login</Link>
-                    <button className={"btn btn-lg btn-outline-primary" + (usernameInput && pwdInput ? "" : "disabled")} onClick={(usernameInput && pwdInput ? initiateLogin : () => {})}>Login</button>
+                    <button 
+                        className={"btn btn-lg btn-outline-primary" + (usernameInput && pwdInput ? "" : "disabled")} 
+                        onClick={(usernameInput && pwdInput ? initiateLogin : () => {})}
+                        >Login</button>
                 </nav>
             </div>
             <div className={"WaitingContainer " + (isWaiting ? "d-block" : "d-none")}>
