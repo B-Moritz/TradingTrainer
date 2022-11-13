@@ -1,4 +1,6 @@
-﻿using TradingTrainer.Model;
+﻿using TradingTrainer.DAL;
+using TradingTrainer.Model;
+using TradingTrainer.BLL;
 
 namespace TradingTrainer.BLL
 {
@@ -30,6 +32,9 @@ namespace TradingTrainer.BLL
         Task<User> GetUserAsync(int userId);
         Task<User> UpdateUserAsync(User curUser);
         Task<User> ResetProfileAsync(int userId);
+
+
+        //StockQuotes CreateNewStockQuoteEntity(AlphaVantageInterface.Models.StockQuote stockQuote);
 
     }
 }
