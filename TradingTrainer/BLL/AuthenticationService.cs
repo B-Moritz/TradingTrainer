@@ -22,7 +22,6 @@ namespace TradingTrainer.BLL
                 // A user matching the provided username was not found in the database
                 throw new KeyNotFoundException("The provided user name was not found in the database!");
             }
-
             // Generate hash for the provided password
             byte[] pwdHash = IAuthenticationService.GetHash(pwd, curUser.Salt);
             if (pwdHash.SequenceEqual(curUser.Password))

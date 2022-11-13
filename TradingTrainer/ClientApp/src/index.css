@@ -1,14 +1,18 @@
-﻿* {
+﻿
+:root {
+    --main-color: #618298;
+}
+
+* {
     box-sizing: border-box;
 }
 
 body {
     font-family: Arial, Helvetica, sans-serif;
-    
 }
 
 #SiteContainer {
-    background-color: #618298;
+    background-color: var(--main-color);
     padding: 5rem 10rem 5rem;
 }
 
@@ -30,4 +34,83 @@ body {
 
 header {
     margin-bottom: 5rem;
+}
+
+
+/* ----------[ LoginForm ] ---------------------*/
+#LoginContainer {
+    padding: 3rem;
+}
+
+/* ----------[ WaitingDisplay ] ---------------------*/
+.waitingParent {
+    position: relative;
+}
+
+.waitingContainer {
+    background-color: rgba(212, 231, 244, 0.9);
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    padding: 4rem 0;
+    border-radius: 1rem 1rem 1rem 1rem;
+}
+
+.waitingContainer > p {
+    font-size: 2.5em;
+}
+
+/* ----------[ Trading dashboard ] ---------------------*/
+#TradingDashboardContainer {
+    background-color: var(--main-color);
+    padding: 1rem 5rem 1rem;
+}
+
+#StockListNavigation {
+    background-color: white;
+    border-radius: 0.5rem 0.5rem 0 0;
+    height: 4rem;
+    display: flex;
+}
+
+.navTab {
+    padding: 1rem;
+}
+
+.navTab:hover {
+    background-color:#0d6efd;
+    color: white;
+}
+
+#WatchlistTab {
+    border-radius: 0.5rem 0 0 0;
+    order: 1;
+}
+#PortfolioTab {
+    order: 2;
+}
+#HistoryTab {
+    border-radius: 0 0.5rem 0 0;
+    order: 3;
+}
+
+/* ----------[ StockList ] ---------------------*/
+.stockListContainer {
+    background-color: white;
+    padding: 2rem;
+    border-radius: 0 0 0.5rem 0.5rem;
+}
+
+.emptyTableDisp {
+    margin: auto;
+    padding: 2rem;
+    background-color:rgba(212, 231, 244, 0.9);
+    text-align: center;
+}
+
+.stockSelected {
+    background-color:rgba(212, 231, 244, 0.9);
 }

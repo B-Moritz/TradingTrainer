@@ -616,7 +616,23 @@ namespace TradingTrainer.BLL
         public async Task<User> GetUserAsync(int userId)
         {
             // Obtaining the user from the database
-            Users curUser =  await _tradingRepo.GetUsersAsync(userId);
+            Users? curUser =  await _tradingRepo.GetUsersAsync(userId);
+            return CreateUserObject(curUser);
+        }
+
+        public async Task<User> GetUserAsync(string username) 
+        {
+            // Obtaining the user from the database
+            Users? curUser = await _tradingRepo.GetUsersAsync(username);
+            if (curUser is null)
+            {
+                throw new KeyNotFoundException("The user was not found in the database");
+            }
+
+            return CreateUserObject(curUser);
+        }
+
+        private User CreateUserObject(Users curUser) {
             User convertedUser = new User
             {
 

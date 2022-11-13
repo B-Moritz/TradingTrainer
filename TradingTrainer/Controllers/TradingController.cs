@@ -315,6 +315,28 @@ namespace TradingTrainer.Controllers
             return Ok(await _tradingService.GetUserAsync(userId));
         }
 
+        public async Task<ActionResult> GetUsername()
+        {
+            try
+            {
+                if (HttpContext.Session.GetString(_loginFlag) != "true")
+                {
+                    return Unauthorized();
+                }
+                string curUsername = HttpContext.Session.GetString("username");
+                return Ok(_tradingService.GetUserAsync(curUsername));
+            }
+            catch (KeyNotFoundException userNotFount)
+            {
+                return NotFound(userNotFount.Message);
+            }
+            catch (Exception e)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, e.Message);
+            }
+
+        }
+
         /**
          * This method is used as an endpoint to update the information and settings for the given user
          * Parameter:
@@ -356,10 +378,12 @@ namespace TradingTrainer.Controllers
                 {
                     _logger.LogInformation($"The authentication was positive using username {curCredentials.Username} and pwd {curCredentials.Password}");
                     HttpContext.Session.SetString(_loginFlag, "true");
-                    return Ok();
+                    HttpContext.Session.SetString("username", curCredentials.Username);
+                    return Ok(_tradingService.GetUserAsync(curCredentials.Username));
                 }
                 _logger.LogInformation($"The authentication was negative using username {curCredentials.Username} and pwd {curCredentials.Password}");
                 HttpContext.Session.SetString(_loginFlag, "");
+                HttpContext.Session.SetString("username", "");
                 return Unauthorized();
             }
             catch (Exception ex)
@@ -367,6 +391,7 @@ namespace TradingTrainer.Controllers
                 // An exception was caught while trying to authenitcate the user
                 _logger.LogInformation($"An exception was thrown while authenticating the user with username {curCredentials.Username} and pwd {curCredentials.Password}");
                 HttpContext.Session.SetString(_loginFlag, "");
+                HttpContext.Session.SetString("username", "");
                 return Unauthorized();
             }
         }
@@ -374,12 +399,6 @@ namespace TradingTrainer.Controllers
         public ActionResult LogOut() {
             HttpContext.Session.SetString(_loginFlag, "");
             return Ok("true");
-        }
-
-
-        public ActionResult SessionIsActive() {
-            bool isActive = HttpContext.Session.GetString(_loginFlag) == "true";
-            return Ok(isActive); 
         }
     }
 }
