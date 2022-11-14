@@ -31,6 +31,7 @@ namespace TradingTrainer.BLL
 
         // User services
         Task<User> GetUserAsync(int userId);
+        Task<User> GetUserAsync(string username);
         Task<User> UpdateUserAsync(User curUser);
         Task<User> ResetProfileAsync(int userId);
         //Task<AlphaVantageInterface.Models.StockQuote> CreateNewStockQuoteEntity(AlphaVantageInterface.Models.StockQuote symbol);

@@ -1,17 +1,31 @@
-﻿import React, { Component, ReactNode } from 'react';
-import {RouterProvider, createBrowserRouter} from 'react-router-dom';
-import LoginForm from './LoginForm';
+﻿import React, { Component, useState } from 'react';
+import {RouterProvider, createBrowserRouter, useNavigate} from 'react-router-dom';
+import LoginForm, {User} from './LoginForm';
 import LandingComponent from './LandingComponent';
 import PrimaryContainer from './PrimaryContainer';
 import ErrorComponent from './ErrorComponent';
 import TradingDashboard from './TradingComponents/TradingDashboard';
 import RegisterForm from './RegisterForm';
+import userEvent from '@testing-library/user-event';
 
 
-class Main extends Component {
+type MainProps = {}
 
+
+function Main(props: MainProps) : JSX.Element {
+    const initialUser : User = {
+        id : 0,
+        firstName : "",
+        lastName : "",
+        email : "",
+        fundsAvailable : "",
+        fundsSpent : "",
+        currency : ""
+    };
+    const [authenticatedUser, setAuthenticatedUser] = useState(initialUser);
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
     // The routing feature is created with information from https://reactrouter.com/en/main/start/tutorial#adding-a-router
-    private router = createBrowserRouter([
+    const router = createBrowserRouter([
         {
             path: "/",
             element: <PrimaryContainer />,
@@ -19,33 +33,35 @@ class Main extends Component {
             children: [
                 {
                     path: "/",
-                    element: <LandingComponent />
+                    element: <LandingComponent />,
                 },
                 {
                     path: "/login",
-                    element: <LoginForm />,
+                    element: <LoginForm 
+                                SetUser={setAuthenticatedUser}
+                                SetIsAuthenticated={setIsAuthenticated}
+                            />,
                 },
                 {
-
                     path: "/registerForm",
-                    element: <RegisterForm />
+                    element: <RegisterForm />,
                 }
-
             ]
         },
         {
             path: "/tradingDashboard",
-            element: <TradingDashboard />,
-
+            element: <TradingDashboard 
+                        UserId={authenticatedUser.id}
+                        IsAuthenticated={isAuthenticated}   
+                        SetUser={setAuthenticatedUser}
+                        SetIsAuthenticated={setIsAuthenticated}
+                    />,
         },
-       
-
-        
     ]);
 
-    render() : ReactNode {
-        return(<RouterProvider router={this.router} />);
-    }
+    return(
+        <RouterProvider router={router} />
+    );
 }
 
 export default Main;

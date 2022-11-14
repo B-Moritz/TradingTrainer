@@ -1,7 +1,24 @@
-import React, { useState, ReactNode } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import WaitingDisplay from './WaitingDisplay';
 
-type LoginProps = {}
+
+type User = {
+    id? : number
+    firstName? : string
+    lastName? : string
+    email? : string
+    // The buying power of the user
+    fundsAvailable? : string
+    // The total amount of funds that have been invested by the user since the last reset.
+    fundsSpent? : string
+    currency? : string
+} 
+
+type LoginProps = {
+    SetUser : React.Dispatch<React.SetStateAction<User>>
+    SetIsAuthenticated : React.Dispatch<React.SetStateAction<boolean>>
+}
 
 function LoginForm(props:LoginProps) : JSX.Element {
 
@@ -9,52 +26,28 @@ function LoginForm(props:LoginProps) : JSX.Element {
     const [pwdInput, setPwdInput] = useState(true);
     const [usr, setUsr] = useState("");
     const [pwd, setPwd] = useState("");
-    const [isWaiting, setIsWaiting] = useState(false);
-    const [authFailed, setAuthFailed] = useState(false);
+    // Waiting to determine if the user already has an active session
+
     const [firstRender, setFirstRender] = useState(true);
-
+    const waitDelay = 1000;
     const navigate = useNavigate();
+    const [loginWaitingDisplay, setLoginWaitingDisplay] = useState(<WaitingDisplay WaitingText={"Checking for active sessions."}></WaitingDisplay>);
+    const [authFailed, setAuthFailed] = useState(false);
     
-    const validateUsername = (e : React.FormEvent<HTMLInputElement>) : void => {
-        if (firstRender) {
-            setFirstRender(false);
-        }
-         const unamePattern : RegExp = /^[a-zA-Z\#\!\%\$\‘\&\+\*\–\/\=\?\^\_\`\.\{\|\}\~]+@[a-zA-Z0-9\-\.]{1,63}$/;
-         const username : string = e.currentTarget.value;
-         if (unamePattern.test(username)) {
-            // The username is valid
-            //console.log("The provided username was valid.");
-            setUsernameInput(true);
-            setUsr(username);
+    useEffect(() => {
+        // This function is runs after the first rendering of the component
+        // https://reactjs.org/docs/hooks-effect.html#tip-optimizing-performance-by-skipping-effects
+        checkExistingSession();
+    }, [])
 
-            return;
-         }
-         // The user name is not valid
-         //console.log("The provided username was not valid.");
-         setUsernameInput(false);
-         setUsr(username);
-    }
 
-    const validatePwd = (e : React.FormEvent<HTMLInputElement>) : void => {
-        const curPwd = e.currentTarget.value;
-
-        setPwd(curPwd);
-    }
 
     const initiateLogin = async () : Promise<void> => {
-        setIsWaiting(true);
+        setLoginWaitingDisplay(<WaitingDisplay WaitingText={"Atempting to authenticate. Please wait ......"}></WaitingDisplay>);
 
         await loginCall(usr, pwd);
         // Display the spinner
         resetLogin();
-    }
-
-    const resetLogin = () : void => {
-
-        setUsernameInput(true);
-        setPwdInput(true);
-        setUsr("");
-        setPwd("");
     }
 
     // https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch
@@ -77,7 +70,7 @@ function LoginForm(props:LoginProps) : JSX.Element {
                 if (!resp.ok) {
                     // The server responded with an error
                     const msg = `Error: The server responded with error code: ${resp.status}\n \
-                                 Message: ${resp.text}`;
+                                Message: ${resp.text}`;
                     if (resp.status == 401) {
                         setAuthFailed(true);
                     }
@@ -85,25 +78,92 @@ function LoginForm(props:LoginProps) : JSX.Element {
                 }
                 console.log("Logon successful!");
                 if (authFailed) {
+                    //  If the authentication failed state is active, make sure to disable it.
                     setAuthFailed(false);
                 }
-                return resp.json;
+                return resp.json();
             }
         ).then((data) => {
-            // Handle the data promise
             setTimeout(() => {
-                setIsWaiting(false);
-                console.log("Redirecting to dashboard.")
+                setLoginWaitingDisplay(<></>);
+                console.log("Redirecting to dashboard.");
+                props.SetUser(data.result);
+                props.SetIsAuthenticated(true);
                 navigate("/TradingDashboard");
-            }, 2000)
+            }, waitDelay)
         }).catch(errorResp => {
-            console.log(errorResp.message);
+            alert(errorResp.message);
             setTimeout(() => {
-                setIsWaiting(false);
+                setLoginWaitingDisplay(<></>);
                 console.log("Authentication failed");
-            }, 2000);
+            }, waitDelay);
         });
     }
+
+    const checkExistingSession = () => {
+        // Check if the user has an active session
+        // If the user has an active session -> redirect to application
+        fetch("/trading/getUsername").then((response) => {
+            if (!response.ok) {
+                if (response.status === 401) {
+                    console.log("User needs authentication");
+                    return;
+                }
+                throw new Error(`The server responded with status code ${response.status}: ${response.text}`);
+            }
+            return response.json();
+        }).then((data) => {
+            setTimeout(() => {
+                setLoginWaitingDisplay(<></>);
+                if (data) {
+                    // The user has already an active session on the server
+                    console.log("User has an active session. Redirecting to dashboard.")
+                    // Bypas login procedure
+                    props.SetUser(data.result);
+                    props.SetIsAuthenticated(true);
+                    navigate("/TradingDashboard");
+                }
+            }, waitDelay);
+        }).catch((errorResp) => {
+            console.log(errorResp.message);
+            setTimeout(() => {
+                setLoginWaitingDisplay(<></>);
+            }, waitDelay);
+        });
+    }
+
+    const validateUsername = (e : React.FormEvent<HTMLInputElement>) : void => {
+        if (firstRender) {
+            setFirstRender(false);
+        }
+         const unamePattern : RegExp = /^[a-zA-Z\#\!\%\$\‘\&\+\*\–\/\=\?\^\_\`\.\{\|\}\~]+@[a-zA-Z0-9\-\.]{1,63}$/;
+         const username : string = e.currentTarget.value;
+         if (unamePattern.test(username)) {
+            // The username is valid
+            //console.log("The provided username was valid.");
+            setUsernameInput(true);
+            setUsr(username);
+
+            return;
+         }
+         // The user name is not valid
+         //console.log("The provided username was not valid.");
+         setUsernameInput(false);
+         setUsr(username);
+    }
+
+    const validatePwd = (e : React.FormEvent<HTMLInputElement>) : void => {
+        const curPwd = e.currentTarget.value;
+        setPwd(curPwd);
+    }
+
+    const resetLogin = () : void => {
+        setUsernameInput(true);
+        setPwdInput(true);
+        setUsr("");
+        setPwd("");
+    }
+
 
     const submit = (event : React.KeyboardEvent) : any => {
         if (event.key === "Enter") {
@@ -113,7 +173,7 @@ function LoginForm(props:LoginProps) : JSX.Element {
 
     return (
         <>
-            <div className={(isWaiting ? "d-none" : "d-block")}>
+            <div id="LoginContainer" className="waitingParent">
                 <h2>Log In to your Trading Trainer account</h2>
                 <form>
                     <div className="form-floating mb-3 mt-3">
@@ -144,7 +204,6 @@ function LoginForm(props:LoginProps) : JSX.Element {
                     </div>
                     <div>
                         <p className={"text-danger" + " " + (authFailed ? "d-block" : "d-none")}>Wrong username or password. Contact the administrator if you need to reset your passsword!</p>
-
                     </div>
                 </form>
                 <nav className="landingNavigation">
@@ -154,13 +213,11 @@ function LoginForm(props:LoginProps) : JSX.Element {
                         onClick={(usernameInput && pwdInput ? initiateLogin : () => {})}
                         >Login</button>
                 </nav>
-            </div>
-            <div className={"WaitingContainer " + (isWaiting ? "d-block" : "d-none")}>
-                <p>Please wait ....</p>
-                <div className="spinner-border text-info"></div>
+                {loginWaitingDisplay}
             </div>
         </>
     );
 }
 
+export {User};
 export default LoginForm;
