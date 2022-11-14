@@ -67,6 +67,36 @@ header {
 #TradingDashboardContainer {
     background-color: var(--main-color);
     padding: 1rem 5rem 1rem;
+    display: grid;
+    row-gap: 1rem;
+    column-gap: 1rem;
+    grid-template-areas: 'StockList StockList Quote'
+                           'Search Search Search';
+}
+
+.dashboardContainer {
+    background-color: white;
+    border-radius: 0.5rem 0.5rem 0.5rem 0.5rem;
+}
+
+/* ----------[ StockList ] ---------------------*/
+#StockListContainer {
+    grid-area: StockList;
+}
+
+.stockListContainer {
+    padding: 2rem;
+}
+
+.emptyTableDisp {
+    margin: auto;
+    padding: 2rem;
+    background-color:rgba(212, 231, 244, 0.9);
+    text-align: center;
+}
+
+.stockSelected {
+    background-color:rgba(212, 231, 244, 0.9);
 }
 
 #StockListNavigation {
@@ -97,20 +127,43 @@ header {
     order: 3;
 }
 
-/* ----------[ StockList ] ---------------------*/
-.stockListContainer {
-    background-color: white;
+/* ----------[ StockQuote ] ---------------------*/
+#QuoteContainer {
+    grid-area: Quote;
     padding: 2rem;
-    border-radius: 0 0 0.5rem 0.5rem;
 }
 
-.emptyTableDisp {
-    margin: auto;
-    padding: 2rem;
+#EmptyQuote {
     background-color:rgba(212, 231, 244, 0.9);
     text-align: center;
 }
 
-.stockSelected {
-    background-color:rgba(212, 231, 244, 0.9);
+
+/* ----------[ DisplayUtilities ] ---------------------*/
+.greenValue {
+    background-color: green;
+}
+
+.redValue {
+    background-color: red;
+}
+
+.coloredValue {
+    color: white;
+    border-radius: 3px 3px 3px 3px;
+    margin: 5px;
+    display: inline;
+    padding: 5px 5px 5px;
+}
+
+/* ----------[ DisplayUtilities ] ---------------------*/
+
+#ActionDialogContainer {
+    padding:  2rem;
+    display: grid;
+    grid-template-areas: 'label1 static1' 
+                         'label2 static2' 
+                         'label3 static3' 
+                         'inputGroup1 inputGroup1' 
+                         'errorMsg errorMsg';
 }

@@ -28,17 +28,19 @@ function StockBaseHeader() : JSX.Element {
 
 type StockBaseRowProps = {
     CurStockBase : StockBase
-    SetCurSelectedStock : React.Dispatch<React.SetStateAction<StockBase | undefined>>
+    SelectStock: (selectedStock : StockBase) => void
+    IsSelected: boolean
 }
 
 function StockBaseRow(props : StockBaseRowProps) : JSX.Element {
-    const [isSelected, setIsSelected] = useState(false);
+    
     const selectStock = (e : React.MouseEvent) => {
-        setIsSelected(!isSelected);
-        props.SetCurSelectedStock(props.CurStockBase);
+
+        props.SelectStock(props.CurStockBase);
     }
+
     return(
-        <tr onClick={selectStock} className={(isSelected ? "stockSelected" : "")}>
+        <tr onClick={selectStock} className={(props.IsSelected ? "stockSelected" : "")}>
             <td>{props.CurStockBase.symbol}</td>
             <td>{props.CurStockBase.stockName}</td>
             <td>{props.CurStockBase.type}</td>

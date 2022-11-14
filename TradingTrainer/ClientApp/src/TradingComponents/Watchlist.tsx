@@ -1,7 +1,7 @@
 import StockBaseRow, {StockBase, StockBaseHeader} from './StockBaseRow';
 import {DateTimeFormat} from './DisplayUtilities';
 import RefreshIcon from '../img/icons8-update-left-rotation-50.png';
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 
 type WatchlistResponse = {
     lastUpdated : string,
@@ -15,23 +15,71 @@ type WatchlistProps = {
 }
 
 function Watchlist(props : WatchlistProps) : JSX.Element {
-    let emptyDisp : JSX.Element = <></>;
-    let outList : JSX.Element[] = [];
-    if (props.ContentData.stockList !== undefined) {
-        props.ContentData.stockList.forEach((stock, index) => {
-            outList.push(<StockBaseRow key={"favStock_" + stock.symbol} CurStockBase={stock} SetCurSelectedStock={props.SetCurSelectedStock}></StockBaseRow>)
-        });
-        if (outList.length <= 0) {
-            emptyDisp = <div className="emptyTableDisp" key="EmptyWatchlistDisp"><p>Empty table</p></div>;    
+    const [outList, setOutList] = useState<JSX.Element[]>();
+    const [emptyDisp, setEmptyDisp] = useState<JSX.Element>();
+
+    useEffect(() => {
+        initialList();
+    }, [])
+
+    const initialList = () => {
+        let curOutList : JSX.Element[] = [];
+        let isSelected = false;
+        if (props.ContentData.stockList !== undefined) {
+            props.ContentData.stockList.forEach((stock, index) => {
+                if (index === 0) {
+                    props.SetCurSelectedStock(stock);
+                    isSelected = true;
+                }
+                curOutList.push(<StockBaseRow 
+                                key={"favStock_" + stock.symbol} 
+                                CurStockBase={stock} 
+                                IsSelected={isSelected}
+                                SelectStock={selectStock}
+                            ></StockBaseRow>);
+                isSelected = false;
+            });
+            if (curOutList.length <= 0) {
+                setEmptyDisp(<div className="emptyTableDisp" key="EmptyWatchlistDisp"><p>Empty table</p></div>);    
+            } else {
+                setOutList(curOutList);
+            }
+        } else {
+            setEmptyDisp(<div className="emptyTableDisp" key="EmptyWatchlistDisp"><p>Empty table</p></div>);
         }
-    } else {
-        emptyDisp = <div className="emptyTableDisp" key="EmptyWatchlistDisp"><p>Empty table</p></div>;
     }
 
     const refresh = (e : React.MouseEvent) => {
         props.RefreshCallback();
     }
     
+    const selectStock = (selectedStock : StockBase) => {
+        let curOutList : JSX.Element[] = [];
+        let isSelected = false;
+        if (props.ContentData.stockList !== undefined) {
+            props.ContentData.stockList.forEach((stock, index) => {
+                if (stock.symbol === selectedStock.symbol) {
+                    props.SetCurSelectedStock(stock);
+                    isSelected = true;
+                }
+                curOutList.push(<StockBaseRow 
+                                key={"favStock_" + stock.symbol} 
+                                CurStockBase={stock} 
+                                IsSelected={isSelected}
+                                SelectStock={selectStock}
+                            ></StockBaseRow>);
+                isSelected = false;
+            });
+            if (curOutList.length <= 0) {
+                setEmptyDisp(<div className="emptyTableDisp" key="EmptyWatchlistDisp"><p>Empty table</p></div>); 
+            } else {
+                setOutList(curOutList);
+            }
+
+        } else {
+            setEmptyDisp(<div className="emptyTableDisp" key="EmptyWatchlistDisp"><p>Empty table</p></div>);
+        }
+    }
 
     return(
         <div id="WatchlistContainer" className="stockListContainer">
@@ -47,8 +95,10 @@ function Watchlist(props : WatchlistProps) : JSX.Element {
                 </tbody>
             </table>
             {emptyDisp}
-            <button className="btn btn-lg btn-primary" onClick={refresh}>
-                Refresh</button>
+            <div className="btn-group" role="group">
+                <button className="btn btn-lg btn-primary" onClick={refresh}>Refresh</button>
+                <button type="button" className="btn btn-outline btn-lg btn-success">Buy</button>
+            </div>
         </div>
     );
 }

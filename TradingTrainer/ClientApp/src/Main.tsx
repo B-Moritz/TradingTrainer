@@ -52,7 +52,9 @@ function Main(props: MainProps) : JSX.Element {
             path: "/tradingDashboard",
             element: <TradingDashboard 
                         UserId={authenticatedUser.id}
-                        IsAuthenticated={isAuthenticated}    
+                        IsAuthenticated={isAuthenticated}   
+                        SetUser={setAuthenticatedUser}
+                        SetIsAuthenticated={setIsAuthenticated}
                     />,
         },
     ]);

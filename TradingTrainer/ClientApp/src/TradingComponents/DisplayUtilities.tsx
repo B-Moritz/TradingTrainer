@@ -20,4 +20,22 @@ function DateTimeFormat(props : DateTimeFormatProps) : JSX.Element {
         </span>
     );
 }
-export {DateTimeFormat};
+
+type ColorPriceProps = {
+    RawValue : string
+}
+
+function ColorPrice(props : ColorPriceProps) : JSX.Element {
+    const setColorClass = (value : string) : string => {
+        if (value[0] !== "-") {
+            return "greenValue";
+        } else {
+            return "redValue";
+        }
+    }
+    return(
+        <span className={"coloredValue " + setColorClass(props.RawValue)}></span>
+    )
+}
+
+export {DateTimeFormat, ColorPrice};
