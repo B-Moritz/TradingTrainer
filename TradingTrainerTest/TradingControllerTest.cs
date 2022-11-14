@@ -71,7 +71,7 @@ namespace TradingTrainerTest
             List<Stocks> mockStocks = new List<Stocks>() { mockStock };
 
             tradingRepo.Setup(s => s.GetFavoriteListAsync(1)).ReturnsAsync(mockStocks);
-            var tradingService = new TradingService(tradingRepo.Object,logger.Object, serchRepo.Object,config.Object);
+            var tradingService = new TradingService(tradingRepo.Object, logger.Object, serchRepo.Object, config.Object);
 
             // act
             FavoriteList result = await tradingService.CreateFavoriteListAsync(1);
@@ -81,7 +81,7 @@ namespace TradingTrainerTest
 
             // assert
             Assert.Equal(obj1, obj2);
-            
+
         }
 
         [Fact]
@@ -115,14 +115,14 @@ namespace TradingTrainerTest
 
 
             tradingRepo.Setup(g => g.GetUsersAsync(1)).ReturnsAsync(userMock);
-            var tradingService = new TradingService(tradingRepo.Object,logger.Object,serchRepo.Object,config.Object);
+            var tradingService = new TradingService(tradingRepo.Object, logger.Object, serchRepo.Object, config.Object);
             //act
             User getUser = await tradingService.GetUserAsync(1);
             string obj11 = JsonSerializer.Serialize(expectedResultUser);
             string obj22 = JsonSerializer.Serialize(getUser);
 
             //assert
-            Assert.Equal(obj11,obj22);
+            Assert.Equal(obj11, obj22);
 
         }
         [Fact]
@@ -156,7 +156,7 @@ namespace TradingTrainerTest
             };
             List<StockQuotes> mockStock = new List<StockQuotes>() { acualStock };
             tradingServices.Setup(s => s.CreateNewStockQuoteEntity()).ReturnsAsync(mockStock);
-            var tradingServises = new TradingService(tradingRepo.Object,logger.Object,serchRepo.Object,config.Object);
+            var tradingServises = new TradingService(tradingRepo.Object, logger.Object, serchRepo.Object, config.Object);
 
             //act
             StockQuotes creatNewStockEntity = tradingServises.CreateNewStockQuoteEntity();
@@ -173,20 +173,20 @@ namespace TradingTrainerTest
         {
             //arrange
             DateTime timeNow = DateTime.Now;
-            
+
             List<Users>? actualPortfolio = new List<Users>();
 
-           /* List<StockBase>? stockPortfolio = new List<StockBase>();
-            StockBase curstockDetail;
-            curstockDetail = new StockBase
-            {
-                StockName = "DNB Bank ASA",
-                Symbol = "DNBHF",
-                Type = "Equity",
-                LastUpdated = timeNow,
-                StockCurrency = "USD"
-            };
-            stockPortfolio.Add(curstockDetail);*/
+            /* List<StockBase>? stockPortfolio = new List<StockBase>();
+             StockBase curstockDetail;
+             curstockDetail = new StockBase
+             {
+                 StockName = "DNB Bank ASA",
+                 Symbol = "DNBHF",
+                 Type = "Equity",
+                 LastUpdated = timeNow,
+                 StockCurrency = "USD"
+             };
+             stockPortfolio.Add(curstockDetail);*/
 
             List<StockPortfolio>? portStock = new List<StockPortfolio>();
             var currentPortfolio = new StockPortfolio
@@ -216,14 +216,14 @@ namespace TradingTrainerTest
             // List<Portfolio> stockPortfolio = new List<Portfolio>();
             var stockDetail = new StockOwnerships
             {
-              UsersId = 1,
-              StocksId = "DNB",
-              StockCounter = 3,
-              SpentValue = 100
+                UsersId = 1,
+                StocksId = "DNB",
+                StockCounter = 3,
+                SpentValue = 100
             };
             List<StockOwnerships> mockStocks = new List<StockOwnerships>() { stockDetail };
 
-            tradingServices.Setup(p => p.CreateCurrentPortfolio(1,"DNB")).ReturnsAsync(stockDetail);
+            tradingServices.Setup(p => p.CreateCurrentPortfolio(1, "DNB")).ReturnsAsync(stockDetail);
             var tradingService = new TradingService();
 
             //act
@@ -280,6 +280,13 @@ namespace TradingTrainerTest
             string obj2 = JsonSerializer.Serialize(getAllTrades);
             // assert
             Assert.Equal(obj1, obj2);
+
+        }
+        [Fact]
+        public async Task GetStockQuoteAsync()
+        {
+            // assert
+
 
         }
 
