@@ -84,7 +84,7 @@ namespace TradingTrainer.BLL
          *      (string) symbol: The stock symbol of the stock quote that should be obtained.
          * Return: The StockQuotes object containing the 
          */
-        private async Task<StockQuotes> GetUpdatedQuoteAsync(string symbol)
+        public async Task<StockQuotes> GetUpdatedQuoteAsync(string symbol)
         {
             // Create the api object used to obtain new stock quotes
             AlphaVantageConnection AlphaV = await AlphaVantageConnection.BuildAlphaVantageConnectionAsync(_apiKey, true, _alphaVantageDailyCallLimit);
@@ -120,7 +120,7 @@ namespace TradingTrainer.BLL
             return curStockQuote;
         }
 
-        private StockQuotes CreateNewStockQuoteEntity(AlphaVantageInterface.Models.StockQuote stockQuote)
+        public StockQuotes CreateNewStockQuoteEntity(AlphaVantageInterface.Models.StockQuote stockQuote)
         {
             // Parse the LatestTradingDay to datetime object
             Regex LatestTradingdayPattern = new Regex("([0-9]*)-([0-9]*)-([0-9]*)");
