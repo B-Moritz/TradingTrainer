@@ -14,6 +14,7 @@ using System.Text.Json.Serialization;
 using AlphaVantageInterface.Models;
 using StockQuote = AlphaVantageInterface.Models.StockQuote;
 using System.Security.Cryptography.X509Certificates;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace TradingTrainerTest
 {
@@ -288,9 +289,54 @@ namespace TradingTrainerTest
         [Fact]
         public async Task GetStockQuoteAsync()
         {
-            // assert
+            // arrange
+            DateTime timeNow = DateTime.Now;
 
+            List<TradingTrainer.Model.StockQuote>? expStockQute = new List<TradingTrainer.Model.StockQuote>();
+            TradingTrainer.Model.StockQuote creatStockQute;
+            creatStockQute = new TradingTrainer.Model.StockQuote
+            {
+                Symbol = "DNBBY",
+                StockName = "DNB ASA",
+                LastUpdated = timeNow,
+                Open = "13.66",
+                High = "14.08",
+                Low = "13.62",
+                Price = "13.9",
+                Volume = 1526711,
+                LatestTradingDay = timeNow,
+                PreviousClose = "13.08",
+                Change = "0.82",
+                ChangePercent = "6.2691%"
 
+            };
+            expStockQute.Add(creatStockQute);
+            var stocks = new Stocks
+            {
+                StockName = "facebook",
+                Symbol = "fbc",
+                Type = "Equity",
+                LastUpdated = timeNow,
+                Currency = "USD"
+            };
+            var actueGetStock = new StockQuotes
+            {
+                StocksId = "1",
+                Stock = stocks,
+                Timestamp = timeNow,
+                Open = 13.66m,
+                High = 14.08m,
+                Low = 13.62m,
+                Price = 13.9m,
+                Volume = 1526711,
+                LatestTradingDay = timeNow,
+                PreviousClose = 13.08m,
+                Change = 0.82m,
+                ChangePercent = "6.2691%"
+            };
+            List<StockQuotes> stockList = new List<StockQuotes>() { actueGetStock };
+
+           
 
         }
 
