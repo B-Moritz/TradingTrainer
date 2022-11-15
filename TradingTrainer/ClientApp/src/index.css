@@ -161,9 +161,22 @@ header {
 #ActionDialogContainer {
     padding:  2rem;
     display: grid;
-    grid-template-areas: 'label1 static1' 
+    left: 0;
+    top: 0;
+    position: absolute;
+    background-color: white;
+    border-radius: 0.5rem 0.5rem 0.5rem 0.5rem;
+    width: 100%;
+    height: 100%;
+    z-index: 1000;
+    row-gap: 0.5rem;
+    column-gap: 2rem;
+    grid-template-areas: 'title title' 
+                         'label1 static1' 
                          'label2 static2' 
                          'label3 static3' 
+                         'label4 static4' 
                          'inputGroup1 inputGroup1' 
-                         'errorMsg errorMsg';
+                         'errorMsg errorMsg'
+                         'group group';
 }

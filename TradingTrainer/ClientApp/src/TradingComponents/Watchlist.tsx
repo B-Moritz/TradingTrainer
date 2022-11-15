@@ -12,6 +12,8 @@ type WatchlistProps = {
     RefreshCallback : Function
     ContentData : WatchlistResponse 
     SetCurSelectedStock : React.Dispatch<React.SetStateAction<StockBase | undefined>>
+    SetBuyDialogIsActive : React.Dispatch<React.SetStateAction<boolean>>
+    UpdateQuoteDisplay : (stock : StockBase) => Promise<any>
 }
 
 function Watchlist(props : WatchlistProps) : JSX.Element {
@@ -30,13 +32,14 @@ function Watchlist(props : WatchlistProps) : JSX.Element {
                 if (index === 0) {
                     props.SetCurSelectedStock(stock);
                     isSelected = true;
+                    props.UpdateQuoteDisplay(stock);
                 }
                 curOutList.push(<StockBaseRow 
                                 key={"favStock_" + stock.symbol} 
                                 CurStockBase={stock} 
                                 IsSelected={isSelected}
                                 SelectStock={selectStock}
-                            ></StockBaseRow>);
+                            ></StockBaseRow>); 
                 isSelected = false;
             });
             if (curOutList.length <= 0) {
@@ -61,6 +64,7 @@ function Watchlist(props : WatchlistProps) : JSX.Element {
                 if (stock.symbol === selectedStock.symbol) {
                     props.SetCurSelectedStock(stock);
                     isSelected = true;
+                    props.UpdateQuoteDisplay(stock);
                 }
                 curOutList.push(<StockBaseRow 
                                 key={"favStock_" + stock.symbol} 
@@ -75,7 +79,6 @@ function Watchlist(props : WatchlistProps) : JSX.Element {
             } else {
                 setOutList(curOutList);
             }
-
         } else {
             setEmptyDisp(<div className="emptyTableDisp" key="EmptyWatchlistDisp"><p>Empty table</p></div>);
         }
@@ -97,7 +100,7 @@ function Watchlist(props : WatchlistProps) : JSX.Element {
             {emptyDisp}
             <div className="btn-group" role="group">
                 <button className="btn btn-lg btn-primary" onClick={refresh}>Refresh</button>
-                <button type="button" className="btn btn-outline btn-lg btn-success">Buy</button>
+                <button onClick={() => {props.SetBuyDialogIsActive(true);}} type="button" className="btn btn-outline btn-lg btn-success">Buy</button>
             </div>
         </div>
     );

@@ -34,7 +34,7 @@ function ColorPrice(props : ColorPriceProps) : JSX.Element {
         }
     }
     return(
-        <span className={"coloredValue " + setColorClass(props.RawValue)}></span>
+        <span className={"coloredValue " + setColorClass(props.RawValue)}>{props.RawValue}</span>
     )
 }
 
