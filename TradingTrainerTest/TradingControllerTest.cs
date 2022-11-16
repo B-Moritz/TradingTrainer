@@ -398,10 +398,9 @@ namespace TradingTrainerTest
             string obj2 = JsonSerializer.Serialize(resetportfolio);
             Assert.Equal(obj1, obj2);
 
-
-
-
         }
+
+
 
 
     }
