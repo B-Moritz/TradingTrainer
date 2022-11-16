@@ -355,7 +355,7 @@ namespace TradingTrainerTest
             tradingServiceMoq.Setup(q => q.GetUpdatedQuoteAsync("FBC")).ReturnsAsync(actueGetStock);
             var tradingService = new TradingService(tradingRepo.Object, logger.Object, serchRepo.Object, config.Object);
             //act
-            List<TradingTrainer.Model.StockQuote> getStockQute = tradingService.GetStockQuoteAsync("FBC");
+            TradingTrainer.Model.StockQuote getStockQute = await tradingService.GetStockQuoteAsync("FBC");
             string obj1 = JsonSerializer.Serialize(creatStockQute);
             string obj2 = JsonSerializer.Serialize(getStockQute);
 
@@ -364,9 +364,44 @@ namespace TradingTrainerTest
 
         }
 
+        [Fact]
+        public async Task ResetProfileAsync()
+        {
+            User expectedUser = new User
+            {
+                Id = 1,
+                FirstName = "Albert",
+                LastName = "Jhone",
+                Email = "test@gmail.com",
+                FundsAvailable = String.Format("{0:N} {1}", 1000000M, "NOK"),
+                FundsSpent = String.Format("{0:N} {1}", 0, "NOK"),
+                Currency = "NOK"
+            };
+            var actualUser = new Users
+            {
+                FirstName = "Albert",
+                LastName = "Jhone",
+                Email = "test@gmail.com",
+                UsersId = 1,
+                Password = Convert.FromBase64String("FBqAM9fp5mfCjyAjW0ukPtSv7YTIm0lwg02ulO8pKaw="),
+                Salt = Convert.FromBase64String("x2FRQXYkGrIZ0vqUeY103YG2Nnswwp0h"),
+                AlphaVantageApiKey = "FDSFDSSDG5",
+                FundsAvailable = 1000000M,
+                FundsSpent = 0,
+                PortfolioCurrency = "NOK"
+            };
+            tradingRepo.Setup(r => r.ResetProfileAsync(1)).ReturnsAsync(actualUser);
+            var tradingService = new TradingService(tradingRepo.Object,logger.Object,serchRepo.Object,config.Object);
+
+            User resetportfolio = await tradingService.ResetProfileAsync(1);
+            string obj1 = JsonSerializer.Serialize(expectedUser);
+            string obj2 = JsonSerializer.Serialize(resetportfolio);
+            Assert.Equal(obj1, obj2);
 
 
 
+
+        }
 
 
     }
