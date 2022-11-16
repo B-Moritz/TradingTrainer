@@ -32,6 +32,12 @@ function Footer(): JSX.Element {
 
                 </li>
             </ul>
+            <ul>
+                <li>
+                    <a target="_blank" href="https://icons8.com/icon/DnhznTvrGRgU/trading">Trading</a> icon by <a target="_blank" href="https://icons8.com">Icons8</a>
+
+                </li>
+            </ul>
 
         </footer>
     );
