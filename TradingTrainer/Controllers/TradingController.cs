@@ -328,7 +328,7 @@ namespace TradingTrainer.Controllers
         /**
          * 
          */
-        public async Task<bool> CreateUser(User user) {
+        public async Task<bool> CreateUser([FromBody]User user) {
 
             return await _tradingService.CreateUser(user);
         }

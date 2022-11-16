@@ -669,9 +669,8 @@ namespace TradingTrainer.BLL
 
                 var byteString = PasswordHash(user.Password, salt).Result;
 
-
-                var convertedFund = Decimal.Parse(user.FundsAvailable);
-                var convertedFundSpent = Decimal.Parse(user.FundsSpent);
+               // var convertedFund = Decimal.Parse(user.FundsAvailable);
+               // var convertedFundSpent = Decimal.Parse(user.FundsSpent);
 
                 Users convertedUser = new Users
                 {
@@ -681,9 +680,9 @@ namespace TradingTrainer.BLL
                     Password = byteString,
                     Salt = salt,
                     AlphaVantageApiKey = user.AlphaVantageApiKey,
-                    FundsAvailable = convertedFund,
-                    FundsSpent = convertedFundSpent,
-                    PortfolioCurrency = user.Currency,
+                    FundsAvailable = 1000000,
+                    FundsSpent = 0,
+                    PortfolioCurrency = "NOK",
                     Favorites = null,
                     Trades = null,
                     Portfolio = null,
