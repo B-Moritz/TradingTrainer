@@ -10,9 +10,10 @@ import ActionDialog, { ActionStock } from './ActionDialog';
 import { DateTimeFormat, ColorPrice } from './DisplayUtilities';
 import { setUncaughtExceptionCaptureCallback } from 'process';
 import Portfolio, {PortfolioStock} from './Portfolio';
+import StockMarket from "./StockMarket";
 
 type DashboardProps = {
-    UserId? : number
+    UserId : number
     IsAuthenticated : boolean
     SetUser : React.Dispatch<React.SetStateAction<User>>
     SetIsAuthenticated : React.Dispatch<React.SetStateAction<boolean>>
@@ -131,10 +132,12 @@ function TradingDashboard(props: DashboardProps) : JSX.Element {
             setCurActionDialog(<ActionDialog SelectedStock={curActionStock}
                                             SetBuyDialogIsActive={setSellDialogIsActive}
                                             isBuyDialog={false}
+                                            UserId={props.UserId}
                                         ></ActionDialog>);
             
         } else {
             setCurActionDialog(<></>);
+            updatePortfolioList();
         } 
     }, [sellDialogIsActive]);
 
@@ -163,17 +166,26 @@ function TradingDashboard(props: DashboardProps) : JSX.Element {
             setCurActionDialog(<ActionDialog SelectedStock={curActionStock}
                                             SetBuyDialogIsActive={setBuyDialogIsActive}
                                             isBuyDialog={true}
+                                            UserId={props.UserId}
                                         ></ActionDialog>);
             
         } else {
             setCurActionDialog(<></>);
+            if (stockListTab == 2) {
+                updatePortfolioList();
+            } else {
+                updateWatchList();
+            }
         } 
+
+
     }, [buyDialogIsActive]);
 
 
     useEffect(() => {
         switch (stockListTab) {
             case 3:
+                setStockMarket();
                 break;
             case 2:
                 updatePortfolioList();
@@ -204,6 +216,7 @@ function TradingDashboard(props: DashboardProps) : JSX.Element {
         setCurActionDialog(<ActionDialog SelectedStock={curActionStock}
                                          SetBuyDialogIsActive={setBuyDialogIsActive}
                                          isBuyDialog={true}
+                                         UserId={props.UserId}
                                     ></ActionDialog>);
         setBuyDialogIsActive(true); 
     }
@@ -243,7 +256,7 @@ function TradingDashboard(props: DashboardProps) : JSX.Element {
                 SetBuyDialogIsActive={setBuyDialogIsActive}
                 SetSellDialogIsActive={setSellDialogIsActive}
                 ContentData={curData} 
-                RefreshCallback={updateWatchList} 
+                RefreshCallback={updatePortfolioList} 
                 SetCurSelectedStock={setCurSelectedPortfolioStock}
                 UpdateQuoteDisplay={updateQuoteDisplay}
             ></Portfolio>
@@ -252,6 +265,16 @@ function TradingDashboard(props: DashboardProps) : JSX.Element {
             setStockListWaiting(<></>);
         }, 1000);
     } 
+
+    const setStockMarket = () => {
+        if (props.UserId === undefined || props.UserId <= 0) {
+            navigate("/login");
+            throw new Error(`The userid is not valid!`)
+        }
+        setStockList(
+            <StockMarket UserId={props.UserId}></StockMarket>
+        );
+    }
 
     const fetchFromTradingApi = async (requestUrl : string) : Promise<any> => {
         return fetch(requestUrl).then((response) => {
@@ -369,6 +392,7 @@ function TradingDashboard(props: DashboardProps) : JSX.Element {
                     <div id="StockListNavigation">
                         <div id="WatchlistTab" className="navTab" onClick={() => setStockListTab(1)}>Watchlist</div>
                         <div id="PortfolioTab" className="navTab" onClick={() => setStockListTab(2)}>Portfolio</div>
+                        <div id="StockMarketTab" className="navTab" onClick={() => setStockListTab(3)}>Stock Market</div>
                         <div id="HistoryTab" className="navTab">Trade history</div>
                     </div>
                     {stockList}

@@ -124,7 +124,10 @@ header {
 }
 #HistoryTab {
     border-radius: 0 0.5rem 0 0;
-    order: 3;
+    order: 4;
+}
+#StockMarketTab {
+    order: 3
 }
 
 /* ----------[ StockQuote ] ---------------------*/

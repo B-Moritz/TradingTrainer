@@ -1,4 +1,4 @@
-import {useState} from 'react';
+import React, {useState} from 'react';
 import { StockQuote } from './TradingDashboard';
 
 type ActionStock = {
@@ -12,6 +12,7 @@ type ActionDialogProps = {
     SelectedStock : ActionStock
     SetBuyDialogIsActive : React.Dispatch<React.SetStateAction<boolean>>
     isBuyDialog : boolean
+    UserId : number;
 }
 
 // remember "is-valid" : "is-invalid" is used to indicate input error
@@ -36,6 +37,24 @@ function ActionDialog(props : ActionDialogProps) : JSX.Element {
         }
     }
 
+    const executeTransaction = (e : React.MouseEvent) => {
+        if (props.UserId === undefined) {
+            alert("ExecuteTransaction.ActionDialog: UserId is undefined");
+            return;
+        }
+        const operatingUrl = `/trading/${(props.isBuyDialog ? "buyStock" : "sellStock")}?userId=${props.UserId}&symbol=${props.SelectedStock.symbol}&count=${curAmount}`;
+        fetch(operatingUrl).then((resp) => {
+            if (!resp.ok) {
+                throw new Error(`The server responded with status code ${resp.status}`);
+            }
+            props.SetBuyDialogIsActive(false)
+        }).catch((errorResp) => {
+            console.log(errorResp.message);
+        });
+
+
+    }
+
     return(
         <div id="ActionDialogContainer">
             <h3 style={{gridArea: 'title'}}>{(props.isBuyDialog ? "Buy" : "Sell") + " stock"}</h3>
@@ -49,7 +68,7 @@ function ActionDialog(props : ActionDialogProps) : JSX.Element {
             <p style={{gridArea: 'static4'}}>{props.SelectedStock.price}</p>
             <div style={{gridArea: 'inputGroup1'}} className="input-group input-group-lg">
                 <label htmlFor='StockCounterInput' className='input-group-text'>Number of shares</label>
-                <input id="StockCounterInput" 
+                <input id="StockCounterInput"
                        onChange={validateAmount} 
                        className={"form-control " + isValidAmount} 
                        type="number" name="StockCounter" 
@@ -61,6 +80,7 @@ function ActionDialog(props : ActionDialogProps) : JSX.Element {
             <div style={{gridArea: 'group'}} className="btn-group">
                 <button className={"btn btn-lg " + (props.isBuyDialog ? "btn-success " : "btn-danger ") + (confirmIsActive ? "disabled" : "")}
                         aria-disabled={!confirmIsActive}
+                        onClick={executeTransaction}
                         >Confirm Transaction</button>
                 <button className={"btn btn-lg btn-secondary"} 
                         onClick={() => {props.SetBuyDialogIsActive(false);}}
