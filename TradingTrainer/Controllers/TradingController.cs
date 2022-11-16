@@ -25,7 +25,7 @@ namespace TradingTrainer.Controllers
         private readonly ITradingService _tradingService;
         private readonly IAuthenticationService _authenticationService;
         private readonly IConfiguration _config;
-        private readonly string _LoginFlag = "_Login";
+        private readonly string _loginFlag = "_Login";
 
         public TradingController(IConfiguration config,
                                  ITradingService tradingService,
@@ -405,6 +405,28 @@ namespace TradingTrainer.Controllers
             return Ok(user);
         }
 
+        public async Task<ActionResult> GetUsername()
+        {
+            try
+            {
+                if (HttpContext.Session.GetString(_loginFlag) != "true")
+                {
+                    return Unauthorized();
+                }
+                string curUsername = HttpContext.Session.GetString("username");
+                return Ok(_tradingService.GetUserAsync(curUsername));
+            }
+            catch (KeyNotFoundException userNotFount)
+            {
+                return NotFound(userNotFount.Message);
+            }
+            catch (Exception e)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, e.Message);
+            }
+
+        }
+
         /**
          * This method is used as an endpoint to update the information and settings for the given user
          * Parameter:
@@ -473,28 +495,35 @@ namespace TradingTrainer.Controllers
             return Ok(user);
         }
 
-        public async Task<ActionResult> Login(string username, string pwd) {
+        public async Task<ActionResult> LogIn([FromBody]Credentials curCredentials) {
             try
             {
-                bool isAuthenticated = await _authenticationService.LoginAsync(username, pwd);
+                bool isAuthenticated = await _authenticationService.LogInAsync(curCredentials.Username, curCredentials.Password);
                 if (isAuthenticated)
                 {
-                    _logger.LogInformation($"The authentication was positive using username {username} and pwd {pwd}");
-                    HttpContext.Session.SetString(_LoginFlag, "true");
-                    return Ok();
+                    _logger.LogInformation($"The authentication was positive using username {curCredentials.Username} and pwd {curCredentials.Password}");
+                    HttpContext.Session.SetString(_loginFlag, "true");
+                    HttpContext.Session.SetString("username", curCredentials.Username);
+                    return Ok(_tradingService.GetUserAsync(curCredentials.Username));
                 }
-                _logger.LogInformation($"The authentication was negative using username {username} and pwd {pwd}");
-                HttpContext.Session.SetString(_LoginFlag, "");
+                _logger.LogInformation($"The authentication was negative using username {curCredentials.Username} and pwd {curCredentials.Password}");
+                HttpContext.Session.SetString(_loginFlag, "");
+                HttpContext.Session.SetString("username", "");
                 return Unauthorized();
             }
             catch (Exception ex)
             {
                 // An exception was caught while trying to authenitcate the user
-                _logger.LogInformation($"An exception was thrown while authenticating the user with username {username} and pwd {pwd}");
-                HttpContext.Session.SetString(_LoginFlag, "");
+                _logger.LogInformation($"An exception was thrown while authenticating the user with username {curCredentials.Username} and pwd {curCredentials.Password}");
+                HttpContext.Session.SetString(_loginFlag, "");
+                HttpContext.Session.SetString("username", "");
                 return Unauthorized();
             }
         }
 
+        public ActionResult LogOut() {
+            HttpContext.Session.SetString(_loginFlag, "");
+            return Ok("true");
+        }
     }
 }

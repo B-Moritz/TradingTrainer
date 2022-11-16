@@ -25,7 +25,7 @@ namespace TradingTrainer.BLL
             );
         }
 
-        Task<bool> LoginAsync(string username, string pwd);
+        Task<bool> LogInAsync(string username, string pwd);
 
     }
 }

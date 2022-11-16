@@ -14,7 +14,7 @@ namespace TradingTrainer.BLL
             _tradingRepo = tradingRepo;
         }
 
-        public async Task<bool> LoginAsync(string username, string pwd) {
+        public async Task<bool> LogInAsync(string username, string pwd) {
             // Get the user from the database
             Users? curUser = await _tradingRepo.GetUsersAsync(username);
 
@@ -22,7 +22,6 @@ namespace TradingTrainer.BLL
                 // A user matching the provided username was not found in the database
                 throw new KeyNotFoundException("The provided user name was not found in the database!");
             }
-
             // Generate hash for the provided password
             byte[] pwdHash = IAuthenticationService.GetHash(pwd, curUser.Salt);
             if (pwdHash.SequenceEqual(curUser.Password))

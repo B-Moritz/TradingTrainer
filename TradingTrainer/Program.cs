@@ -17,7 +17,7 @@ builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
 builder.Services.AddSession(options => {
     options.Cookie.Name = "TradingTrainer.Session";
     options.Cookie.IsEssential = true;
-    options.IdleTimeout = TimeSpan.FromMinutes(1);
+    options.IdleTimeout = TimeSpan.FromMinutes(30);
 });
 builder.Services.AddDistributedMemoryCache();
 // Adding timed background service to clean the database once per day

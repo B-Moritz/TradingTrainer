@@ -84,7 +84,7 @@ namespace TradingTrainer.BLL
          *      (string) symbol: The stock symbol of the stock quote that should be obtained.
          * Return: The StockQuotes object containing the 
          */
-        private async Task<StockQuotes> GetUpdatedQuoteAsync(string symbol)
+        public async Task<StockQuotes> GetUpdatedQuoteAsync(string symbol)
         {
             // Create the api object used to obtain new stock quotes
             AlphaVantageConnection AlphaV = await AlphaVantageConnection.BuildAlphaVantageConnectionAsync(_apiKey, true, _alphaVantageDailyCallLimit);
@@ -120,7 +120,7 @@ namespace TradingTrainer.BLL
             return curStockQuote;
         }
 
-        private StockQuotes CreateNewStockQuoteEntity(AlphaVantageInterface.Models.StockQuote stockQuote)
+        public StockQuotes CreateNewStockQuoteEntity(AlphaVantageInterface.Models.StockQuote stockQuote)
         {
             // Parse the LatestTradingDay to datetime object
             Regex LatestTradingdayPattern = new Regex("([0-9]*)-([0-9]*)-([0-9]*)");
@@ -411,7 +411,6 @@ namespace TradingTrainer.BLL
         // -----[ Favorites ] --------------------------------------------------------------------
         public async Task<FavoriteList> CreateFavoriteListAsync(int userId)
         {
-
             // Input validation needs to be implemented
 
 
@@ -430,7 +429,8 @@ namespace TradingTrainer.BLL
                     StockName = currentStock.StockName,
                     Symbol = currentStock.Symbol,
                     Type = currentStock.Type,
-                    LastUpdated = currentStock.LastUpdated
+                    LastUpdated = currentStock.LastUpdated,
+                    StockCurrency = currentStock.Currency
                 };
                 stockFavorite.Add(currentStockDetail);
             }
@@ -617,14 +617,31 @@ namespace TradingTrainer.BLL
         {
             // Obtaining the user from the database
             Users? curUser =  await _tradingRepo.GetUsersAsync(userId);
+            return CreateUserObject(curUser);
+        }
+
+        public async Task<User> GetUserAsync(string username) 
+        {
+            // Obtaining the user from the database
+            Users? curUser = await _tradingRepo.GetUsersAsync(username);
+            if (curUser is null)
+            {
+                throw new KeyNotFoundException("The user was not found in the database");
+            }
+
+            return CreateUserObject(curUser);
+        }
+
+        private User CreateUserObject(Users curUser) {
             User convertedUser = new User
             {
+
                 Id = curUser.UsersId,
                 FirstName = curUser.FirstName,
                 LastName = curUser.LastName,
                 Email = curUser.Email,
-                FundsSpent = string.Format("{0:N} {1}", curUser.FundsSpent, curUser.PortfolioCurrency),
-                FundsAvailable = string.Format("{0:N} {1}", curUser.FundsAvailable, curUser.PortfolioCurrency),
+                FundsSpent = FormatMonetaryValue(curUser.FundsSpent, curUser.PortfolioCurrency),
+                FundsAvailable = FormatMonetaryValue(curUser.FundsAvailable, curUser.PortfolioCurrency),
                 Currency = curUser.PortfolioCurrency
             };
             return convertedUser;
