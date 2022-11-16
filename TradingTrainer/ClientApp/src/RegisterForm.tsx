@@ -30,31 +30,6 @@ const RegisterForm: React.FC = () => {
         setUser(test);
     }
 
-    /** 
-    const saveUser = () => {
-        var data = {
-            firstName: users.firstName,
-            lastName: users.lastName,
-            email: users.email,
-            password: users.password,
-            alphaVantageApiKey: users.alphaVantageApiKey
-        };
-
-        UserService.create(data)
-            .then((response: any) => {
-                setUser({
-                    id: response.data.id,
-                    firstName: response.data.firstName,
-                    lastName: response.data.lastName,
-                    email: response.data.email,
-                    password: response.data.password,
-                    alphaVantageApiKey: response.data.alphaVantageApiKey
-
-
-                });
-
-
-*/
     const register = () => {
 
       const user = {
@@ -81,67 +56,7 @@ const RegisterForm: React.FC = () => {
             setSubmitted(false);
         };
     }
-            /**
-             * ({
-            method: 'post',
-            url: '/trading/createUser',
-            headers: {
-                'Accept': 'application/json',
-                "Content-type": "application/json",
-            },
-            data: user
-            
-        })
-             * 
-             * 
-            .then((response: any) => {
-                setUser({
-                    id: response.data.id,
-                    firstName: response.data.firstName,
-                    lastName: response.data.lastName,
-                    email: response.data.email,
-                    password: response.data.password,
-                    alphaVantageApiKey: response.data.alphaVantageApiKey
-
-
-                });
-                */
-            
            
-
-    /** 
-
-    const endpoint = "/trading/createuser";
-    const credentials = {
-        usr: users
-    };
-
-    fetch(endpoint, {
-        method: "POST",
-        headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(credentials)
-    }).then(
-        (response: any) => {
-            if (response.ok) {
-                setSubmitted(true);
-                console.log(response.data);
-            }
-
-            console.log(`${response.text}`)
-
-        });
-
-*/
-
-  
-    
-    
-
-
-    
         return (
             <Box
                 component="form"
