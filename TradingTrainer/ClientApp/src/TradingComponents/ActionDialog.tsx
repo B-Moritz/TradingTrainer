@@ -11,6 +11,7 @@ type ActionStock = {
 type ActionDialogProps = {
     SelectedStock : ActionStock
     SetBuyDialogIsActive : React.Dispatch<React.SetStateAction<boolean>>
+    isBuyDialog : boolean
 }
 
 // remember "is-valid" : "is-invalid" is used to indicate input error
@@ -37,7 +38,7 @@ function ActionDialog(props : ActionDialogProps) : JSX.Element {
 
     return(
         <div id="ActionDialogContainer">
-            <h3 style={{gridArea: 'title'}}>Buy stock</h3>
+            <h3 style={{gridArea: 'title'}}>{(props.isBuyDialog ? "Buy" : "Sell") + " stock"}</h3>
             <label style={{gridArea: 'label1'}}>Stock Symbol:</label>
             <p style={{gridArea: 'static1'}}>{props.SelectedStock.symbol}</p>
             <label style={{gridArea: 'label2'}}>Stock Name:</label>
@@ -58,7 +59,7 @@ function ActionDialog(props : ActionDialogProps) : JSX.Element {
             </div>
             <div id="DialogErrorMsg" style={{gridArea: 'errorMsg', color: 'red'}} className={(dispError ? "d-block" : "d-none")}>Please enter an integer greater than 0!</div>
             <div style={{gridArea: 'group'}} className="btn-group">
-                <button className={"btn btn-lg btn-success " + (confirmIsActive ? "disabled" : "")}
+                <button className={"btn btn-lg " + (props.isBuyDialog ? "btn-success " : "btn-danger ") + (confirmIsActive ? "disabled" : "")}
                         aria-disabled={!confirmIsActive}
                         >Confirm Transaction</button>
                 <button className={"btn btn-lg btn-secondary"} 

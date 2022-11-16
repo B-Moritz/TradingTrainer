@@ -13,7 +13,7 @@ type WatchlistProps = {
     ContentData : WatchlistResponse 
     SetCurSelectedStock : React.Dispatch<React.SetStateAction<StockBase | undefined>>
     SetBuyDialogIsActive : React.Dispatch<React.SetStateAction<boolean>>
-    UpdateQuoteDisplay : (stock : StockBase) => Promise<any>
+    UpdateQuoteDisplay : (symbol : string) => Promise<any>
 }
 
 function Watchlist(props : WatchlistProps) : JSX.Element {
@@ -32,7 +32,7 @@ function Watchlist(props : WatchlistProps) : JSX.Element {
                 if (index === 0) {
                     props.SetCurSelectedStock(stock);
                     isSelected = true;
-                    props.UpdateQuoteDisplay(stock);
+                    props.UpdateQuoteDisplay(stock.symbol);
                 }
                 curOutList.push(<StockBaseRow 
                                 key={"favStock_" + stock.symbol} 
@@ -64,7 +64,7 @@ function Watchlist(props : WatchlistProps) : JSX.Element {
                 if (stock.symbol === selectedStock.symbol) {
                     props.SetCurSelectedStock(stock);
                     isSelected = true;
-                    props.UpdateQuoteDisplay(stock);
+                    props.UpdateQuoteDisplay(stock.symbol);
                 }
                 curOutList.push(<StockBaseRow 
                                 key={"favStock_" + stock.symbol} 

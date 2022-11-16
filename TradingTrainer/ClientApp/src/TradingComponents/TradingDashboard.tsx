@@ -8,6 +8,8 @@ import { StockBase } from './StockBaseRow';
 import { User } from '../LoginForm';
 import ActionDialog, { ActionStock } from './ActionDialog';
 import { DateTimeFormat, ColorPrice } from './DisplayUtilities';
+import { setUncaughtExceptionCaptureCallback } from 'process';
+import Portfolio, {PortfolioStock} from './Portfolio';
 
 type DashboardProps = {
     UserId? : number
@@ -76,11 +78,13 @@ function TradingDashboard(props: DashboardProps) : JSX.Element {
     }
     const [stockListWaiting, setStockListWaiting] = useState(<></>);
     const [reconnectingWaiting, setReconnectingWaiting] = useState(<></>)
-    const [watchlist, setWatchlist] = useState<JSX.Element>(<></>);
+    const [stockList, setStockList] = useState<JSX.Element>(<></>);
     const [curSelectedStock, setCurSelectedStock] = useState<StockBase>();
+    const [curSelectedPortfolioStock, setCurSelectedPortfolioStock] = useState<PortfolioStock>();
     const [curStockQuote, setCurStockQuote] = useState<StockQuote>(initialQuote);
     // Action dialog related
     const [buyDialogIsActive, setBuyDialogIsActive] = useState(false);
+    const [sellDialogIsActive, setSellDialogIsActive] = useState(false);
     const [curActionStock, setCurActionStock] = useState<ActionStock>();
     const [curActionDialog, setCurActionDialog] = useState<JSX.Element>(<></>);
 
@@ -89,19 +93,50 @@ function TradingDashboard(props: DashboardProps) : JSX.Element {
     const [quoteDisplay, setQuoteDisplay] = useState(<></>);
     const [isFirstRender, setIsFirstRender] = useState(true);
 
+    const [stockListTab, setStockListTab] = useState(1);
+
     useEffect(() => {setIsFirstRender(false);}, []);
 
     useEffect(() => {
-
+        // If the site is reloaded and IsAuthenticated is set to false -> try reconnect without navigating back to login
         if (!props.IsAuthenticated) {
             tryReconnect();
         } else {
-            console.log("Updating watchlist")
             updateWatchList();
         }
-
-        
     }, [props.IsAuthenticated]);
+
+    useEffect(() => {
+        // Check if it is the first render
+        if (isFirstRender) {
+            return;
+        }
+
+        if (sellDialogIsActive){
+             // Create the ActionStock object
+            if (curStockQuote === undefined || curSelectedPortfolioStock === undefined) {
+                alert("No stock is selected, please select a stock!");
+                return;
+            }
+            const amount = 0;
+            const curActionStock : ActionStock = {
+                symbol : curStockQuote.symbol,
+                stockName : curStockQuote.stockName,
+                quantity : amount,
+                price : curStockQuote.price
+            }
+            // set all relevant states
+            setCurActionStock(curActionStock);
+            // Show action dialog for buy operation
+            setCurActionDialog(<ActionDialog SelectedStock={curActionStock}
+                                            SetBuyDialogIsActive={setSellDialogIsActive}
+                                            isBuyDialog={false}
+                                        ></ActionDialog>);
+            
+        } else {
+            setCurActionDialog(<></>);
+        } 
+    }, [sellDialogIsActive]);
 
     useEffect(() => {
         // Check if it is the first render
@@ -111,7 +146,7 @@ function TradingDashboard(props: DashboardProps) : JSX.Element {
 
         if (buyDialogIsActive){
              // Create the ActionStock object
-            if (curStockQuote === undefined) {
+            if (curStockQuote === undefined || (curSelectedPortfolioStock === undefined && stockListTab === 2) || (curSelectedStock === undefined && stockListTab === 1)) {
                 alert("No stock is selected, please select a stock!");
                 return;
             }
@@ -127,15 +162,27 @@ function TradingDashboard(props: DashboardProps) : JSX.Element {
             // Show action dialog for buy operation
             setCurActionDialog(<ActionDialog SelectedStock={curActionStock}
                                             SetBuyDialogIsActive={setBuyDialogIsActive}
+                                            isBuyDialog={true}
                                         ></ActionDialog>);
             
         } else {
             setCurActionDialog(<></>);
-        }
-        
-
-        
+        } 
     }, [buyDialogIsActive]);
+
+
+    useEffect(() => {
+        switch (stockListTab) {
+            case 3:
+                break;
+            case 2:
+                updatePortfolioList();
+                break;
+            default:
+                updateWatchList();
+                break;
+        }
+    }, [stockListTab]);
 
     const buyStock = (stock : StockQuote) => {
         // Create the ActionStock object
@@ -156,12 +203,12 @@ function TradingDashboard(props: DashboardProps) : JSX.Element {
         // Show action dialog for buy operation
         setCurActionDialog(<ActionDialog SelectedStock={curActionStock}
                                          SetBuyDialogIsActive={setBuyDialogIsActive}
+                                         isBuyDialog={true}
                                     ></ActionDialog>);
         setBuyDialogIsActive(true); 
     }
 
     const updateWatchList = async () => {
-        console.log(props.UserId);
         if (props.UserId === undefined || props.UserId <= 0) {
             navigate("/login");
             throw new Error(`The userid is not valid!`)
@@ -169,7 +216,7 @@ function TradingDashboard(props: DashboardProps) : JSX.Element {
         const requestUrl = `/trading/getFavoriteList?userId=${props.UserId}`;
         setStockListWaiting(<WaitingDisplay WaitingText={"Retreiving watchlist from server..."}></WaitingDisplay>)
         const curData = await fetchFromTradingApi(requestUrl);
-        setWatchlist(   
+        setStockList(   
             <Watchlist 
                 SetBuyDialogIsActive={setBuyDialogIsActive}
                 ContentData={curData} 
@@ -177,6 +224,29 @@ function TradingDashboard(props: DashboardProps) : JSX.Element {
                 SetCurSelectedStock={setCurSelectedStock}
                 UpdateQuoteDisplay={updateQuoteDisplay}
             ></Watchlist>
+        );
+        setTimeout(()=>{
+            setStockListWaiting(<></>);
+        }, 1000);
+    } 
+
+    const updatePortfolioList = async () => {
+        if (props.UserId === undefined || props.UserId <= 0) {
+            navigate("/login");
+            throw new Error(`The userid is not valid!`)
+        }
+        const requestUrl = `/trading/getPortfolio?userId=${props.UserId}`;
+        setStockListWaiting(<WaitingDisplay WaitingText={"Retreiving user portfolio from server..."}></WaitingDisplay>)
+        const curData = await fetchFromTradingApi(requestUrl);
+        setStockList(   
+            <Portfolio 
+                SetBuyDialogIsActive={setBuyDialogIsActive}
+                SetSellDialogIsActive={setSellDialogIsActive}
+                ContentData={curData} 
+                RefreshCallback={updateWatchList} 
+                SetCurSelectedStock={setCurSelectedPortfolioStock}
+                UpdateQuoteDisplay={updateQuoteDisplay}
+            ></Portfolio>
         );
         setTimeout(()=>{
             setStockListWaiting(<></>);
@@ -244,14 +314,14 @@ function TradingDashboard(props: DashboardProps) : JSX.Element {
         })
     }
 
-    const updateQuoteDisplay = async (stock : StockBase | undefined) => {
-        if (stock === undefined) {
+    const updateQuoteDisplay = async (symbol : string | undefined) => {
+        if (symbol === undefined) {
             setEmptyQuote(<div id="EmptyQuote"><p>No quote data</p></div>);
             return;
         }
         // Get the quote from server
         setQuoteWaiting(<WaitingDisplay WaitingText={"Retreiving Quote from server..."}></WaitingDisplay>);
-        const data : StockQuote = await fetchFromTradingApi(`/trading/GetStockQuote?symbol=${stock.symbol}`);
+        const data : StockQuote = await fetchFromTradingApi(`/trading/GetStockQuote?symbol=${symbol}`);
         setQuoteDisplay(
             <div>
                 <label>Symbol: </label>
@@ -297,11 +367,11 @@ function TradingDashboard(props: DashboardProps) : JSX.Element {
             <main id="TradingDashboardContainer">
                 <div id="StockListContainer" className="waitingParent dashboardContainer">
                     <div id="StockListNavigation">
-                        <div id="WatchlistTab" className="navTab">Watchlist</div>
-                        <div id="PortfolioTab" className="navTab">Portfolio</div>
+                        <div id="WatchlistTab" className="navTab" onClick={() => setStockListTab(1)}>Watchlist</div>
+                        <div id="PortfolioTab" className="navTab" onClick={() => setStockListTab(2)}>Portfolio</div>
                         <div id="HistoryTab" className="navTab">Trade history</div>
                     </div>
-                    {watchlist}
+                    {stockList}
                     {stockListWaiting}
                     {curActionDialog}
                 </div>
@@ -310,7 +380,12 @@ function TradingDashboard(props: DashboardProps) : JSX.Element {
                     {quoteDisplay}
                     {emptyQuote}
                     <div className="btn-group" role="group">
-                        <button type="button" onClick={() => {updateQuoteDisplay(curSelectedStock);}} className="btn btn-outline btn-lg btn-primary">Refresh</button>
+                        <button type="button" onClick={() => {
+                            if (stockListTab === 1) {
+                                updateQuoteDisplay(curSelectedStock?.symbol);
+                            } else {
+                                updateQuoteDisplay(curSelectedPortfolioStock?.symbol);
+                            }}} className="btn btn-outline btn-lg btn-primary">Refresh</button>
                     </div>
                     {quoteWaiting}
                 </div>
