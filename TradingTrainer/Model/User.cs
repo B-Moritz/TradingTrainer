@@ -12,6 +12,9 @@
         public string LastName { get; set; }
         public string Email { get; set; }
         // The buying power of the user
+        public string Password { get; set; }
+
+        public string AlphaVantageApiKey { get; set; }
         public string FundsAvailable { get; set; }
         // The total amount of funds that have been invested by the user since the last reset.
         public string FundsSpent { get; set; }
