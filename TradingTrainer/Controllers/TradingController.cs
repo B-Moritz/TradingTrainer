@@ -434,27 +434,31 @@ namespace TradingTrainer.Controllers
          * Return: An updated User object.
          */
         public async Task<ActionResult> UpdateUser(User curUser) {
-            User user;
-            try
+            if (ModelState.IsValid)
             {
-                user = await _tradingService.UpdateUserAsync(curUser);
+                User user;
+                try
+                {
+                    user = await _tradingService.UpdateUserAsync(curUser);
+                }
+                catch (InvalidOperationException userNotFoundEx)
+                {
+                    // The user was not found
+                    _logger.LogWarning("An exception has occured while trying to find the user. \n" +
+                        userNotFoundEx.Message);
+                    return NotFound(userNotFoundEx.Message);
+                }
+                catch (Exception generalError)
+                {
+                    _logger.LogError("An exception has occured while updating the user.\n" + generalError.Message);
+                    return StatusCode(StatusCodes.Status500InternalServerError, generalError.Message);
+                }
+                // Obtaining the user from the database
+                return Ok(user);
             }
-            catch (InvalidOperationException userNotFoundEx)
-            {
-                // The user was not found
-                _logger.LogWarning("An exception has occured while trying to find the user. \n" +
-                    userNotFoundEx.Message);
-                return NotFound(userNotFoundEx.Message);
-            }
-            catch (Exception generalError)
-            {
-                _logger.LogError("An exception has occured while updating the user.\n" + generalError.Message);
-                return StatusCode(StatusCodes.Status500InternalServerError, generalError.Message);
-            }
-            // Obtaining the user from the database
-            return Ok(user);
+            _logger.LogInformation("Feil i inputvalidering");
+            return BadRequest("Feil i inputValidering");
         }
-
         /**
          * 
          */
