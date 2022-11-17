@@ -251,6 +251,7 @@ function TradingDashboard(props: DashboardProps) : JSX.Element {
         const requestUrl = `/trading/getPortfolio?userId=${props.UserId}`;
         setStockListWaiting(<WaitingDisplay WaitingText={"Retreiving user portfolio from server..."}></WaitingDisplay>)
         const curData = await fetchFromTradingApi(requestUrl);
+        setStockList(<></>);
         setStockList(   
             <Portfolio 
                 SetBuyDialogIsActive={setBuyDialogIsActive}
