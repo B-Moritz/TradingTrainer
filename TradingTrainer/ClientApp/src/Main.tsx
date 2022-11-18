@@ -23,7 +23,7 @@ function Main(props: MainProps) : JSX.Element {
         currency : ""
     };
     const [authenticatedUser, setAuthenticatedUser] = useState(initialUser);
-    const [isAuthenticated, setIsAuthenticated] = useState(false);
+    //const [isAuthenticated, setIsAuthenticated] = useState(false);
     // The routing feature is created with information from https://reactrouter.com/en/main/start/tutorial#adding-a-router
     const router = createBrowserRouter([
         {
@@ -39,7 +39,8 @@ function Main(props: MainProps) : JSX.Element {
                     path: "/login",
                     element: <LoginForm 
                                 SetUser={setAuthenticatedUser}
-                                SetIsAuthenticated={setIsAuthenticated}
+                                User={authenticatedUser}
+                                //SetIsAuthenticated={setIsAuthenticated}
                             />,
                 },
                 {
@@ -51,10 +52,10 @@ function Main(props: MainProps) : JSX.Element {
         {
             path: "/tradingDashboard",
             element: <TradingDashboard 
-                        UserId={authenticatedUser.id}
-                        IsAuthenticated={isAuthenticated}   
+                        User={authenticatedUser}
+                        //IsAuthenticated={isAuthenticated}   
                         SetUser={setAuthenticatedUser}
-                        SetIsAuthenticated={setIsAuthenticated}
+                        //SetIsAuthenticated={setIsAuthenticated}
                     />,
         },
     ]);

@@ -13,10 +13,10 @@ import Portfolio, {PortfolioStock} from './Portfolio';
 import StockMarket from "./StockMarket";
 
 type DashboardProps = {
-    UserId : number
-    IsAuthenticated : boolean
+    User : User
+    //IsAuthenticated : boolean
     SetUser : React.Dispatch<React.SetStateAction<User>>
-    SetIsAuthenticated : React.Dispatch<React.SetStateAction<boolean>>
+    //SetIsAuthenticated : React.Dispatch<React.SetStateAction<boolean>>
 }
 
 type StockQuote = {
@@ -40,6 +40,13 @@ type StockQuote = {
     change : string,
     changePercent : string
 
+}
+
+class DashboardTabNames {
+    static WatchList = 1;
+    static PortfolioList = 2;
+    static StockMarket = 3;
+    static TradeHistory = 4;
 }
 
 function TradingDashboard(props: DashboardProps) : JSX.Element {
@@ -79,8 +86,8 @@ function TradingDashboard(props: DashboardProps) : JSX.Element {
     }
     const [stockListWaiting, setStockListWaiting] = useState(<></>);
     const [reconnectingWaiting, setReconnectingWaiting] = useState(<></>)
-    const [stockList, setStockList] = useState<JSX.Element>(<></>);
-    const [curSelectedStock, setCurSelectedStock] = useState<StockBase>();
+    //const [stockList, setStockList] = useState<JSX.Element>(<></>);
+    const [curSelectedStock, setCurSelectedStock] = useState<StockBase>(initialStock);
     const [curSelectedPortfolioStock, setCurSelectedPortfolioStock] = useState<PortfolioStock>();
     const [curStockQuote, setCurStockQuote] = useState<StockQuote>(initialQuote);
     // Action dialog related
@@ -94,22 +101,20 @@ function TradingDashboard(props: DashboardProps) : JSX.Element {
     const [quoteDisplay, setQuoteDisplay] = useState(<></>);
     const [isFirstRender, setIsFirstRender] = useState(true);
 
-    const [stockListTab, setStockListTab] = useState(1);
+    const [stockListTab, setStockListTab] = useState(DashboardTabNames.WatchList);
 
     useEffect(() => {setIsFirstRender(false);}, []);
 
     useEffect(() => {
         // If the site is reloaded and IsAuthenticated is set to false -> try reconnect without navigating back to login
-        if (!props.IsAuthenticated) {
+        if (props.User.id === 0) {            
             tryReconnect();
-        } else {
-            updateWatchList();
         }
-    }, [props.IsAuthenticated]);
+    }, [props.User]);
 
     useEffect(() => {
         // Check if it is the first render
-        if (isFirstRender) {
+        if (props.User.id === 0) {
             return;
         }
 
@@ -132,7 +137,7 @@ function TradingDashboard(props: DashboardProps) : JSX.Element {
             setCurActionDialog(<ActionDialog SelectedStock={curActionStock}
                                             SetBuyDialogIsActive={setSellDialogIsActive}
                                             isBuyDialog={false}
-                                            UserId={props.UserId}
+                                            UserId={props.User.id}
                                         ></ActionDialog>);
             
         } else {
@@ -143,7 +148,7 @@ function TradingDashboard(props: DashboardProps) : JSX.Element {
 
     useEffect(() => {
         // Check if it is the first render
-        if (isFirstRender) {
+        if (props.User.id === 0) {
             return;
         }
 
@@ -166,7 +171,7 @@ function TradingDashboard(props: DashboardProps) : JSX.Element {
             setCurActionDialog(<ActionDialog SelectedStock={curActionStock}
                                             SetBuyDialogIsActive={setBuyDialogIsActive}
                                             isBuyDialog={true}
-                                            UserId={props.UserId}
+                                            UserId={props.User.id}
                                         ></ActionDialog>);
             
         } else {
@@ -181,13 +186,12 @@ function TradingDashboard(props: DashboardProps) : JSX.Element {
 
     }, [buyDialogIsActive]);
 
-
     useEffect(() => {
         switch (stockListTab) {
-            case 3:
+            case DashboardTabNames.StockMarket:
                 setStockMarket();
                 break;
-            case 2:
+            case DashboardTabNames.PortfolioList:
                 updatePortfolioList();
                 break;
             default:
@@ -216,39 +220,18 @@ function TradingDashboard(props: DashboardProps) : JSX.Element {
         setCurActionDialog(<ActionDialog SelectedStock={curActionStock}
                                          SetBuyDialogIsActive={setBuyDialogIsActive}
                                          isBuyDialog={true}
-                                         UserId={props.UserId}
+                                         UserId={props.User.id}
                                     ></ActionDialog>);
-        setBuyDialogIsActive(true); 
+        setBuyDialogIsActive(true);
     }
 
-    const updateWatchList = async () => {
-        if (props.UserId === undefined || props.UserId <= 0) {
-            navigate("/login");
-            throw new Error(`The userid is not valid!`)
-        }
-        const requestUrl = `/trading/getFavoriteList?userId=${props.UserId}`;
-        setStockListWaiting(<WaitingDisplay WaitingText={"Retreiving watchlist from server..."}></WaitingDisplay>)
-        const curData = await fetchFromTradingApi(requestUrl);
-        setStockList(   
-            <Watchlist 
-                SetBuyDialogIsActive={setBuyDialogIsActive}
-                ContentData={curData} 
-                RefreshCallback={updateWatchList} 
-                SetCurSelectedStock={setCurSelectedStock}
-                UpdateQuoteDisplay={updateQuoteDisplay}
-            ></Watchlist>
-        );
-        setTimeout(()=>{
-            setStockListWaiting(<></>);
-        }, 1000);
-    } 
+     
 
     const updatePortfolioList = async () => {
-        if (props.UserId === undefined || props.UserId <= 0) {
-            navigate("/login");
-            throw new Error(`The userid is not valid!`)
+        if (props.User.id === 0) {
+            return;
         }
-        const requestUrl = `/trading/getPortfolio?userId=${props.UserId}`;
+        const requestUrl = `/trading/getPortfolio?userId=${props.User.id}`;
         setStockListWaiting(<WaitingDisplay WaitingText={"Retreiving user portfolio from server..."}></WaitingDisplay>)
         const curData = await fetchFromTradingApi(requestUrl);
         setStockList(<></>);
@@ -268,31 +251,18 @@ function TradingDashboard(props: DashboardProps) : JSX.Element {
     } 
 
     const setStockMarket = () => {
-        if (props.UserId === undefined || props.UserId <= 0) {
+        if (props.User.id === 0) {
             navigate("/login");
             throw new Error(`The userid is not valid!`)
         }
         setStockList(
-            <StockMarket UserId={props.UserId}></StockMarket>
+            <StockMarket UserId={props.User.id}></StockMarket>
         );
     }
 
-    const fetchFromTradingApi = async (requestUrl : string) : Promise<any> => {
-        return fetch(requestUrl).then((response) => {
-            if (!response.ok) {
-                // The server responded with an error
-                const msg = `Error: The server responded with error code: ${response.status}\n \
-                Message: ${response.text}`;
-                throw new Error(msg);
-            }
-            return response.json();
-        }).catch((errorResp) => {
-            alert(errorResp.message);
-            console.log(errorResp.message);
-            setStockListWaiting(<></>)
-        });
-    }
-
+    /*
+    This function is used to check if the user already has an active session
+    */
     const tryReconnect = async () => {
         setReconnectingWaiting(<WaitingDisplay WaitingText={"Reconnecting, please wait ...."}></WaitingDisplay>);
         await checkExistingSession();
@@ -314,10 +284,9 @@ function TradingDashboard(props: DashboardProps) : JSX.Element {
         }).then((data) => {
             if (data) {
                 // The user has already an active session on the server
-                console.log("User has an active session. Redirecting to dashboard.")
                 // Bypas login procedure
                 props.SetUser(data.result);
-                props.SetIsAuthenticated(true);
+                //props.SetIsAuthenticated(true);
                 navigate("/TradingDashboard");
             }
         }).catch((errorResp) => {
@@ -379,6 +348,24 @@ function TradingDashboard(props: DashboardProps) : JSX.Element {
         setEmptyQuote(<></>);
     }
     
+    let stockList;
+    switch(stockListTab) {
+        case DashboardTabNames.StockMarket:
+            break;
+        case DashboardTabNames.PortfolioList:
+            break;
+        case DashboardTabNames.TradeHistory:
+            break;
+        default:
+            stockList = <Watchlist 
+                            SetBuyDialogIsActive={setBuyDialogIsActive}
+                            SetCurSelectedStock={setCurSelectedStock}
+                            UpdateQuoteDisplay={updateQuoteDisplay}
+                            SetStockListWaiting={setStockListWaiting}
+                            CurSelectedStock={curSelectedStock}
+                            IsWaiting={true}
+                        ></Watchlist>      
+    }
 
     return (
         <>
@@ -391,9 +378,9 @@ function TradingDashboard(props: DashboardProps) : JSX.Element {
             <main id="TradingDashboardContainer">
                 <div id="StockListContainer" className="waitingParent dashboardContainer">
                     <div id="StockListNavigation">
-                        <div id="WatchlistTab" className="navTab" onClick={() => setStockListTab(1)}>Watchlist</div>
-                        <div id="PortfolioTab" className="navTab" onClick={() => setStockListTab(2)}>Portfolio</div>
-                        <div id="StockMarketTab" className="navTab" onClick={() => setStockListTab(3)}>Stock Market</div>
+                        <div id="WatchlistTab" className="navTab" onClick={() => updateWatchList()}>Watchlist</div>
+                        <div id="PortfolioTab" className="navTab" onClick={() => updatePortfolioList()}>Portfolio</div>
+                        <div id="StockMarketTab" className="navTab" onClick={() => setStockMarket()}>Stock Market</div>
                         <div id="HistoryTab" className="navTab">Trade history</div>
                     </div>
                     {stockList}
