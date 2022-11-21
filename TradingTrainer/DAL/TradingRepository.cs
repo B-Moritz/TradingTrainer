@@ -366,5 +366,22 @@ namespace TradingTrainer.DAL
             // Apply the changes to database
             await _db.SaveChangesAsync();
         }
+
+        public async Task<bool> AddUser(Users user)
+        {
+            try
+            { 
+                await _db.Users.AddAsync(user);
+                await _db.SaveChangesAsync();
+                return true;
+
+            }
+            catch
+            {
+                return false;
+            }
+           
+        }
+        
     }
 }

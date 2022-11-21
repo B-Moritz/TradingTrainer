@@ -13,6 +13,7 @@ using Microsoft.Extensions.Logging.Configuration;
 using TradingTrainer.BLL;
 using TradingTrainer.DAL;
 using TradingTrainer.Model;
+using static Microsoft.Extensions.Logging.EventSource.LoggingEventSource;
 
 namespace TradingTrainer.Controllers
 {
@@ -211,10 +212,46 @@ namespace TradingTrainer.Controllers
          *      (int) count: The amount of shares that should be bought of the specified stock.
          * Return: An updated Portfolio object that reflects the latest buy operation for the user.
          */
-        public async Task<ActionResult> BuyStock(int userId, string symbol, int count)
+        /*
+         * 
+         * 
+         * 
+         * 
+         * public async Task<ActionResult> BuyStock(int userId, string symbol, int count)
         {
             await _tradingService.BuyStock(userId, symbol, count);
             return Ok(await _tradingService.CreateCurrentPortfolio(userId));
+        }
+        */
+        public async Task<ActionResult> BuyStock(int userId, string symbol, int count)
+        {
+            //
+            //
+            // Skal man implementere feilhåndtering av await _tradingService.BuyStock(userId, symbol, count); ?????????????????????????
+            // ????????????????????????????????????????????????????????????????????????????????????????????????????????????????????
+            //
+
+            await _tradingService.BuyStock(userId, symbol, count);
+            Portfolio outPortfolio;
+            try
+            {
+                outPortfolio = await _tradingService.CreateCurrentPortfolio(userId);
+            }
+            catch (KeyNotFoundException userNotFoundEx)
+            {
+                // The user was not found
+                _logger.LogWarning("An exception has occured while trying to find the user. \n" +
+                    userNotFoundEx.Message);
+                return NotFound(userNotFoundEx.Message);
+            }
+            catch (Exception generalError)
+            {
+                // An unexpected exception was thrown, log exception and respond with InternalServerError (500)
+                _logger.LogError("An exception has occured while creating the current portfolio " +
+                                 "(TradingService.CreateCurrentPortfolio):\n" + generalError.Message);
+                return StatusCode(StatusCodes.Status500InternalServerError, generalError.Message);
+            }
+            return Ok(outPortfolio);
         }
 
         /**
@@ -225,12 +262,46 @@ namespace TradingTrainer.Controllers
         *      (int) count: The amount of shares that should be sold of the specified stock
         * Return: An updated Portfolio object that reflects the latest selling operation for the user.
         */
-        public async Task<ActionResult> SellStock(int userId, string symbol, int count)
+        /*
+         * 
+         * 
+         * public async Task<ActionResult> SellStock(int userId, string symbol, int count)
         {
             await _tradingService.SellStock(userId, symbol, count);
             return Ok(await _tradingService.CreateCurrentPortfolio(userId));
         }
-        
+        */
+        public async Task<ActionResult> SellStock(int userId, string symbol, int count)
+        {
+            //
+            //
+            // Skal man implementere feilhåndtering av await _tradingService.SellStock(userId, symbol, count); ?????????????????????????
+            // ????????????????????????????????????????????????????????????????????????????????????????????????????????????????????
+            //
+
+            await _tradingService.SellStock(userId, symbol, count);
+            Portfolio outPortfolio;
+            try
+            {
+                outPortfolio = await _tradingService.CreateCurrentPortfolio(userId);
+            }
+            catch (KeyNotFoundException userNotFoundEx)
+            {
+                // The user was not found
+                _logger.LogWarning("An exception has occured while trying to find the user. \n" +
+                    userNotFoundEx.Message);
+                return NotFound(userNotFoundEx.Message);
+            }
+            catch (Exception generalError)
+            {
+                // An unexpected exception was thrown, log exception and respond with InternalServerError (500)
+                _logger.LogError("An exception has occured while creating the current portfolio " +
+                                 "(TradingService.CreateCurrentPortfolio):\n" + generalError.Message);
+                return StatusCode(StatusCodes.Status500InternalServerError, generalError.Message);
+            }
+            return Ok(outPortfolio);
+        }
+
         /**
          * This method is the endpoint used to obtain the Quote object of a stock
          * Parameters:
@@ -299,6 +370,8 @@ namespace TradingTrainer.Controllers
          */
         public async Task<ActionResult> ClearAllTradeHistory(int userId)
         {
+            // skal man ikke feilhåndtere om man ikke finner en user ????????????????????????????????????????????????????????
+
             // Removing the trade records connected to the provided userId
             return Ok($"The trade history was cleared for user {userId}");
         }
@@ -311,8 +384,25 @@ namespace TradingTrainer.Controllers
          */
         public async Task<ActionResult> GetUser(int userId)
         {
+            User user;
+            try
+            {
+                user = await _tradingService.GetUserAsync(userId);
+            }
+            catch (KeyNotFoundException userNotFoundEx)
+            {
+                // The user was not found
+                _logger.LogWarning("An exception has occured while trying to find the user. \n" +
+                    userNotFoundEx.Message);
+                return NotFound(userNotFoundEx.Message);
+            }
+            catch (Exception generalError)
+            {
+                _logger.LogError("An exception has occured with getUser.\n" + generalError.Message);
+                return StatusCode(StatusCodes.Status500InternalServerError, generalError.Message);
+            }
             // Obtaining the user from the database
-            return Ok(await _tradingService.GetUserAsync(userId));
+            return Ok(user);
         }
 
         public async Task<ActionResult> GetUsername()
@@ -344,14 +434,33 @@ namespace TradingTrainer.Controllers
          * Return: An updated User object.
          */
         public async Task<ActionResult> UpdateUser(User curUser) {
-            return Ok(await _tradingService.UpdateUserAsync(curUser));
+            User user;
+            try
+            {
+                user = await _tradingService.UpdateUserAsync(curUser);
+            }
+            catch (InvalidOperationException userNotFoundEx)
+            {
+                // The user was not found
+                _logger.LogWarning("An exception has occured while trying to find the user. \n" +
+                    userNotFoundEx.Message);
+                return NotFound(userNotFoundEx.Message);
+            }
+            catch (Exception generalError)
+            {
+                _logger.LogError("An exception has occured while updating the user.\n" + generalError.Message);
+                return StatusCode(StatusCodes.Status500InternalServerError, generalError.Message);
+            }
+            // Obtaining the user from the database
+            return Ok(user);
         }
 
         /**
          * 
          */
-        public async Task CreateUser(int userId) {
-            throw new NotImplementedException();
+        public async Task<bool> CreateUser([FromBody]User user) {
+
+            return await _tradingService.CreateUser(user);
         }
 
         public async Task DeleteUser(int userId) {
@@ -367,7 +476,24 @@ namespace TradingTrainer.Controllers
          * Return: An updated User object.
          */
         public async Task<ActionResult> ResetProfile(int userId) {
-            return Ok(await _tradingService.ResetProfileAsync(userId));
+            User user;
+            try
+            {
+                user = await _tradingService.ResetProfileAsync(userId);
+            }
+            catch (InvalidOperationException userNotFoundEx)
+            {
+                // The user was not found
+                _logger.LogWarning("An exception has occured while trying to find the user. \n" +
+                    userNotFoundEx.Message);
+                return NotFound(userNotFoundEx.Message);
+            }
+            catch (Exception generalError)
+            {
+                _logger.LogError("An exception has occured while reseting the profile of the user.\n" + generalError.Message);
+                return StatusCode(StatusCodes.Status500InternalServerError, generalError.Message);
+            }
+            return Ok(user);
         }
 
         public async Task<ActionResult> LogIn([FromBody]Credentials curCredentials) {
