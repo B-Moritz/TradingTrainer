@@ -180,3 +180,37 @@ header {
                          'errorMsg errorMsg'
                          'group group';
 }
+
+
+/* footer sin css*/
+.main-footer {
+    color: #fff;
+    background-color: #444a51;
+    padding-top: 7em;
+    padding-bottom: 0em;
+    position: relative;
+    bottom: 0;
+    width: 100%;
+}
+.container {
+    height: 300px;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+.col {
+    float: left;
+    width: 10%;
+    padding: 10px;
+    height: 230px;
+}
+
+
+.row:after {
+    content: close-quote;
+    display: table;
+    clear: both;
+}
+   
