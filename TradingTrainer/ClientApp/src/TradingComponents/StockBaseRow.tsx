@@ -40,7 +40,7 @@ function StockBaseRow(props : StockBaseRowProps) : JSX.Element {
     }
 
     return(
-        <tr onClick={selectStock} className={(props.IsSelected ? "stockSelected" : "")}>
+        <tr onClick={(props.IsSelected ? () => {} : selectStock)} className={(props.IsSelected ? "stockSelected" : "")}>
             <td>{props.CurStockBase.symbol}</td>
             <td>{props.CurStockBase.stockName}</td>
             <td>{props.CurStockBase.type}</td>

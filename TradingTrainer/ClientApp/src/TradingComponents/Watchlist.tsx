@@ -5,6 +5,8 @@ import React, { useState, useEffect } from 'react';
 import { User } from '../LoginForm';
 import WaitingDisplay from '../WaitingDisplay';
 import { getWatchlist } from '../Service/TradingApi';
+import { useNavigate} from 'react-router-dom';
+import { DashboardTabNames } from './TradingDashboard';
 
 type WatchlistResponse = {
     lastUpdated : string,
@@ -13,11 +15,11 @@ type WatchlistResponse = {
 
 type WatchlistProps = {
     SetCurSelectedStock : React.Dispatch<React.SetStateAction<StockBase>>
-    SetBuyDialogIsActive : React.Dispatch<React.SetStateAction<boolean>>
+    SetStockListTab : React.Dispatch<React.SetStateAction<number[]>>
     UpdateQuoteDisplay : (symbol : string) => Promise<any>
-    User : User,
-    SetStockListWaiting : React.Dispatch<React.SetStateAction<JSX.Element>>,
+    User : User
     CurSelectedStock : StockBase
+    ActiveTab : number
 }
 
 type OutList = {
@@ -26,20 +28,23 @@ type OutList = {
 }
 
 function Watchlist(props : WatchlistProps) : JSX.Element {
+    const navigate = useNavigate();
     const [outList, setOutList] = useState<OutList>({
         lastUpdated : "",
         elements : []
     });
 
     useEffect(() => {
-        initialList();
-    }, [])
+        if (props.ActiveTab === DashboardTabNames.WatchList) {
+            initialList();
+        }
+    }, [props.User, props.ActiveTab])
 
     const initialList = () => {
         let curOutList : JSX.Element[] = [];
         let isSelected = false;
-        getWatchlist(props.User.id).then((data : WatchlistResponse) => {
-            if (data.stockList !== undefined) {
+        if (props.User.id !== 0) {
+            getWatchlist(props.User.id).then((data : WatchlistResponse) => {
                 data.stockList.forEach((stock : any, index : number) => {
                     if (index === 0) {
                         props.SetCurSelectedStock(stock);
@@ -55,19 +60,19 @@ function Watchlist(props : WatchlistProps) : JSX.Element {
                     isSelected = false;
                 });
                 if (curOutList.length === 0) {
-                    curOutList.push(<div className="emptyTableDisp" key="EmptyWatchlistDisp"><p>Empty table</p></div>);    
+                    curOutList.push(<tr className="emptyTableDisp" key="EmptyWatchlistDisp"><td>Empty table</td></tr>);    
                 }
                 setOutList({
                     lastUpdated : data.lastUpdated,
                     elements : curOutList
                 });
-            } else {
-                setOutList({
-                    lastUpdated : "Not awailable",
-                    elements : [<div className="emptyTableDisp" key="EmptyWatchlistDisp"><p>Empty table</p></div>]
-                });
-            }
-        });
+            }).catch(() => navigate("/login"));
+        } else {
+            setOutList({
+                lastUpdated : "Not awailable",
+                elements : [<tr className="emptyTableDisp" key="EmptyWatchlistDisp"><td>Empty table</td></tr>]
+            });
+        }
     }
 
     const refresh = (e : React.MouseEvent) => {
@@ -77,8 +82,8 @@ function Watchlist(props : WatchlistProps) : JSX.Element {
     const selectStock = (selectedStock : StockBase) => {
         let curOutList : JSX.Element[] = [];
         let isSelected = false;
-        getWatchlist(props.User.id).then((data : WatchlistResponse) => {
-            if (data.stockList !== undefined) {
+        if (props.User.id !== 0) {
+            getWatchlist(props.User.id).then((data : WatchlistResponse) => {
                 data.stockList.forEach((stock : any, index : number) => {
                     if (stock.symbol === selectedStock.symbol) {
                         props.SetCurSelectedStock(stock);
@@ -86,29 +91,28 @@ function Watchlist(props : WatchlistProps) : JSX.Element {
                         props.UpdateQuoteDisplay(stock.symbol);
                     }
                     curOutList.push(<StockBaseRow 
-                                    key={"favStock_" + stock.symbol} 
-                                    CurStockBase={stock} 
+                                    key={"favStock_" + stock.symbol}
+                                    CurStockBase={stock}
                                     IsSelected={isSelected}
                                     SelectStock={selectStock}
                                 ></StockBaseRow>);
                     isSelected = false;
                 });
                 if (curOutList.length === 0) {
-                    curOutList.push(<div className="emptyTableDisp" key="EmptyWatchlistDisp"><p>Empty table</p></div>); 
+                    curOutList.push(<tr className="emptyTableDisp" key="EmptyWatchlistDisp"><td>Empty table</td></tr>); 
                 } else {
                     setOutList({
                         lastUpdated : data.lastUpdated,
                         elements : curOutList
                     });
                 }
-            } else {
-                setOutList({
-                    lastUpdated : "Not awailable",
-                    elements : [<div className="emptyTableDisp" key="EmptyWatchlistDisp"><p>Empty table</p></div>]
-                });
-            }
-        })
-
+            }).catch(() => navigate("/login"));
+        } else {
+            setOutList({
+                lastUpdated : "Not awailable",
+                elements : [<tr className="emptyTableDisp" key="EmptyWatchlistDisp"><td>Empty table</td></tr>]
+            });
+        }
     }
 
     return(
@@ -127,7 +131,8 @@ function Watchlist(props : WatchlistProps) : JSX.Element {
                 </table>
                 <div className="btn-group" role="group">
                     <button className="btn btn-lg btn-primary" onClick={refresh}>Refresh</button>
-                    <button onClick={() => {props.SetBuyDialogIsActive(true);}} type="button" className="btn btn-outline btn-lg btn-success">Buy</button>
+                    <button onClick={() => {props.SetStockListTab([DashboardTabNames.BuyDisplay, DashboardTabNames.WatchList]);}} 
+                            type="button" className="btn btn-outline btn-lg btn-success">Buy</button>
                 </div>
             </div>
             { outList.elements.length === 0 && <WaitingDisplay WaitingText={"Retreiving watchlist from server..."}></WaitingDisplay> }
