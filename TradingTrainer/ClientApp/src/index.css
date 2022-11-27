@@ -33,7 +33,7 @@ body {
     margin-left: 1rem;
 }
 
-header {
+#PrimaryTitle {
     margin-bottom: 5rem;
 }
 
@@ -296,4 +296,49 @@ header {
     position: sticky;
     top: 0;
     background-color: rgb(218, 218, 218);
+}
+
+
+/* Title - header */
+
+#TradingTrainerNavIcon {
+    margin: 0.5rem;
+}
+
+#TradingTrainerNavTitle {
+    padding: 0.5rem 1.5rem 0.5rem 0.5rem;
+    margin: 0 0 0 0;
+    color: #618298;
+    border-style: solid;
+    border-color: white grey white white;
+    height: 100%;
+}
+
+#DashboardNav {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    height: 5rem;
+}
+
+#DashboardNav > div {
+    height: 100%;
+}
+
+.navLink {
+    cursor: pointer;
+    height: 100%;
+    padding: 1.5rem 1rem 1.5rem 1rem;
+    text-align: center;
+    font-size: 1em;
+}
+
+.navLink:hover {
+    background-color:#0d6efd;
+    color: white;
+}
+
+/* Settings */
+#SettingsContainer {
+    padding: 2rem;
 }

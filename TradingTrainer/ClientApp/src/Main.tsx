@@ -6,7 +6,8 @@ import PrimaryContainer from './PrimaryContainer';
 import ErrorComponent from './ErrorComponent';
 import TradingDashboard from './TradingComponents/TradingDashboard';
 import RegisterForm from './RegisterForm';
-import userEvent from '@testing-library/user-event';
+import AppContainer from './AppContainer';
+import Settings from './Settings/Settings';
 
 
 type MainProps = {}
@@ -51,13 +52,28 @@ function Main(props: MainProps) : JSX.Element {
         },
         {
             path: "/tradingDashboard",
-            element: <TradingDashboard 
+            element: <AppContainer 
                         User={authenticatedUser}
-                        //IsAuthenticated={isAuthenticated}   
                         SetUser={setAuthenticatedUser}
-                        //SetIsAuthenticated={setIsAuthenticated}
                     />,
-        },
+            errorElement: <ErrorComponent />,
+            children: [
+                {
+                    path: "/tradingDashboard",
+                    element: <TradingDashboard 
+                                User={authenticatedUser}
+                                SetUser={setAuthenticatedUser}
+                            />,
+                },
+                {
+                    path: "/tradingDashboard/settings",
+                    element: <Settings 
+                                User={authenticatedUser}
+                                SetUser={setAuthenticatedUser}
+                            />
+                }
+            ]
+        }
     ]);
 
     return(

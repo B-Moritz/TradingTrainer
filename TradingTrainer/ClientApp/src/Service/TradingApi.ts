@@ -1,3 +1,4 @@
+
 async function fetchFromTradingApi(requestUrl : string) : Promise<any> {
     return fetch(requestUrl, {
         method: "Get",
@@ -49,5 +50,10 @@ export async function getStockQuote(symbol : string) : Promise<any> {
 
 export async function getTradeHistory(userId : number) : Promise<any> {
     const requestUrl = `trading/GetAllTrades?userId=${userId}`;
+    return await fetchFromTradingApi(requestUrl);
+}
+
+export async function getUserProfile(userId : number) : Promise<void> {
+    const requestUrl = `trading/getUser?userId=${userId}`;
     return await fetchFromTradingApi(requestUrl);
 }

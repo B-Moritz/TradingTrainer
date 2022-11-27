@@ -8,7 +8,6 @@ import { StockBase } from './StockBaseRow';
 import { User } from '../LoginForm';
 import ActionDialog, { ActionStock } from './ActionDialog';
 import { DateTimeFormat, ColorPrice } from './DisplayUtilities';
-import { setUncaughtExceptionCaptureCallback } from 'process';
 import Portfolio, {PortfolioStock} from './Portfolio';
 import StockMarket from "./StockMarket";
 import { getStockQuote } from '../Service/TradingApi';
@@ -16,9 +15,7 @@ import TradeHistory from './TradeHistory';
 
 type DashboardProps = {
     User : User
-    //IsAuthenticated : boolean
     SetUser : React.Dispatch<React.SetStateAction<User>>
-    //SetIsAuthenticated : React.Dispatch<React.SetStateAction<boolean>>
 }
 
 type StockQuote = {
@@ -88,25 +85,16 @@ function TradingDashboard(props: DashboardProps) : JSX.Element {
         change : "",
         changePercent : ""
     }
-    const [reconnectingWaiting, setReconnectingWaiting] = useState(<></>)
+    
     //const [stockList, setStockList] = useState<JSX.Element>(<></>);
     const [curSelectedStock, setCurSelectedStock] = useState<StockBase>(initialStock);
     const [curSelectedPortfolioStock, setCurSelectedPortfolioStock] = useState<PortfolioStock>();
     const [curStockQuote, setStockQuote] = useState<StockQuote>(initialQuote);
 
-    const [userAvailable, setUserAvailable] = useState(false);
     // The firs value is the id of the active display. The second value is the id of the display that the program should return to
     const [stockListTab, setStockListTab] = useState<Array<number>>([DashboardTabNames.WatchList, DashboardTabNames.WatchList]);
 
-    useEffect(() => {
-        // If the site is reloaded and IsAuthenticated is set to false -> try reconnect without navigating back to login
-        console.log("Current user id is: " + props.User.id);
-        if (props.User.id === 0) {            
-            tryReconnect();
-        } else {
-            setUserAvailable(true);
-        }
-    }, [props.User]);
+
 
     const createSellDialog = () : JSX.Element => {
         // Create the ActionStock object
@@ -157,41 +145,6 @@ function TradingDashboard(props: DashboardProps) : JSX.Element {
                             isBuyDialog={true}
                             UserId={props.User.id}
                         ></ActionDialog>);
-    }
-
-    /*
-    This function is used to check if the user already has an active session
-    */
-    const tryReconnect = async () => {
-        setReconnectingWaiting(<WaitingDisplay WaitingText={"Reconnecting, please wait ...."}></WaitingDisplay>);
-        await checkExistingSession();
-        setReconnectingWaiting(<></>);
-    }
-
-    const checkExistingSession = async () => {
-        // Check if the user has an active session
-        // If the user has an active session -> redirect to application
-        await fetch("/trading/getUsername").then((response) => {
-            if (!response.ok) {
-                if (response.status === 401) {
-                    console.log("User needs authentication");
-                    navigate('/login');
-                }
-                throw new Error(`The server responded with status code ${response.status}: ${response.text}`);
-            }
-            return response.json();
-        }).then((data) => {
-            if (data) {
-                // The user has already an active session on the server
-                // Bypas login procedure
-                props.SetUser(data.result);
-                //props.SetIsAuthenticated(true);
-                //navigate("/TradingDashboard");
-            }
-        }).catch((errorResp) => {
-            console.log(errorResp.message);
-            setReconnectingWaiting(<></>);
-        });
     }
 
     const updateQuoteDisplay = async (symbol : string | undefined) => {
@@ -284,47 +237,37 @@ function TradingDashboard(props: DashboardProps) : JSX.Element {
 
     return (
         <>
-            <header>
-                <h1>Trading Dashboard</h1>  
-            </header>
-            <nav>
-
-            </nav>
-            <main id="TradingDashboardContainer">
-                <div id="StockListContainer" className="waitingParent dashboardContainer">
-                    <div id="StockListNavigation">
-                        <div id="WatchlistTab" 
-                             className={"navTab " + (stockListTab[1] === DashboardTabNames.WatchList ? "selectedTab" : "")} 
-                             onClick={() => setStockListTab([DashboardTabNames.WatchList, DashboardTabNames.WatchList])}>Watchlist</div>
-                        <div id="PortfolioTab" 
-                             className={"navTab " + (stockListTab[1] === DashboardTabNames.PortfolioList ? "selectedTab" : "")} 
-                             onClick={() => setStockListTab([DashboardTabNames.PortfolioList, DashboardTabNames.PortfolioList])}>Portfolio</div>
-                        <div id="StockMarketTab" 
-                             className={"navTab " + (stockListTab[1] === DashboardTabNames.StockMarket ? "selectedTab" : "")} 
-                             onClick={() => setStockListTab([DashboardTabNames.StockMarket, DashboardTabNames.StockMarket])}>Stock Market</div>
-                        <div id="HistoryTab" 
-                             className={"navTab " + (stockListTab[1] === DashboardTabNames.TradeHistory ? "selectedTab" : "")} 
-                             onClick={() => setStockListTab([DashboardTabNames.TradeHistory, DashboardTabNames.TradeHistory])}>Trade history</div>
-                    </div>
-                    {stockList}
+            <div id="StockListContainer" className="waitingParent dashboardContainer">
+                <div id="StockListNavigation">
+                    <div id="WatchlistTab" 
+                            className={"navTab " + (stockListTab[1] === DashboardTabNames.WatchList ? "selectedTab" : "")} 
+                            onClick={() => setStockListTab([DashboardTabNames.WatchList, DashboardTabNames.WatchList])}>Watchlist</div>
+                    <div id="PortfolioTab" 
+                            className={"navTab " + (stockListTab[1] === DashboardTabNames.PortfolioList ? "selectedTab" : "")} 
+                            onClick={() => setStockListTab([DashboardTabNames.PortfolioList, DashboardTabNames.PortfolioList])}>Portfolio</div>
+                    <div id="StockMarketTab" 
+                            className={"navTab " + (stockListTab[1] === DashboardTabNames.StockMarket ? "selectedTab" : "")} 
+                            onClick={() => setStockListTab([DashboardTabNames.StockMarket, DashboardTabNames.StockMarket])}>Stock Market</div>
+                    <div id="HistoryTab" 
+                            className={"navTab " + (stockListTab[1] === DashboardTabNames.TradeHistory ? "selectedTab" : "")} 
+                            onClick={() => setStockListTab([DashboardTabNames.TradeHistory, DashboardTabNames.TradeHistory])}>Trade history</div>
                 </div>
-                <div id="QuoteContainer" className="waitingParent dashboardContainer">
-                    <h2>Stock Quote</h2>
-                    {stockQuote}
-                    <div className="btn-group" role="group">
-                        <button type="button" onClick={() => {
-                            if (stockListTab[0] === 1) {
-                                updateQuoteDisplay(curSelectedStock?.symbol);
-                            } else {
-                                updateQuoteDisplay(curSelectedPortfolioStock?.symbol);
-                            }}} className="btn btn-outline btn-lg btn-primary">Refresh</button>
-                    </div>
-                    {stockQuoteWaiting}
+                {stockList}
+            </div>
+            <div id="QuoteContainer" className="waitingParent dashboardContainer">
+                <h2>Stock Quote</h2>
+                {stockQuote}
+                <div className="btn-group" role="group">
+                    <button type="button" onClick={() => {
+                        if (stockListTab[0] === 1) {
+                            updateQuoteDisplay(curSelectedStock?.symbol);
+                        } else {
+                            updateQuoteDisplay(curSelectedPortfolioStock?.symbol);
+                        }}} className="btn btn-outline btn-lg btn-primary">Refresh</button>
                 </div>
-                <div id="SearchContainer"></div>
-            </main>
-            <TradingTrainerFooter></TradingTrainerFooter>
-            {reconnectingWaiting}
+                {stockQuoteWaiting}
+            </div>
+            <div id="SearchContainer"></div>
         </>
     );
 }
