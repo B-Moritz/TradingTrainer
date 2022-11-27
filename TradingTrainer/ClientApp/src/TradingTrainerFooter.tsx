@@ -1,9 +1,6 @@
 import React from 'react';
 import './index.css';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import {
 
-}
 
 
 
@@ -21,8 +18,8 @@ function TradingTrainerFooter() : JSX.Element {
                                 <a href="https://icons8.com/icon/DnhznTvrGRgU/trading">
                                     <img src="https://static.thenounproject.com/png/3861549-200.png" style={{ width: "100px", margin: "0px" }} alt="logo" />
                                 </a>
-                                <a href="https://www.facebook.com">
-                                    <FontAwesomeIcon icon="FaFacebook" size="2x" />
+                                <a href="https://www.facebook.com" className="facebook social">
+                                    <FontAwesomeIcon icon="fa-Facebook" size="2x" />
                                 </a>
                             </li>                                                              
                         </ul>
