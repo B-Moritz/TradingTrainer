@@ -3,8 +3,6 @@ import './index.css';
 
 
 
-
-
 function TradingTrainerFooter() : JSX.Element {
     return (
         <footer className="main-footer">
@@ -19,7 +17,7 @@ function TradingTrainerFooter() : JSX.Element {
                                     <img src="https://static.thenounproject.com/png/3861549-200.png" style={{ width: "100px", margin: "0px" }} alt="logo" />
                                 </a>
                                 <a href="https://www.facebook.com" className="facebook social">
-                                    <FontAwesomeIcon icon="fa-Facebook" size="2x" />
+                           
                                 </a>
                             </li>                                                              
                         </ul>
@@ -43,6 +41,7 @@ function TradingTrainerFooter() : JSX.Element {
                             </li>
                         </ul>
                     </div>
+
                     {/* Column2 */}
                     {/*<div className="col">
                         <h4>Support</h4>
