@@ -135,7 +135,6 @@ namespace TradingTrainerTest
         public async Task CreateNewStockQuoteEntity()
         {
             // arrange
-
             var actualStock = new StockQuote
             {
                 Open = 12.89M,
@@ -179,21 +178,6 @@ namespace TradingTrainerTest
         {
             //arrange
             DateTime timeNow = DateTime.Now;
-
-            List<Users>? actualPortfolio = new List<Users>();
-
-            /* List<StockBase>? stockPortfolio = new List<StockBase>();
-             StockBase curstockDetail;
-             curstockDetail = new StockBase
-             {
-                 StockName = "DNB Bank ASA",
-                 Symbol = "DNBHF",
-                 Type = "Equity",
-                 LastUpdated = timeNow,
-                 StockCurrency = "USD"
-             };
-             stockPortfolio.Add(curstockDetail);*/
-
             List<StockPortfolio>? portStock = new List<StockPortfolio>();
             var currentPortfolio = new StockPortfolio
             {
@@ -220,6 +204,7 @@ namespace TradingTrainerTest
             };
 
             // List<Portfolio> stockPortfolio = new List<Portfolio>();
+            List<Users>? actualPortfolio = new List<Users>();
             var userid = new Users
             {
                 FirstName = "Albert",
@@ -233,6 +218,8 @@ namespace TradingTrainerTest
                 FundsSpent = 0,
                 PortfolioCurrency = "NOK"
             };
+            actualPortfolio.Add(userid);
+
             var stockDetail = new StockOwnerships
             {
                 UsersId = 1,
@@ -240,9 +227,10 @@ namespace TradingTrainerTest
                 StockCounter = 3,
                 SpentValue = 100
             };
+
             //List<StockOwnerships> mockStocks = new List<StockOwnerships>() { stockDetail };
 
-            //tradingServiceMoq.Setup(p => p.CreateCurrentPortfolio(1)).ReturnsAsync(convertPortfolio);
+            tradingServiceMoq.Setup(p => p.CreateCurrentPortfolio(1)).ReturnsAsync(convertPortfolio);
             var tradingService = new TradingService(tradingRepo.Object,logger.Object,serchRepo.Object,config.Object);
 
             //act
@@ -354,7 +342,9 @@ namespace TradingTrainerTest
                 LastUpdated = timeNow,
                 Currency = "USD"
             };
-            var actueGetStock = new StockQuotes
+
+            StockQuotes actueGetStock;
+            actueGetStock = new StockQuotes
             {
                 StocksId = "1",
                 Stock = stocks,
@@ -369,11 +359,12 @@ namespace TradingTrainerTest
                 Change = 0.82m,
                 ChangePercent = "6.2691%"
             };
-            //List<StockQuotes> stockList = new List<StockQuotes>() { actueGetStock };
-            tradingServiceMoq.Setup(q => q.GetUpdatedQuoteAsync("FBC")).ReturnsAsync(ac);
+            //stockList.Add(actueGetStock);
+
+            tradingServiceMoq.Setup(q => q.GetUpdatedQuoteAsync("DNBBY")).ReturnsAsync(actueGetStock);
             var tradingService = new TradingService(tradingRepo.Object, logger.Object, serchRepo.Object, config.Object);
             //act
-            TradingTrainer.Model.StockQuote getStockQute = await tradingService.GetStockQuoteAsync("FBC");
+            TradingTrainer.Model.StockQuote getStockQute = await tradingService.GetStockQuoteAsync("DNBBY");
             string obj1 = JsonSerializer.Serialize(creatStockQute);
             string obj2 = JsonSerializer.Serialize(getStockQute);
 
