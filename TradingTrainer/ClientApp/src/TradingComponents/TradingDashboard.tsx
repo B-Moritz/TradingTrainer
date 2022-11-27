@@ -326,7 +326,7 @@ function TradingDashboard(props: DashboardProps) : JSX.Element {
     }
 
     const getStockQuote = async () : Promise<any> => {
-        const quoteEndpointUrl = `/trading/GetStockQuote?symbol=${curSelectedStock?.symbol}`;
+        const quoteEndpointUrl = `/trading/GetStockQuote?symbol=${'curSelectedStock?.symbol'}`;
         return fetch(quoteEndpointUrl).then((response) => {
             if (!response.ok) {
                 throw new Error(`Server responded with an error: ${response.status}`);
@@ -406,9 +406,9 @@ function TradingDashboard(props: DashboardProps) : JSX.Element {
                     <div className="btn-group" role="group">
                         <button type="button" onClick={() => {
                             if (stockListTab === 1) {
-                                updateQuoteDisplay(curSelectedStock?.symbol);
+                                updateQuoteDisplay('curSelectedStock?.symbol');
                             } else {
-                                updateQuoteDisplay(curSelectedPortfolioStock?.symbol);
+                                updateQuoteDisplay('curSelectedPortfolioStock?.symbol');
                             }}} className="btn btn-outline btn-lg btn-primary">Refresh</button>
                     </div>
                     {quoteWaiting}

@@ -15,6 +15,7 @@ using AlphaVantageInterface.Models;
 using StockQuote = AlphaVantageInterface.Models.StockQuote;
 using System.Security.Cryptography.X509Certificates;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
+using Microsoft.EntityFrameworkCore;
 
 namespace TradingTrainerTest
 {
@@ -409,7 +410,157 @@ namespace TradingTrainerTest
 
         }
 
+        [Fact]
+        public async Task BuyStock() // fra TradingRepository 
+        {
+            DateTime timeNow = DateTime.Now;
+            var actualUser = new Users
+            {
+                FirstName = "Albert",
+                LastName = "Jhone",
+                Email = "test@gmail.com",
+                UsersId = 1,
+                Password = Convert.FromBase64String("FBqAM9fp5mfCjyAjW0ukPtSv7YTIm0lwg02ulO8pKaw="),
+                Salt = Convert.FromBase64String("x2FRQXYkGrIZ0vqUeY103YG2Nnswwp0h"),
+                AlphaVantageApiKey = "FDSFDSSDG5",
+                FundsAvailable = 1000000M,
+                FundsSpent = 0,
+                PortfolioCurrency = "NOK"
+            };
 
+            var stocks = new Stocks
+            {
+                StockName = "facebook",
+                Symbol = "fbc",
+                Type = "Equity",
+                LastUpdated = timeNow,
+                Currency = "NOK"
+            };
+
+            var stockDetail = new StockOwnerships
+            {
+                UsersId = 1,
+                StocksId = "DNB",
+                StockCounter = 3,
+                SpentValue = 100
+            };
+
+            var newBuyTradeLog = new Trades
+            {
+                TradesId = 1,
+                StockCount = 3,
+                TradeTime = DateTime.Now,
+                UserIsBying = true,
+                Saldo = 1000,
+                Currency = "NOK",
+                Stock = stocks,
+                User = actualUser
+            };
+
+            tradingRepo.Setup(b => b.BuyStockTransactionAsync(actualUser,stocks,1000, 3));
+            var tradingService = new TradingService(tradingRepo.Object, logger.Object, serchRepo.Object, config.Object);
+            var buying = tradingService.BuyStock(1,"fbc",3);
+            //Assert.Equal(newBuyTradeLog, buying);
+
+
+
+        }
+
+        [Fact]
+        public async Task SellStock()  // fra TradingRepository 
+        {
+            DateTime timeNow = DateTime.Now;
+            var actualUser = new Users
+            {
+                FirstName = "Albert",
+                LastName = "Jhone",
+                Email = "test@gmail.com",
+                UsersId = 1,
+                Password = Convert.FromBase64String("FBqAM9fp5mfCjyAjW0ukPtSv7YTIm0lwg02ulO8pKaw="),
+                Salt = Convert.FromBase64String("x2FRQXYkGrIZ0vqUeY103YG2Nnswwp0h"),
+                AlphaVantageApiKey = "FDSFDSSDG5",
+                FundsAvailable = 1000000M,
+                FundsSpent = 0,
+                PortfolioCurrency = "NOK"
+            };
+
+            var stocks = new Stocks
+            {
+                StockName = "facebook",
+                Symbol = "fbc",
+                Type = "Equity",
+                LastUpdated = timeNow,
+                Currency = "NOK"
+            };
+
+            var stockDetail = new StockOwnerships
+            {
+                UsersId = 1,
+                StocksId = "DNB",
+                StockCounter = 3,
+                SpentValue = 100
+            };
+
+            var newSellTrading = new Trades
+            {
+                TradesId = 1,
+                StockCount = 3,
+                TradeTime = DateTime.Now,
+                UserIsBying = true,
+                Saldo = 1000,
+                Currency = "NOK",
+                Stock = stocks,
+                User = actualUser
+            };
+
+            tradingRepo.Setup(b => b.SellStockTransactionAsync(1, "fbc", 1000, 3));
+            var tradingService = new TradingService(tradingRepo.Object, logger.Object, serchRepo.Object, config.Object);
+            var buying = tradingService.SellStock(1, "fbc", 3);
+            //Assert.Equal(newBuyTradeLog, buying);
+
+        }
+
+        [Fact]
+        public async Task UpdateUserAsync()
+        {
+           // List<User>? newUserInfo = new List<User>();
+            var curUser = new User
+            {
+                FirstName = "Albe",
+                LastName = "Jhone",
+                Email = "test@gmail.com",
+                Password = "AAAAAAABBBSSS",  
+                FundsAvailable = "1000000",
+                FundsSpent = "0",
+                Currency = "NOK"
+            };
+            //newUserInfo.Add(curUser);
+
+            var expectedUser = new Users
+            {
+                FirstName = "Albert",
+                LastName = "Jhone",
+                Email = "test@gmail.com",
+                UsersId = 1,
+                Password = Convert.FromBase64String("FBqAM9fp5mfCjyAjW0ukPtSv7YTIm0lwg02ulO8pKaw="),
+                Salt = Convert.FromBase64String("x2FRQXYkGrIZ0vqUeY103YG2Nnswwp0h"),
+                AlphaVantageApiKey = "FDSFDSSDG5",
+                FundsAvailable = 1000000M,
+                FundsSpent = 0,
+                PortfolioCurrency = "NOK"
+            };
+            // List<Users> userList = new List<Users>() { expectedUser };
+            
+            var mock = new Mock<ITradingRepository>();
+            mock.Setup(u => u.UpdateUserAsync(curUser));
+            var tradingController = new TradingService(tradingRepo.Object,logger.Object, serchRepo.Object, config.Object);
+            //tradingRepo.Setup(u => u.UpdateUserAsync(curUser)).ReturnsAsync(curUser.Id);
+            //var tradingService = new TradingService(tradingRepo.Object, logger.Object,serchRepo.Object, config.Object);
+
+            User updateUser = await tradingService.UpdateUserAsync(curUser);
+            Assert.Equal(curUser, updateUser);
+
+        }
 
 
     }
