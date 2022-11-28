@@ -10,15 +10,13 @@ function TradingTrainerFooter() : JSX.Element {
                 <div className="row">
 
                     <div className="col">
-                        <h4>Recommend</h4>
+                        <h4>Trading</h4>
                         <ul className="list-unstyled">
                             <li>
                                 <a href="https://icons8.com/icon/DnhznTvrGRgU/trading">
                                     <img src="https://static.thenounproject.com/png/3861549-200.png" style={{ width: "100px", margin: "0px" }} alt="logo" />
                                 </a>
-                                <a href="https://www.facebook.com" className="facebook social">
-                           
-                                </a>
+                              
                             </li>                                                              
                         </ul>
                     </div>
@@ -43,12 +41,12 @@ function TradingTrainerFooter() : JSX.Element {
                     </div>
 
                     {/* Column2 */}
-                    {/*<div className="col">
+                    <div className="col">
                         <h4>Support</h4>
                         <ul className="list-unstyled">
                             <li>99999999</li>
                         </ul>
-                    </div> */}
+                    </div>
 
                 </div>
 

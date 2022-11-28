@@ -513,10 +513,10 @@ namespace TradingTrainerTest
                 User = actualUser
             };
 
-            tradingRepo.Setup(b => b.SellStockTransactionAsync(1, "fbc", 1000, 3));
+            //tradingRepo.Setup(b => b.GetUpdatedQuoteAsync("fbc")).ReturnsAsync(newSellTrading);
             var tradingService = new TradingService(tradingRepo.Object, logger.Object, serchRepo.Object, config.Object);
-            var buying = tradingService.SellStock(1, "fbc", 3);
-            //Assert.Equal(newBuyTradeLog, buying);
+            var selling = tradingService.SellStock(1, "fbc", 3);
+            //Assert.Equal(newSellTrading, selling);
 
         }
 
@@ -549,14 +549,9 @@ namespace TradingTrainerTest
                 FundsSpent = 0,
                 PortfolioCurrency = "NOK"
             };
-            // List<Users> userList = new List<Users>() { expectedUser };
-            
-            var mock = new Mock<ITradingRepository>();
-            mock.Setup(u => u.UpdateUserAsync(curUser));
+           
+            tradingRepo.Setup(u => u.UpdateUserAsync(curUser));
             var tradingController = new TradingService(tradingRepo.Object,logger.Object, serchRepo.Object, config.Object);
-            //tradingRepo.Setup(u => u.UpdateUserAsync(curUser)).ReturnsAsync(curUser.Id);
-            //var tradingService = new TradingService(tradingRepo.Object, logger.Object,serchRepo.Object, config.Object);
-
             User updateUser = await tradingService.UpdateUserAsync(curUser);
             Assert.Equal(curUser, updateUser);
 
