@@ -3,9 +3,11 @@ import { useState, useEffect } from 'react';
 import TextField from '@mui/material/TextField';
 import Box from '@mui/material/Box';
 import MainSettings from './MainSettings';
+import ConfirmReset from './ConfirmReset';
+import ResetPwd from './ResetPwd';
 
 type SettingsProps = {
-    User : User
+    User : User,
     SetUser : React.Dispatch<React.SetStateAction<User>>
 }
 
@@ -21,11 +23,13 @@ function Settings(props : SettingsProps) : JSX.Element {
     let currentDisplay = <></>; 
     switch (curSettingsPage) {
         case SettingPages.PwdChange:
+            currentDisplay = <ResetPwd User={props.User} SetUser={props.SetUser} CurSettingsPage={curSettingsPage} SetCurSettingsPage={setCurSettingsPage} />
             break;
-        case SettingPages.PwdChange:
+        case SettingPages.ConfirmReset:
+            currentDisplay = <ConfirmReset User={props.User} SetUser={props.SetUser} CurSettingsPage={curSettingsPage} SetCurSettingsPage={setCurSettingsPage} />
             break;
         default:
-            currentDisplay = <MainSettings User={props.User} SetUser={props.SetUser}/>
+            currentDisplay = <MainSettings User={props.User} SetUser={props.SetUser} CurSettingsPage={curSettingsPage} SetCurSettingsPage={setCurSettingsPage}/>
     }
 
     return(
@@ -36,5 +40,5 @@ function Settings(props : SettingsProps) : JSX.Element {
     );
 
 }
-
+export {SettingPages}
 export default Settings;
