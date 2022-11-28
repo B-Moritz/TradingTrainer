@@ -1,7 +1,14 @@
 
 import StockPortfolioRow from './StockPortfolioRow';
 import {DateTimeFormat} from './DisplayUtilities'
+import WaitingDisplay from '../WaitingDisplay';
+import { getPortfolio } from '../Service/TradingApi';
+import { User } from '../LoginForm';
+import { StockBase } from './StockBaseRow';
 import {useState, useEffect} from 'react';
+import { useNavigate } from 'react-router-dom';
+import { DashboardTabNames } from './TradingDashboard';
+import { ColorPrice } from './DisplayUtilities';
 
 type PortfolioResponse = {
     lastUpdate : string
@@ -46,120 +53,144 @@ type PortfolioStock = {
 }
 
 type PortfolioProps = {
-        RefreshCallback : Function
-        ContentData : PortfolioResponse 
-        SetCurSelectedStock : React.Dispatch<React.SetStateAction<undefined | PortfolioStock>>
-        SetBuyDialogIsActive : React.Dispatch<React.SetStateAction<boolean>>
-        SetSellDialogIsActive : React.Dispatch<React.SetStateAction<boolean>>
+        SetCurSelectedStock : React.Dispatch<React.SetStateAction<PortfolioStock | undefined>>
+        SetStockListTab : React.Dispatch<React.SetStateAction<number[]>>
         UpdateQuoteDisplay : (symbol : string) => Promise<any>
+        User : User
+        CurSelectedPortfolioStock : PortfolioStock | undefined
+        ActiveTab : number
 }
 
-function Portfolio(props: PortfolioProps) : JSX.Element {
+type OutList = {
+    lastUpdated : string,
+    totalValueSpent : string,
+    estPortfolioValue : string,
+    buyingPower : string,
+    unrealizedPL : string,
+    portfolioCurrency : string,
+    elements : JSX.Element[]
+}
 
-    const [outList, setOutList] = useState<JSX.Element[]>();
-    const [emptyDisp, setEmptyDisp] = useState<JSX.Element>();
+
+function Portfolio(props: PortfolioProps) : JSX.Element {
+    const navigate = useNavigate();
+    let outList : OutList = {
+        lastUpdated : "",
+        totalValueSpent : "",
+        estPortfolioValue : "",
+        buyingPower : "",
+        unrealizedPL : "",
+        portfolioCurrency : "",
+        elements : [<tr className="emptyTableDisp" key="EmptyPortfolioDisp"><td>Empty table</td></tr>]
+    };
+
+    const [portfolioData, setPortfolioData] = useState<PortfolioResponse>();
+    const [isWaiting, setIsWaiting] = useState<JSX.Element>();
 
     useEffect(() => {
-        initialList();
-    }, [])
-
-    const initialList = () => {
-        let curOutList : JSX.Element[] = [];
-        let isSelected = false;
-        if (props.ContentData.stocks !== undefined) {
-            props.ContentData.stocks.forEach((stock, index) => {
-                if (index === 0) {
-                    props.SetCurSelectedStock(stock);
-                    isSelected = true;
-                    props.UpdateQuoteDisplay(stock.symbol);
-                }
-                curOutList.push(<StockPortfolioRow
-                                key={"favStock_" + stock.symbol} 
-                                CurPortfolioStock={stock}
-                                IsSelected={isSelected}
-                                SelectStock={selectStock}
-                            ></StockPortfolioRow>); 
-                isSelected = false;
-            });
-            if (curOutList.length <= 0) {
-                setEmptyDisp(<div className="emptyTableDisp" key="EmptyWatchlistDisp"><p>Empty table</p></div>);    
-            } else {
-                setOutList(curOutList);
-            }
-        } else {
-            setEmptyDisp(<div className="emptyTableDisp" key="EmptyWatchlistDisp"><p>Empty table</p></div>);
+        if (props.ActiveTab === DashboardTabNames.PortfolioList) {
+            refresh();
         }
-    }
+        
+    }, [props.User, props.ActiveTab])
 
-    const refresh = (e : React.MouseEvent) => {
-        props.RefreshCallback();
+    useEffect(() => {
+        selectStock(undefined)
+    }, [portfolioData]);
+
+    const refresh = () => {
+        setIsWaiting(<WaitingDisplay WaitingText={"Retreiving user portfolio from server..."}></WaitingDisplay>);
+        getPortfolio(props.User.id).then((data : PortfolioResponse) => {
+            setPortfolioData(data);
+            setIsWaiting(<></>);
+        }).catch(
+            // The Service module has responded with 401 error - user does not hava access to the portfolio - try to login again
+            () => navigate("/login")
+        );
+        //selectStock(props.CurSelectedPortfolioStock);
     }
     
-    const selectStock = (selectedStock : PortfolioStock) => {
-        let curOutList : JSX.Element[] = [];
-        let isSelected = false;
-        if (props.ContentData.stocks !== undefined) {
-            props.ContentData.stocks.forEach((stock, index) => {
-                if (stock.symbol === selectedStock.symbol) {
-                    props.SetCurSelectedStock(stock);
-                    isSelected = true;
-                    props.UpdateQuoteDisplay(stock.symbol);
-                }
-                curOutList.push(<StockPortfolioRow 
-                                key={"favStock_" + stock.symbol} 
-                                CurPortfolioStock={stock} 
-                                IsSelected={isSelected}
-                                SelectStock={selectStock}
-                            ></StockPortfolioRow>);
-                isSelected = false;
-            });
-            if (curOutList.length <= 0) {
-                setEmptyDisp(<div className="emptyTableDisp" key="EmptyWatchlistDisp"><p>Empty table</p></div>); 
+    const selectStock = (selectedStock? : PortfolioStock) => {
+        if (!selectedStock && portfolioData) {
+            // No stocks are selected - set the first stock in the list as selected
+            if (portfolioData.stocks.length > 0) {
+                props.SetCurSelectedStock(portfolioData.stocks[0]);
+                props.UpdateQuoteDisplay(portfolioData.stocks[0].symbol);
             } else {
-                setOutList(curOutList);
+                props.SetCurSelectedStock(undefined);
             }
-        } else {
-            setEmptyDisp(<div className="emptyTableDisp" key="EmptyWatchlistDisp"><p>Empty table</p></div>);
+
+        } else if (selectedStock) {
+            props.SetCurSelectedStock(selectedStock);
+            props.UpdateQuoteDisplay(selectedStock.symbol);
         }
+    }
+
+    const curOutList : JSX.Element[] = [];
+    let isSelected = false;
+    if (portfolioData !== undefined) {
+        portfolioData.stocks.forEach((stock : any, index : number) => {
+            if (props.CurSelectedPortfolioStock !== undefined 
+                && stock.symbol === props.CurSelectedPortfolioStock.symbol) {
+                isSelected = true;
+            }
+            curOutList.push(<StockPortfolioRow 
+                            key={"favStock_" + stock.symbol}
+                            Stock={stock}
+                            IsSelected={isSelected}
+                            SelectStock={selectStock}
+                        ></StockPortfolioRow>);
+            isSelected = false;
+        });
+        if (curOutList.length <= 0) {
+            curOutList.push(<tr className="emptyTableDisp" key="EmptyPortfolioDisp"><td>Empty table</td></tr>);    
+        }
+
+        outList = {
+            lastUpdated : portfolioData.lastUpdate,
+            totalValueSpent : portfolioData.totalValueSpent,
+            estPortfolioValue : portfolioData.estPortfolioValue,
+            buyingPower : portfolioData.buyingPower,
+            unrealizedPL : portfolioData.unrealizedPL,
+            portfolioCurrency : portfolioData.portfolioCurrency,
+            elements : curOutList
+        };
+        
+    } else {
+        // There is no portfolio result from server
+        
     }
 
     return(
-        <div id="PortfolioContainer" className="stockListContainer">
-            <h2>Portfolio</h2>
-                <div className="float-left">
-                    <p>Last updated: <DateTimeFormat rawDateTimeFormat={props.ContentData.lastUpdate}></DateTimeFormat></p>
-                    <p>{"Total value spent: " + props.ContentData.totalValueSpent}</p>
-                    <p>{"Estimated portfolio value: " + props.ContentData.estPortfolioValue}</p>
-                    <p>{"Buying power: " + props.ContentData.buyingPower}</p>
-                    <p>{"Unrealized profit/loss: " + props.ContentData.unrealizedPL}</p>
-                    <p>{"Currency: " + props.ContentData.portfolioCurrency}</p>
+        <>
+            <div id="PortfolioContainer" className="stockListContainer">
+                <h2>Portfolio</h2>
+                <div id="portfolioSummary" className="float-left">
+                    <div className="portfolioSummaryBlock">
+                        <div><span className='portfolioSummaryKey fw-bold'>Last updated: </span><span className='portfolioSummaryValue'><DateTimeFormat rawDateTimeFormat={outList.lastUpdated}></DateTimeFormat></span></div>
+                        <div><span className='portfolioSummaryKey fw-bold'>Total value spent: </span><span className='portfolioSummaryValue'>{outList.totalValueSpent}</span></div>
+                        <div><span className='portfolioSummaryKey fw-bold'>Estimated portfolio value: </span><span className='portfolioSummaryValue'>{outList.estPortfolioValue}</span></div>
+                    </div>
+                    <div className="portfolioSummaryBlock">
+                        <div><span className='portfolioSummaryKey fw-bold'>Buying power </span><span className='portfolioSummaryValue'>{outList.buyingPower}</span></div>
+                        <div><span className='portfolioSummaryKey fw-bold'>Unrealized profit/loss: </span><span className='portfolioSummaryValue'><ColorPrice RawValue={outList.unrealizedPL}></ColorPrice></span></div>
+                        <div><span className='portfolioSummaryKey fw-bold'>Currency: </span><span className='portfolioSummaryValue'>{outList.portfolioCurrency}</span></div>
+                    </div>
                 </div>
-            <p>Click on a stock in the following list to see details</p>
-            
-            <table className='table'>
-                <thead>
-                    <tr>
-                        <th>Stock symbol</th >
-                        <th>Stock Name</th>
-                        <th>Quantity</th>
-                        <th>Estimated price</th>
-                        <th>Portfolio partition %</th>
-                        <th>Estimated total value</th>
-                        <th>Total cost</th>
-                        <th>Unrealized profit/loss</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {outList}
-                </tbody>
-            </table>
-            {emptyDisp}
-            <div className="btn-group" role="group">
-                <button className="btn btn-lg btn-primary" onClick={refresh}>Refresh</button>
-                <button onClick={() => {props.SetBuyDialogIsActive(true);}} type="button" className="btn btn-outline btn-lg btn-success">Buy</button>
-                <button onClick={() => {props.SetSellDialogIsActive(true);}} type="button" className="btn btn-outline btn-lg btn-danger">Sell</button>
+                <p>Click on a stock in the following list to see details</p>
+                <div id="PortfolioTable" className='stockListTable'>
+                    {outList.elements}
+                </div>
+                <div className="btn-group" role="group">
+                    <button className="btn btn-lg btn-primary" onClick={refresh}>Refresh</button>
+                    <button onClick={() => {props.SetStockListTab([DashboardTabNames.BuyDisplay, DashboardTabNames.PortfolioList]);}} 
+                            type="button" className="btn btn-outline btn-lg btn-success">Buy</button>
+                    <button onClick={() => {props.SetStockListTab([DashboardTabNames.SellDisplay, DashboardTabNames.PortfolioList]);}} 
+                            type="button" className="btn btn-outline btn-lg btn-danger">Sell</button>
+                </div>
             </div>
-        </div>
+            {isWaiting}
+        </>
     );
 }
 export {PortfolioStock};

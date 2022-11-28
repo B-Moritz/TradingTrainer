@@ -405,6 +405,10 @@ namespace TradingTrainer.Controllers
             return Ok(user);
         }
 
+        /**
+         * This method works as an endpoint used to obtain the User object of from the user with an active session on the server.
+         * Return: The User 
+         */
         public async Task<ActionResult> GetUsername()
         {
             try
@@ -427,13 +431,14 @@ namespace TradingTrainer.Controllers
 
         }
 
+        //[HttpPut]
         /**
          * This method is used as an endpoint to update the information and settings for the given user
          * Parameter:
          *      (int) userId: The user to apply the changes to.
          * Return: An updated User object.
          */
-        public async Task<ActionResult> UpdateUser(User curUser) {
+        public async Task<ActionResult> UpdateUser([FromBody]User curUser) {
             User user;
             try
             {

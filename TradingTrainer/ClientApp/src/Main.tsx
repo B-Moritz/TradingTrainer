@@ -6,7 +6,8 @@ import PrimaryContainer from './PrimaryContainer';
 import ErrorComponent from './ErrorComponent';
 import TradingDashboard from './TradingComponents/TradingDashboard';
 import RegisterForm from './RegisterForm';
-import userEvent from '@testing-library/user-event';
+import AppContainer from './AppContainer';
+import Settings from './Settings/Settings';
 
 
 type MainProps = {}
@@ -23,7 +24,7 @@ function Main(props: MainProps) : JSX.Element {
         currency : ""
     };
     const [authenticatedUser, setAuthenticatedUser] = useState(initialUser);
-    const [isAuthenticated, setIsAuthenticated] = useState(false);
+    //const [isAuthenticated, setIsAuthenticated] = useState(false);
     // The routing feature is created with information from https://reactrouter.com/en/main/start/tutorial#adding-a-router
     const router = createBrowserRouter([
         {
@@ -39,7 +40,8 @@ function Main(props: MainProps) : JSX.Element {
                     path: "/login",
                     element: <LoginForm 
                                 SetUser={setAuthenticatedUser}
-                                SetIsAuthenticated={setIsAuthenticated}
+                                User={authenticatedUser}
+                                //SetIsAuthenticated={setIsAuthenticated}
                             />,
                 },
                 {
@@ -50,13 +52,28 @@ function Main(props: MainProps) : JSX.Element {
         },
         {
             path: "/tradingDashboard",
-            element: <TradingDashboard 
-                        UserId={authenticatedUser.id}
-                        IsAuthenticated={isAuthenticated}   
+            element: <AppContainer 
+                        User={authenticatedUser}
                         SetUser={setAuthenticatedUser}
-                        SetIsAuthenticated={setIsAuthenticated}
                     />,
-        },
+            errorElement: <ErrorComponent />,
+            children: [
+                {
+                    path: "/tradingDashboard",
+                    element: <TradingDashboard 
+                                User={authenticatedUser}
+                                SetUser={setAuthenticatedUser}
+                            />,
+                },
+                {
+                    path: "/tradingDashboard/settings",
+                    element: <Settings 
+                                User={authenticatedUser}
+                                SetUser={setAuthenticatedUser}
+                            />
+                }
+            ]
+        }
     ]);
 
     return(
