@@ -405,6 +405,10 @@ namespace TradingTrainer.Controllers
             return Ok(user);
         }
 
+        /**
+         * This method works as an endpoint used to obtain the User object of from the user with an active session on the server.
+         * Return: The User 
+         */
         public async Task<ActionResult> GetUsername()
         {
             try
@@ -427,14 +431,32 @@ namespace TradingTrainer.Controllers
 
         }
 
+        //[HttpPut]
         /**
          * This method is used as an endpoint to update the information and settings for the given user
          * Parameter:
          *      (int) userId: The user to apply the changes to.
          * Return: An updated User object.
          */
+<<<<<<< HEAD
         public async Task<ActionResult> UpdateUser(User curUser) {
             if (ModelState.IsValid)
+=======
+        public async Task<ActionResult> UpdateUser([FromBody]User curUser) {
+            User user;
+            try
+            {
+                user = await _tradingService.UpdateUserAsync(curUser);
+            }
+            catch (InvalidOperationException userNotFoundEx)
+            {
+                // The user was not found
+                _logger.LogWarning("An exception has occured while trying to find the user. \n" +
+                    userNotFoundEx.Message);
+                return NotFound(userNotFoundEx.Message);
+            }
+            catch (Exception generalError)
+>>>>>>> ed986e789031792ed46e206def5b6ae13bdf4308
             {
                 User user;
                 try

@@ -1,8 +1,13 @@
 import React, {useState, useEffect} from 'react';
+import { useNavigate } from 'react-router-dom';
 import SearchResultRow from './SearchResultRow';
+import { getSearchResult } from '../Service/TradingApi';
+import { User } from '../LoginForm';
+import WaitingDisplay from '../WaitingDisplay';
+import { Navigate } from 'react-router-dom';
 
 type StockMarketProps = {
-    UserId : number
+    User : User
 }
 
 type SearchResult = {
@@ -26,72 +31,74 @@ type SearchResultStock = {
 }
 
 function StockMarket(props : StockMarketProps) : JSX.Element {
+    const navigate = useNavigate();
+    const [curStockList, setCurStockList] = useState<JSX.Element[]>([]);
+    const [waitDisplay, setWaitDisplay] = useState<JSX.Element>(<></>)
+    const [curKeyword, setCurKeyword] = useState("");
 
-    const [curStockList, setCurStockList] = useState<JSX.Element>(<></>);
-
-    const getSearchResults =  async (keyword : string, userId : number) : Promise<any> => {
-        return await fetch(`/trading/getUserSearchResult?keyword=${keyword}&userId=${userId}`, {
-            method: "Get",
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json'
-            }
-        }).then((resp) => {
-            if (!resp.ok) {
-                throw new Error(`The server responded with error code ${resp.status}`);
-            }
-            return resp.json();
-        }).then((data) => {
+    const updateSearchResult =  async (userId : number, keyword : string) : Promise<any> => {
+        setWaitDisplay(<WaitingDisplay WaitingText={"Retreiving search results from server..."}></WaitingDisplay>);
+        getSearchResult(userId, keyword).then((data) => {
             const outList : JSX.Element[] = [];
             data.stockList.forEach((stock : SearchResultStock, index : number) => {
                 outList.push(
-                    <SearchResultRow Stock={stock} UserId={userId}></SearchResultRow>
+                    <SearchResultRow key={"Stock_" + stock.symbol} Stock={stock} UserId={userId}></SearchResultRow>
                 )
             });
-
-            const searchList = <>
-                <thead>
-                    <tr>
-                        <th>Stock Name</th>
-                        <th>Stock Symbol</th>
-                        <th>Add as favorite</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {outList}
-                </tbody>
-            </>;
-            setCurStockList(searchList);
-        }).catch((errorResp) => {
-            console.log(errorResp.message);
+            if (outList.length === 0) {
+                // No stocks were found
+                outList.push(<tr className="emptyTableDisp" key="EmptySearchResult"><td>No stock was found.</td><td></td><td></td></tr>)
+            }
+            setCurStockList(outList);
+            setWaitDisplay(<></>)
+        }).catch(() => {
+            navigate("/login");
         });
     }
 
     const createStockList = (e : React.KeyboardEvent<HTMLInputElement>) => {
         if (e.key === "Enter") {
-            const keyword = e.currentTarget.value;
+            //const keyword = e.currentTarget.value;
             // Validate input
-            getSearchResults(keyword, props.UserId);
+            updateSearchResult(props.User.id, curKeyword);
         }
-
     }
 
     return(
-        <div id="StockMarketContainer" className="stockListContainer">
-            <h2>Stock Market</h2>
-            <div className="form-floating mb-3 mt-3">
-                <input id="StockMarketInput"
-                       onKeyDown={createStockList}
-                       className={"form-control "} 
-                       type="text" name="StockSearchField" 
-                       placeholder='Enter a stock symbol or company name' 
-                    />
+        <>
+            <div id="StockMarketContainer" className="stockListContainer">
+                <h2>Stock Market</h2>
+                <div className="form-floating mb-3 mt-3">
+                    <input id="StockMarketInput"
+                        onKeyDown={createStockList}
+                        onChange={(e : React.FormEvent<HTMLInputElement>) => setCurKeyword(e.currentTarget.value)}
+                        className={"form-control "}
+                        type="text" name="StockSearchField" 
+                        placeholder='Enter a stock symbol or company name' 
+                        />
                     <label htmlFor='StockMarketInput'>Enter a stock symbol or company name</label>
-                <table className='table'>
-                    {curStockList}
-                </table>
+                    <button className="btn btn-primary my-3" onClick={() => updateSearchResult(props.User.id, curKeyword)}>Search</button>
+                    <table className='table'>
+                        {curStockList.length > 0 && 
+                        <>
+                            <thead>
+                                <tr>
+                                    <th>Stock Symbol</th>
+                                    <th>Stock Name</th>
+                                    <th>Add as favorite</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {curStockList}
+                            </tbody>
+                        </>
+                        }
+                    </table>
+                </div>
             </div>
-        </div>
+            {waitDisplay}
+        </>
+
     );
 }
 export { SearchResultStock };

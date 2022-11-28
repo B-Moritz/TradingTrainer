@@ -16,43 +16,66 @@ type User = {
 } 
 
 type LoginProps = {
+    // Function used to set the current loged in user
     SetUser : React.Dispatch<React.SetStateAction<User>>
-    SetIsAuthenticated : React.Dispatch<React.SetStateAction<boolean>>
+    User : User
+    //SetIsAuthenticated : React.Dispatch<React.SetStateAction<boolean>>
 }
 
-function LoginForm(props:LoginProps) : JSX.Element {
+function LoginForm(props : LoginProps) : JSX.Element {
 
     const [usernameInput, setUsernameInput] = useState(true);
     const [pwdInput, setPwdInput] = useState(true);
+    // State containing the value in the username input element
     const [usr, setUsr] = useState("");
+    // State containing the value in the password input element
     const [pwd, setPwd] = useState("");
-    // Waiting to determine if the user already has an active session
+    
 
     const [firstRender, setFirstRender] = useState(true);
+    // time used to test the loading displays
     const waitDelay = 1000;
+    // object used for programatic navigation with react routing
     const navigate = useNavigate();
-    const [loginWaitingDisplay, setLoginWaitingDisplay] = useState(<WaitingDisplay WaitingText={"Checking for active sessions."}></WaitingDisplay>);
-    const [authFailed, setAuthFailed] = useState(false);
     
+    const defaultWaitMsg = "Checking for active sessions."
+    //const [loginWaitingDisplay, setLoginWaitingDisplay] = useState(<WaitingDisplay WaitingText={"Checking for active sessions."}></WaitingDisplay>);
+    const [isWaiting, setIsWaiting] = useState({
+        active : true,
+        // The message displayed in the waiting display
+        msg : defaultWaitMsg
+    });
+    const [authFailed, setAuthFailed] = useState(false);
+
     useEffect(() => {
-        // This function is runs after the first rendering of the component
+        // This function runs after the first rendering of the component
         // https://reactjs.org/docs/hooks-effect.html#tip-optimizing-performance-by-skipping-effects
         checkExistingSession();
     }, [])
 
+    useEffect(() => {
+        // Navigate to the dashboard once it is sure that the user object is available
+        if (props.User.id !== 0) {
+            navigate("/TradingDashboard");
+        }
+    }, [props.User])
+
 
 
     const initiateLogin = async () : Promise<void> => {
-        setLoginWaitingDisplay(<WaitingDisplay WaitingText={"Atempting to authenticate. Please wait ......"}></WaitingDisplay>);
-
-        await loginCall(usr, pwd);
+        //setLoginWaitingDisplay(<WaitingDisplay WaitingText={"Atempting to authenticate. Please wait ......"}></WaitingDisplay>);
+        setIsWaiting({
+            active : true, 
+            msg : "Atempting to authenticate. Please wait ......"
+        });
+        await authenticateUser(usr, pwd);
         // Display the spinner
         resetLogin();
     }
 
     // https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch
     // This method executes the call to /trading/login through the fetch api.
-    const loginCall = async (usr: string, pwd: string) : Promise<void> => {
+    const authenticateUser = async (usr: string, pwd: string) : Promise<void> => {
         const endpoint = "/trading/login";
         const credentials = {
             username: usr,
@@ -70,7 +93,7 @@ function LoginForm(props:LoginProps) : JSX.Element {
                 if (!resp.ok) {
                     // The server responded with an error
                     const msg = `Error: The server responded with error code: ${resp.status}\n \
-                                Message: ${resp.text}`;
+                                 Message: ${resp.text}`;
                     if (resp.status == 401) {
                         setAuthFailed(true);
                     }
@@ -85,16 +108,24 @@ function LoginForm(props:LoginProps) : JSX.Element {
             }
         ).then((data) => {
             setTimeout(() => {
-                setLoginWaitingDisplay(<></>);
+                setIsWaiting({
+                    active : false,
+                    msg : defaultWaitMsg
+                });
+                //setLoginWaitingDisplay(<></>);
                 console.log("Redirecting to dashboard.");
                 props.SetUser(data.result);
-                props.SetIsAuthenticated(true);
-                navigate("/TradingDashboard");
+                //props.SetIsAuthenticated(true);
+                //navigate("/TradingDashboard");
             }, waitDelay)
         }).catch(errorResp => {
             alert(errorResp.message);
             setTimeout(() => {
-                setLoginWaitingDisplay(<></>);
+                //setLoginWaitingDisplay(<></>);
+                setIsWaiting({
+                    active : false, 
+                    msg : defaultWaitMsg
+                });
                 console.log("Authentication failed");
             }, waitDelay);
         });
@@ -107,6 +138,10 @@ function LoginForm(props:LoginProps) : JSX.Element {
             if (!response.ok) {
                 if (response.status === 401) {
                     console.log("User needs authentication");
+                    setIsWaiting({
+                        active : false, 
+                        msg : defaultWaitMsg
+                    });
                     return;
                 }
                 throw new Error(`The server responded with status code ${response.status}: ${response.text}`);
@@ -114,20 +149,24 @@ function LoginForm(props:LoginProps) : JSX.Element {
             return response.json();
         }).then((data) => {
             setTimeout(() => {
-                setLoginWaitingDisplay(<></>);
+                //setLoginWaitingDisplay(<></>);
                 if (data) {
                     // The user has already an active session on the server
                     console.log("User has an active session. Redirecting to dashboard.")
                     // Bypas login procedure
                     props.SetUser(data.result);
-                    props.SetIsAuthenticated(true);
-                    navigate("/TradingDashboard");
+                    //props.SetIsAuthenticated(true);
+                    //navigate("/TradingDashboard");
                 }
             }, waitDelay);
         }).catch((errorResp) => {
             console.log(errorResp.message);
             setTimeout(() => {
-                setLoginWaitingDisplay(<></>);
+                //setLoginWaitingDisplay(<></>);
+                setIsWaiting({
+                    active : false, 
+                    msg : defaultWaitMsg
+                });
             }, waitDelay);
         });
     }
@@ -213,7 +252,7 @@ function LoginForm(props:LoginProps) : JSX.Element {
                         onClick={(usernameInput && pwdInput ? initiateLogin : () => {})}
                         >Login</button>
                 </nav>
-                {loginWaitingDisplay}
+                {isWaiting.active && <WaitingDisplay WaitingText={isWaiting.msg}></WaitingDisplay>}
             </div>
         </>
     );

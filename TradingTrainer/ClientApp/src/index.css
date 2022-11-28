@@ -1,6 +1,7 @@
 ﻿
 :root {
     --main-color: #618298;
+    --Dashboard-border-radius: 1rem;
 }
 
 * {
@@ -32,7 +33,7 @@ body {
     margin-left: 1rem;
 }
 
-header {
+#PrimaryTitle {
     margin-bottom: 5rem;
 }
 
@@ -56,7 +57,8 @@ header {
     height: 100%;
     text-align: center;
     padding: 4rem 0;
-    border-radius: 1rem 1rem 1rem 1rem;
+    border-radius: var(--Dashboard-border-radius);
+    z-index: 1000;
 }
 
 .waitingContainer > p {
@@ -76,7 +78,7 @@ header {
 
 .dashboardContainer {
     background-color: white;
-    border-radius: 0.5rem 0.5rem 0.5rem 0.5rem;
+    border-radius: var(--Dashboard-border-radius);
 }
 
 /* ----------[ StockList ] ---------------------*/
@@ -96,18 +98,19 @@ header {
 }
 
 .stockSelected {
-    background-color:rgba(212, 231, 244, 0.9);
+    background-color:rgba(212, 231, 244, 0.9) !important;
 }
 
 #StockListNavigation {
-    background-color: white;
-    border-radius: 0.5rem 0.5rem 0 0;
+    background-color: rgba(212, 231, 244, 0.9);
+    border-radius: 1rem 1rem 0 0;
     height: 4rem;
     display: flex;
 }
 
 .navTab {
     padding: 1rem;
+    cursor: pointer;
 }
 
 .navTab:hover {
@@ -115,8 +118,12 @@ header {
     color: white;
 }
 
+.selectedTab {
+    background-color: white;
+}
+
 #WatchlistTab {
-    border-radius: 0.5rem 0 0 0;
+    border-radius: var(--Dashboard-border-radius) 0 0 0;
     order: 1;
 }
 #PortfolioTab {
@@ -164,14 +171,8 @@ header {
 #ActionDialogContainer {
     padding:  2rem;
     display: grid;
-    left: 0;
-    top: 0;
-    position: absolute;
     background-color: white;
     border-radius: 0.5rem 0.5rem 0.5rem 0.5rem;
-    width: 100%;
-    height: 100%;
-    z-index: 1000;
     row-gap: 0.5rem;
     column-gap: 2rem;
     grid-template-areas: 'title title' 
@@ -182,4 +183,229 @@ header {
                          'inputGroup1 inputGroup1' 
                          'errorMsg errorMsg'
                          'group group';
+}
+
+/* Custom portfolio table */
+#PortfolioTable {
+    background-color:#618298;
+    padding: 0.5rem;
+    margin-bottom: 3rem;
+    border-style: solid;
+    border-color: black;
+    
+}
+
+.stockListTable {
+    overflow-y:  scroll;
+    max-height: 30rem;
+}
+
+.portfolioRowElement {
+    display: flex;
+    flex-direction: column;
+    padding: 0.5rem;
+}
+
+.portfolioRowElement > p {
+    margin: 0;
+}
+
+.rowTitle {
+    font-size: 0.9em;
+}
+
+.rowTitle + p {
+    text-align: center;
+}
+
+.portfolioRow {
+    display: grid;
+    grid-template-areas: 'stockSymbol name name quantity' 
+                         'stockSymbol price relativeSize totalValue'
+                         'stockSymbol totalCost unrealizedPL unrealizedPL';
+    padding: 0.5rem;
+    margin: 0.5rem;
+    background-color: white;
+    border-radius: var(--Dashboard-border-radius);
+    cursor: pointer;
+}
+
+#StockSymbolPortfolio {
+    grid-area: stockSymbol;
+    text-align: center;
+    font-size: 1.5em;
+    margin:auto;
+}
+#StockNamePortfolio {
+    grid-area: name;
+}
+#StockQuantityPortfolio {
+    grid-area: quantity;
+}
+#StockPricePortfolio {
+    grid-area: price;
+}
+#PortionPortfolio {
+    grid-area: relativeSize;
+}
+#MarketValuePortfolio {
+    grid-area: totalValue;
+}
+#TotalConstPortfolio {
+    grid-area: totalCost;
+}
+#UnrealizedPortfolio {
+    grid-area: unrealizedPL;
+}
+
+#portfolioSummary {
+    display: flex;
+    flex-direction: row;
+    margin: 2rem;
+}
+
+.portfolioSummaryValue {
+    float: right;
+    margin-top: 0.5em;
+    margin-bottom: 0.5em;
+    display: block;
+}
+
+.portfolioSummaryKey {
+    width: 10rem;
+    display: block;
+    float: left;
+}
+
+.portfolioSummaryBlock {
+    margin-right: 2rem;
+}
+
+.portfolioSummaryBlock > div {
+    background-color:rgba(212, 231, 244, 0.9);
+    height: 5em;
+    width: auto;
+    margin: 0.5rem;
+    padding: 1rem;
+    border-radius: var(--Dashboard-border-radius);
+}
+
+
+/* Trade History*/
+#TradeHistoryTableHeader {
+    position: -webkit-sticky; /* Safari */
+    position: sticky;
+    top: 0;
+    background-color: rgb(218, 218, 218);
+}
+
+
+/* Title - header */
+
+#TradingTrainerNavIcon {
+    margin: 0.5rem;
+}
+
+#TradingTrainerNavTitle {
+    padding: 0.5rem 1.5rem 0.5rem 0.5rem;
+    margin: 0 0 0 0;
+    color: #618298;
+    border-style: solid;
+    border-color: white grey white white;
+    height: 100%;
+}
+
+#DashboardNav {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    height: 5rem;
+}
+
+#DashboardNav > div {
+    height: 100%;
+}
+
+.navLink {
+    cursor: pointer;
+    height: 100%;
+    padding: 1.5rem 1rem 1.5rem 1rem;
+    text-align: center;
+    font-size: 1em;
+}
+
+.navLink:hover {
+    background-color:#0d6efd;
+    color: white;
+}
+
+/* Settings */
+#SettingsContainer {
+    padding: 2rem;
+}
+
+.settingsFormContainer {
+    display: grid;
+    grid-template-areas: 'FirstName LastName' 
+                         'Email .' 
+                         'Currency .' 
+                         'FundsSpent FundsAvailable'
+                         'SettingsNavigation SettingsNavigation';
+    row-gap: 2rem;
+    column-gap: 1rem;
+}
+
+#FirstName {
+    grid-area: FirstName;
+}
+#LastName {
+    grid-area: LastName;
+}
+#Email {
+    grid-area: Email;
+}
+#Currency {
+    grid-area: Currency;
+}
+#FundsSpent {
+    grid-area: FundsSpent;
+}
+#FundsAvailable {
+    grid-area: FundsAvailable;
+}
+
+#SettingsNavigation {
+    grid-area: SettingsNavigation;
+}
+
+/* footer sin css*/
+.main-footer {
+    color: #fff;
+    background-color: #444a51;
+    padding-top: 7em;
+    padding-bottom: 0em;
+    position: relative;
+    bottom: 0;
+    width: 100%;
+}
+.container {
+    height: 300px;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+.col {
+    float: left;
+    width: 10%;
+    padding: 10px;
+    height: 230px;
+}
+
+
+.row:after {
+    content: close-quote;
+    display: table;
+    clear: both;
 }

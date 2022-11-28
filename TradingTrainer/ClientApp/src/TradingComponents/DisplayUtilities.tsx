@@ -25,6 +25,11 @@ type ColorPriceProps = {
     RawValue : string
 }
 
+/**
+ * This component styling values with background color (green +,red -).
+ * @param props - The attributes passed from parent element 
+ * @returns 
+ */
 function ColorPrice(props : ColorPriceProps) : JSX.Element {
     const setColorClass = (value : string) : string => {
         if (value[0] !== "-") {
