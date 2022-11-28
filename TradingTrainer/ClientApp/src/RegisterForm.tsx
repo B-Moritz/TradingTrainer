@@ -10,7 +10,7 @@ import axios from 'axios';
 
 const RegisterForm: React.FC = () => {
 
-
+   
     const initialUserState = {
         id: null,
         firstName: "",
@@ -30,7 +30,7 @@ const RegisterForm: React.FC = () => {
         setUser(test);
     }
 
-    const register = () => {
+    const send = () => {
 
       const user = {
             firstName: users.firstName,
@@ -57,20 +57,23 @@ const RegisterForm: React.FC = () => {
         };
     }
            
-        return (
-            <Box
-                component="form"
-                sx={{
+    return (
+        <Box
+            component="form"
 
-                    '& > :not(style)': { m: 1}, m: 2, 
+            sx={{
 
-                }}
-                noValidate
-                autoComplete="off"
+                '& > :not(style)': { m: 1 }, m: 2,
+
+
+            }}
+            noValidate
+            autoComplete="off"
+               
             >  
                 <Typography variant="h6" mb={2} sx={{padding: 0, m: 0}}>Register Form</Typography>
 
-                <TextField  name = "firstName" label="First Name" variant="outlined" value={users.firstName} onChange={handleInputChange} fullWidth />
+                <TextField name="firstName" label="First Name" variant="outlined" value={users.firstName} onChange={handleInputChange} fullWidth />
                 <TextField name="lastName" label="Last Name" variant="outlined" value={users.lastName} onChange={handleInputChange} fullWidth />
                 <TextField name="email" label="Email" variant="outlined" value={users.email} onChange={handleInputChange} fullWidth />
                 <TextField name="password" label="Password" type="Password" variant="outlined" value={users.password} onChange={handleInputChange} fullWidth />
@@ -78,12 +81,12 @@ const RegisterForm: React.FC = () => {
                 <TextField name="alphaVantageApiKey" id="outlined-basic" label="AlphaVantage Key" variant="outlined" value={users.alphaVantageApiKey} onChange={handleInputChange} fullWidth />
                 <nav className="landingNavigation">
                     <Link className="btn btn-lg btn-outline-secondary" to="/">Cancel</Link>
-                    <Link className="btn btn-lg btn-outline-primary" to="/login" onClick={register} > Register</Link>
+                    <Link className="btn btn-lg btn-outline-primary" to="/login" onClick={send} > Register</Link>
                 </nav>
 
                 <Typography variant="body1" sx={{color: "red", pt: 5 }}>Sign up to <a href="https://www.alphavantage.co/">Alpha Vantage</a> get a free access key</Typography>      
                 
-                
+
             </Box>
         );
     }
