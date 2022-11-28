@@ -30,7 +30,7 @@ function ResetPwd(props : ResetPwdProps) : JSX.Element {
             <p>Please enter your new password:</p>
             <nav className="btn-group">
                 <button className="btn btn-warning">Confirm</button>
-                <button className="btn btn-secondary" onClick={() => {props.SetCurSettingsPage(SettingPages.Main)}}>Cancle</button>
+                <button className="btn btn-secondary" onClick={() => {props.SetCurSettingsPage(SettingPages.Main)}}>Cancel</button>
             </nav>
         </>
     );
