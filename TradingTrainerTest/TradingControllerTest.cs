@@ -244,6 +244,7 @@ namespace TradingTrainerTest
             //act
             Portfolio createCurrentPortfolio = await tradingService.CreateCurrentPortfolio(1);
             createCurrentPortfolio.LastUpdate = timeNow;
+
             string obj1 = JsonSerializer.Serialize(expectedPortfolio);
             string obj2 = JsonSerializer.Serialize(createCurrentPortfolio);
             // assert
