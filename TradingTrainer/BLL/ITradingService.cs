@@ -34,13 +34,10 @@ namespace TradingTrainer.BLL
         Task<User> GetUserAsync(string username);
         Task<User> UpdateUserAsync(User curUser);
         Task<User> ResetProfileAsync(int userId);
-
         StockQuotes CreateNewStockQuoteEntity(AlphaVantageInterface.Models.StockQuote stockQuote);
         Task<StockQuotes> GetUpdatedQuoteAsync(string symbol);
         //Task<AlphaVantageInterface.Models.StockQuote> CreateNewStockQuoteEntity(AlphaVantageInterface.Models.StockQuote symbol);
-
-
-        //StockQuotes CreateNewStockQuoteEntity(AlphaVantageInterface.Models.StockQuote stockQuote);
+        Task<bool> CreateUser(User user);
 
     }
 }

@@ -18,6 +18,7 @@ namespace TradingTrainer.DAL
         Task AddToFavoriteListAsync(int userId, string symbol);
         Task DeleteFromFavoriteListAsync(int userId, string symbol);
         // User
+        Task<bool> AddUser(Users user);
         Task<Users?> GetUsersAsync(int userId);
         Task<Users?> GetUsersAsync(string username);
         Task UpdateUserAsync(User curUser);
