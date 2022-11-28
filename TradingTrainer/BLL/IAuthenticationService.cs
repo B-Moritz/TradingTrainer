@@ -27,5 +27,7 @@ namespace TradingTrainer.BLL
 
         Task<bool> LogInAsync(string username, string pwd);
 
+        Task<bool> ResetPasswordAsync(int userId, string newPwd);
+
     }
 }

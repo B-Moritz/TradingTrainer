@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 using EcbCurrencyInterface;
 using Microsoft.EntityFrameworkCore.Query.Internal;
+using Microsoft.Extensions.Configuration.UserSecrets;
 
 namespace TradingTrainer.DAL
 {
@@ -381,6 +382,15 @@ namespace TradingTrainer.DAL
                 return false;
             }
            
+        }
+
+        public async Task<bool> updatePwdAsync(Users user, byte[] pwd, byte[] salt) {
+            // Get the user object from db
+            Users dbUser = _db.Users.Single(u => u.UsersId == user.UsersId);
+            dbUser.Salt = salt;
+            dbUser.Password = pwd;
+            await _db.SaveChangesAsync();
+            return true;
         }
         
     }

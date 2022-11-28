@@ -100,7 +100,7 @@ namespace TradingTrainer.Controllers
             catch (KeyNotFoundException userNotFoundEx)
             {
                 // The user was not found
-                _logger.LogWarning("An exception has occured while trying to find the user. \n" +
+                _logger.LogWarning("An exception has occured while trying to find the user.\n" +
                     userNotFoundEx.Message);
                 return NotFound(userNotFoundEx.Message);
             }
@@ -370,8 +370,21 @@ namespace TradingTrainer.Controllers
          */
         public async Task<ActionResult> ClearAllTradeHistory(int userId)
         {
-            // skal man ikke feilhåndtere om man ikke finner en user ????????????????????????????????????????????????????????
-
+            try {
+                _tradingService.ClearAllTradeHistoryAsync(userId);
+            }
+            catch (KeyNotFoundException userNotFoundEx)
+            {
+                // The user was not found
+                _logger.LogWarning("An exception has occured while trying to find the user. \n" +
+                    userNotFoundEx.Message);
+                return NotFound(userNotFoundEx.Message);
+            }
+            catch (Exception generalError)
+            {
+                _logger.LogError("An exception has occured with getUser.\n" + generalError.Message);
+                return StatusCode(StatusCodes.Status500InternalServerError, generalError.Message);
+            }
             // Removing the trade records connected to the provided userId
             return Ok($"The trade history was cleared for user {userId}");
         }
@@ -438,7 +451,6 @@ namespace TradingTrainer.Controllers
          *      (int) userId: The user to apply the changes to.
          * Return: An updated User object.
          */
-
         public async Task<ActionResult> UpdateUser([FromBody]User curUser) {
             User user;
             if (ModelState.IsValid)
@@ -464,7 +476,7 @@ namespace TradingTrainer.Controllers
                 return Ok(user);
             }
             _logger.LogInformation("Updating user not completed");
-            return BadRequest("Feil i inputvalidering");
+            return BadRequest("The provided user object is not valid!");
         }
             
         /**
@@ -534,9 +546,43 @@ namespace TradingTrainer.Controllers
             }
         }
 
-        public ActionResult LogOut() {
+        public async Task<ActionResult> LogOut() {
             HttpContext.Session.SetString(_loginFlag, "");
+            string testval = HttpContext.Session.GetString(_loginFlag);
             return Ok("true");
         }
+
+        /**
+         * This method is used as an endpoint to change the password of a specified user. Use the 
+         */
+        public async Task<ActionResult> ResetPwd([FromBody]UserPwd user) {
+            // Check that the user has an active session
+            if (HttpContext.Session.GetString(_loginFlag) != "true") {
+                return Unauthorized("The user does not have an active session on the server!");
+            }
+            bool isChanged = false;
+            try
+            {
+                isChanged = await _authenticationService.ResetPasswordAsync(user.UserId, user.Password);
+            }
+            catch (ArgumentException e) {
+                return BadRequest("The provided password is not valid.");
+            }
+            catch (InvalidOperationException userNotFoundEx)
+            {
+                // The user was not found
+                _logger.LogWarning("An exception has occured while trying to find the user. \n" +
+                    userNotFoundEx.Message);
+                return NotFound(userNotFoundEx.Message);
+            }
+            catch (Exception generalError)
+            {
+                _logger.LogError("An exception has occured while reseting the profile of the user.\n" + generalError.Message);
+                return StatusCode(StatusCodes.Status500InternalServerError, generalError.Message);
+            }
+            HttpContext.Session.SetString(_loginFlag, "");
+            return (Ok(isChanged));
+        }
+
     }
 }

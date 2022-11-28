@@ -5,6 +5,7 @@ import TradingTrainerFooter from './TradingTrainerFooter';
 import WaitingDisplay from './WaitingDisplay';
 import { User } from './LoginForm';
 import logo from './img/icons8-track-and-field-48.png';
+import { logoutApiCall } from './Service/TradingApi';
 
 type AppContainerProps = {
     User : User
@@ -66,6 +67,17 @@ function AppContainer(props : AppContainerProps) : JSX.Element {
         navigate("/tradingDashboard");
     }
 
+    const logout = async () => {
+        setReconnectingWaiting(<WaitingDisplay WaitingText={"Signing out...."}></WaitingDisplay>);
+        await logoutApiCall().then(() => {
+            setReconnectingWaiting(<></>);
+            navigate("/");
+        }
+        ).catch((error) => {
+            navigate("/login");
+        });
+    }
+
     return(
         <>
             <header id="DashboardHeader">
@@ -74,7 +86,7 @@ function AppContainer(props : AppContainerProps) : JSX.Element {
                     <h1 id="TradingTrainerNavTitle">Trading Trainer</h1>
                     <div id="UserSettings" className="navLink" onClick={() => navigateToTradingDashboard()}>Dashboard</div>
                     <div id="UserSettings" className="navLink" onClick={() => navigateToSettings()}>Settings</div>
-                    <div id="LogoutNav" className="navLink">Logout</div>
+                    <div id="LogoutNav" className="navLink" onClick={() => logout()}>Logout</div>
                 </nav>
             </header>
             <main id="TradingDashboardContainer">

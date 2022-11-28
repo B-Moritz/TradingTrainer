@@ -27,7 +27,9 @@ namespace TradingTrainer.DAL
         //Trade history
         Task ClearAllTradeHistoryAsync(int userId);
         Task CleanTradingSchemaAsync();
-       
+        Task<bool> updatePwdAsync(Users user, byte[] pwd, byte[] salt);
+
+
     }
 
 }
