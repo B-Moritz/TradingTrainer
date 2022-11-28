@@ -16,6 +16,8 @@ import TradeHistory from './TradeHistory';
 type DashboardProps = {
     User : User
     SetUser : React.Dispatch<React.SetStateAction<User>>
+    ErrorMsg : string,
+    SetErrorMsg : React.Dispatch<React.SetStateAction<string>>
 }
 
 type StockQuote = {
@@ -117,6 +119,7 @@ function TradingDashboard(props: DashboardProps) : JSX.Element {
                             CallbackTab={stockListTab[1]}
                             isBuyDialog={false}
                             UserId={props.User.id}
+                            SetErrorMsg={props.SetErrorMsg}
                         ></ActionDialog>);
         
     }
@@ -144,6 +147,7 @@ function TradingDashboard(props: DashboardProps) : JSX.Element {
                             CallbackTab={stockListTab[1]}
                             isBuyDialog={true}
                             UserId={props.User.id}
+                            SetErrorMsg={props.SetErrorMsg}
                         ></ActionDialog>);
     }
 
@@ -156,15 +160,18 @@ function TradingDashboard(props: DashboardProps) : JSX.Element {
         // Get the quote from server
         getStockQuote(symbol).then((data : StockQuote) => {
             setStockQuote(data);
-        }).catch((error) => {
-            navigate("/login");
+        }).catch((error : Error) => {
+            if (error.message.slice(3) === "401") {
+                navigate("/login");
+            }
+            props.SetErrorMsg(error.message);
         });
     }
     
     let stockList;
     switch(stockListTab[0]) {
         case DashboardTabNames.StockMarket:
-            stockList = <StockMarket User={props.User}></StockMarket>
+            stockList = <StockMarket User={props.User} SetErrorMsg={props.SetErrorMsg}></StockMarket>
             break;
         case DashboardTabNames.PortfolioList:
             stockList = <Portfolio 
@@ -174,10 +181,11 @@ function TradingDashboard(props: DashboardProps) : JSX.Element {
                 SetCurSelectedStock={setCurSelectedPortfolioStock}
                 User={props.User}
                 ActiveTab={stockListTab[0]}
+                SetErrorMsg={props.SetErrorMsg}
             ></Portfolio>
             break;
         case DashboardTabNames.TradeHistory:
-            stockList = <TradeHistory User={props.User}></TradeHistory>
+            stockList = <TradeHistory User={props.User} SetErrorMsg={props.SetErrorMsg}></TradeHistory>
             break;
         case DashboardTabNames.BuyDisplay:
             stockList = createBuyDialog();
@@ -194,6 +202,7 @@ function TradingDashboard(props: DashboardProps) : JSX.Element {
                             CurSelectedStock={curSelectedStock}
                             User={props.User}
                             ActiveTab={stockListTab[0]}
+                            SetErrorMsg={props.SetErrorMsg}
                         ></Watchlist>      
     }
     let stockQuote
@@ -271,5 +280,6 @@ function TradingDashboard(props: DashboardProps) : JSX.Element {
         </>
     );
 }
-export { StockQuote, DashboardTabNames }
+export { DashboardTabNames };
+export type { StockQuote };
 export default TradingDashboard;

@@ -1,6 +1,7 @@
 import React, {useState} from 'react';
 import { DashboardTabNames, StockQuote } from './TradingDashboard';
 import WaitingDisplay from '../WaitingDisplay';
+import { useNavigate } from 'react-router-dom';
 
 type ActionStock = {
     symbol : string,
@@ -15,6 +16,7 @@ type ActionDialogProps = {
     isBuyDialog : boolean
     UserId : number
     CallbackTab : number
+    SetErrorMsg : React.Dispatch<React.SetStateAction<string>>
 }
 
 // remember "is-valid" : "is-invalid" is used to indicate input error
@@ -23,7 +25,9 @@ function ActionDialog(props : ActionDialogProps) : JSX.Element {
     const [confirmIsActive, setConfirmIsActive ] = useState(false);
     const [curAmount, setCurAmount] = useState(1);
     const [dispError, setDispError] = useState(false);
-    const [isWaiting, setIsWaiting] = useState(<></>)
+    const [isWaiting, setIsWaiting] = useState(<></>);
+
+    const navigate = useNavigate();
 
     const validateAmount = (event : React.FormEvent<HTMLInputElement>) => {
         const curValue = parseInt(event.currentTarget.value);
@@ -53,9 +57,11 @@ function ActionDialog(props : ActionDialogProps) : JSX.Element {
             }
             props.SetStockListTab([props.CallbackTab, props.CallbackTab]);
             setIsWaiting(<></>);
-        }).catch((errorResp) => {
-            console.log(errorResp.message);
-            setIsWaiting(<></>);
+        }).catch((error : Error) => {
+            if (error.message.slice(3) === "401") {
+                navigate("/login");
+            }
+            props.SetErrorMsg(error.message);
         });
     }
 
@@ -97,5 +103,5 @@ function ActionDialog(props : ActionDialogProps) : JSX.Element {
         
     );
 }
-export {ActionStock};
+export type { ActionStock };
 export default ActionDialog;

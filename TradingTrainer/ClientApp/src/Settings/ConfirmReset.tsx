@@ -9,7 +9,8 @@ type ConfirmResetProps = {
     User : User,
     SetUser : React.Dispatch<React.SetStateAction<User>>,
     CurSettingsPage : number, 
-    SetCurSettingsPage : React.Dispatch<React.SetStateAction<number>>
+    SetCurSettingsPage : React.Dispatch<React.SetStateAction<number>>,
+    SetErrorMsg : React.Dispatch<React.SetStateAction<string>>
 }
 
 function ConfirmReset(props : ConfirmResetProps) : JSX.Element {
@@ -28,8 +29,11 @@ function ConfirmReset(props : ConfirmResetProps) : JSX.Element {
                 currency : data.currency,
             });
             props.SetCurSettingsPage(SettingPages.Main);
-        }).catch((error) => {
-            navigate("/login");
+        }).catch((error : Error) => {
+            if (error.message.slice(3) === "401") {
+                navigate("/login");
+            }
+            props.SetErrorMsg(error.message);
         });
     }
 

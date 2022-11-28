@@ -10,6 +10,7 @@ import { logoutApiCall } from './Service/TradingApi';
 type AppContainerProps = {
     User : User
     SetUser : React.Dispatch<React.SetStateAction<User>>
+    SetErrorMsg : React.Dispatch<React.SetStateAction<string>>
 }
 
 function AppContainer(props : AppContainerProps) : JSX.Element {
@@ -53,9 +54,12 @@ function AppContainer(props : AppContainerProps) : JSX.Element {
                 //props.SetIsAuthenticated(true);
                 //navigate("/TradingDashboard");
             }
-        }).catch((errorResp) => {
-            console.log(errorResp.message);
+        }).catch((error : Error) => {
             setReconnectingWaiting(<></>);
+            if (error.message.slice(3) === "401") {
+                navigate("/login");
+            }
+            props.SetErrorMsg(error.message);
         });
     }
     
@@ -72,9 +76,12 @@ function AppContainer(props : AppContainerProps) : JSX.Element {
         await logoutApiCall().then(() => {
             setReconnectingWaiting(<></>);
             navigate("/");
-        }
-        ).catch((error) => {
-            navigate("/login");
+        }).catch((error : Error) => {
+            setReconnectingWaiting(<></>);
+            if (error.message.slice(3) === "401") {
+                navigate("/");
+            }
+            props.SetErrorMsg(error.message);
         });
     }
 

@@ -258,5 +258,5 @@ function LoginForm(props : LoginProps) : JSX.Element {
     );
 }
 
-export {User};
+export type {User};
 export default LoginForm;

@@ -75,5 +75,5 @@ function StockPortfolioRow(props : StockPortfolioRowProps) : JSX.Element {
         </div>
     );
 }
-export {StockBase, StockBaseHeader};
+export type {StockBase, StockBaseHeader};
 export default StockPortfolioRow;

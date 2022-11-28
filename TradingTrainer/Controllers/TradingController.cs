@@ -329,7 +329,9 @@ namespace TradingTrainer.Controllers
             catch (Exception generalError)
             {
                 _logger.LogError("An exception has occured while searching the stock.\n" + generalError.Message);
-                return StatusCode(StatusCodes.Status500InternalServerError, generalError.Message);
+                ObjectResult resp = StatusCode(StatusCodes.Status500InternalServerError, generalError.Message);
+                object? test = resp.Value;
+                return resp;
             }
             return Ok(quotes);
         }

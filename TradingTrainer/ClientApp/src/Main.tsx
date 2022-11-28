@@ -1,4 +1,4 @@
-﻿import React, { Component, useState } from 'react';
+﻿import React, { Component, useState, useEffect } from 'react';
 import {RouterProvider, createBrowserRouter, useNavigate} from 'react-router-dom';
 import LoginForm, {User} from './LoginForm';
 import LandingComponent from './LandingComponent';
@@ -8,6 +8,7 @@ import TradingDashboard from './TradingComponents/TradingDashboard';
 import RegisterForm from './RegisterForm';
 import AppContainer from './AppContainer';
 import Settings from './Settings/Settings';
+import ErrorDisplay from './ErrorDisplay';
 
 
 type MainProps = {}
@@ -23,7 +24,18 @@ function Main(props: MainProps) : JSX.Element {
         fundsSpent : "",
         currency : ""
     };
+
     const [authenticatedUser, setAuthenticatedUser] = useState(initialUser);
+    const [ErrorMsg, setErrorMsg] = useState<string>("")
+
+    useEffect(() => {
+        if (ErrorMsg !== "") {
+            document.body.classList.add("removeScrolbar");
+        } else {
+            document.body.classList.remove("removeScrolbar");
+        }
+    }, [ErrorMsg]);
+
     //const [isAuthenticated, setIsAuthenticated] = useState(false);
     // The routing feature is created with information from https://reactrouter.com/en/main/start/tutorial#adding-a-router
     const router = createBrowserRouter([
@@ -63,6 +75,8 @@ function Main(props: MainProps) : JSX.Element {
                     element: <TradingDashboard 
                                 User={authenticatedUser}
                                 SetUser={setAuthenticatedUser}
+                                ErrorMsg={ErrorMsg} 
+                                SetErrorMsg={setErrorMsg}
                             />,
                 },
                 {
@@ -75,9 +89,15 @@ function Main(props: MainProps) : JSX.Element {
             ]
         }
     ]);
-
+    let errorDisplay = <></>
+    if (ErrorMsg !== "") {
+        errorDisplay = <ErrorDisplay ErrorMsg={ErrorMsg} SetErrorMsg={setErrorMsg} />
+    }
     return(
-        <RouterProvider router={router} />
+        <>
+            <RouterProvider router={router} />
+            {errorDisplay}
+        </>
     );
 }
 

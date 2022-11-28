@@ -1,4 +1,4 @@
-﻿/**
+﻿/*
 
 import IUserData from "../Models/Iuser";
 
@@ -15,3 +15,4 @@ const UserService = {
 
 export default UserService;
 */
+export {}

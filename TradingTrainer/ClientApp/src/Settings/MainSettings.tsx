@@ -10,13 +10,13 @@ import MenuItem from '@mui/material/MenuItem'
 import { getUserProfile, saveUserProfile } from '../Service/TradingApi';
 import WaitingDisplay from '../WaitingDisplay';
 import { SettingPages } from './Settings';
-//import { Profile, ProfileInput } from './Settings';
 
 type MainSettingsProps = {
     User : User,
     SetUser : React.Dispatch<React.SetStateAction<User>>,
     CurSettingsPage : number,
-    SetCurSettingsPage : React.Dispatch<React.SetStateAction<number>>
+    SetCurSettingsPage : React.Dispatch<React.SetStateAction<number>>,
+    SetErrorMsg : React.Dispatch<React.SetStateAction<string>>
 }
 
 type ProfileInput = {
@@ -81,6 +81,7 @@ function MainSettings(props : MainSettingsProps) : JSX.Element {
             RegexPattern : "^[A-Z]{3}$"
         }
     }
+    
     const navigate = useNavigate();
     const [curProfile, setCurProfile] = useState<Profile>(initialFormInputValues);
     const [isWaiting, setIsWaiting] = useState<JSX.Element>();
@@ -101,7 +102,7 @@ function MainSettings(props : MainSettingsProps) : JSX.Element {
         newProfileSettings.Email.Value = (props.User.email ? props.User.email : "");
         newProfileSettings.Currency.Value = (props.User.currency ? props.User.currency : "");
         setCurProfile(newProfileSettings);
-    }, [props.User])
+    }, [props.User]);
 
     const onFormChange = (curProfileInput : ProfileInput, val : string | null) => {
         let curValue = ""
@@ -147,29 +148,6 @@ function MainSettings(props : MainSettingsProps) : JSX.Element {
         setCurProfile(curObj);
     }
 
-    const getSettings = async () => {
-        if (props.User.id > 0) {
-            await getUserProfile(props.User.id).then((data : User) => {
-                const newProfileSettings : Profile = {
-                    Id : data.id,
-                    FirstName : curProfile.FirstName,
-                    LastName : curProfile.LastName,
-                    Email : curProfile.Email,
-                    Currency : curProfile.Currency,
-                    FundsAvailable : (data.fundsAvailable ? data.fundsAvailable : ""),
-                    FundsSpent : (data.fundsSpent ? data.fundsSpent : "")
-                }
-                newProfileSettings.FirstName.Value = (data.firstName ? data.firstName : "");
-                newProfileSettings.LastName.Value = (data.lastName ? data.lastName : "");
-                newProfileSettings.Email.Value = (data.email ? data.email : "");
-                newProfileSettings.Currency.Value = (data.currency ? data.currency : "");
-                setCurProfile(newProfileSettings);
-            }).catch((error) => {
-                navigate("/login");
-            });
-        }
-    }
-
     const saveSettings = async () => {
         setIsWaiting(<WaitingDisplay WaitingText={"Updating profile...."}></WaitingDisplay>);
         // Convert to User object
@@ -205,8 +183,12 @@ function MainSettings(props : MainSettingsProps) : JSX.Element {
                     email : curProfile.Email.Value,
                     currency : curProfile.Currency.Value,
                 });
-            }).catch((error) => {
-                navigate("/login");
+            }).catch((error : Error) => {
+                setIsWaiting(<></>);
+                if (error.message.slice(3) === "401") {
+                    navigate("/login");
+                }
+                props.SetErrorMsg(error.message);
             });
         }
     }
@@ -288,7 +270,7 @@ function MainSettings(props : MainSettingsProps) : JSX.Element {
         );
 
     inputForm.push(<p key="FundsSpent" id="FundsSpent">Funds Spent: {curProfile.FundsSpent}</p>);
-    inputForm.push(<p key="FundsAvailable" id="FundsAvailable">Funds Available: {curProfile.FundsAvailable}</p>)
+    inputForm.push(<p key="FundsAvailable" id="FundsAvailable">Funds Available: {curProfile.FundsAvailable}</p>);
 
     return(
         <>
@@ -308,5 +290,7 @@ function MainSettings(props : MainSettingsProps) : JSX.Element {
         </>
     );
 }
-export { Profile, ProfileInput }
-export default MainSettings
+
+export type { ProfileInput };
+export type { Profile };
+export default MainSettings;

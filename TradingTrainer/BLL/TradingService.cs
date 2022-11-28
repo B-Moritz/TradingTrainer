@@ -635,7 +635,7 @@ namespace TradingTrainer.BLL
             return CreateUserObject(curUser);
         }
 
-        private User CreateUserObject(Users curUser) {
+        public User CreateUserObject(Users curUser) {
             User convertedUser = new User
             {
 

@@ -10,7 +10,8 @@ type ResetPwdProps = {
     User : User,
     SetUser : React.Dispatch<React.SetStateAction<User>>,
     CurSettingsPage : number, 
-    SetCurSettingsPage : React.Dispatch<React.SetStateAction<number>>
+    SetCurSettingsPage : React.Dispatch<React.SetStateAction<number>>,
+    SetErrorMsg : React.Dispatch<React.SetStateAction<string>>
 }
 
 type PwdAttr = {
@@ -108,8 +109,12 @@ function ResetPwd(props : ResetPwdProps) : JSX.Element {
         await resetUserPwd(props.User.id, curInput.LastPwd.PwdVal).then((data) => {
             setIsWaiting(<></>);
             props.SetCurSettingsPage(SettingPages.Main);
-        }).catch((error) => {
-            navigate("/login");
+        }).catch((error : Error) => {
+            setIsWaiting(<></>);
+            if (error.message.slice(3) === "401") {
+                navigate("/login");
+            }
+            props.SetErrorMsg(error.message);
         });
     }
     

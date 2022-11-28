@@ -6,7 +6,8 @@ import WaitingDisplay from '../WaitingDisplay';
 import TradeRecord, {TradeRecordData} from './TradeRecord'; 
 
 type TradingHistoryProps = {
-    User : User
+    User : User,
+    SetErrorMsg : React.Dispatch<React.SetStateAction<string>>
 }
 
 function TradeHistory(props : TradingHistoryProps) {
@@ -21,9 +22,12 @@ function TradeHistory(props : TradingHistoryProps) {
         getTradeHistory(props.User.id).then((data) => {
             setTradeData(data);
             setIsWaiting(<></>);
-        }).catch((err) => {
+        }).catch((error : Error) => {
             setIsWaiting(<></>);
-            navigate("/login");
+            if (error.message.slice(3) === "401") {
+                navigate("/login");
+            }
+            props.SetErrorMsg(error.message);
         });
     }
 
@@ -32,9 +36,12 @@ function TradeHistory(props : TradingHistoryProps) {
         await resetTradeHistory(props.User.id).then(() => {
             setTradeData([]);
             setIsWaiting(<></>);
-        }).catch(() => {
+        }).catch((error : Error) => {
             setIsWaiting(<></>);
-            navigate("/login");
+            if (error.message.slice(3) === "401") {
+                navigate("/login");
+            }
+            props.SetErrorMsg(error.message);
         });
     }
 
