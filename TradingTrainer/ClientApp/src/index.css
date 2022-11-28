@@ -58,6 +58,7 @@ body {
     text-align: center;
     padding: 4rem 0;
     border-radius: var(--Dashboard-border-radius);
+    z-index: 1000;
 }
 
 .waitingContainer > p {
@@ -342,3 +343,38 @@ body {
 #SettingsContainer {
     padding: 2rem;
 }
+
+.settingsFormContainer {
+    display: grid;
+    grid-template-areas: 'FirstName LastName' 
+                         'Email .' 
+                         'Currency .' 
+                         'FundsSpent FundsAvailable'
+                         'SettingsNavigation SettingsNavigation';
+    row-gap: 2rem;
+    column-gap: 1rem;
+}
+
+#FirstName {
+    grid-area: FirstName;
+}
+#LastName {
+    grid-area: LastName;
+}
+#Email {
+    grid-area: Email;
+}
+#Currency {
+    grid-area: Currency;
+}
+#FundsSpent {
+    grid-area: FundsSpent;
+}
+#FundsAvailable {
+    grid-area: FundsAvailable;
+}
+
+#SettingsNavigation {
+    grid-area: SettingsNavigation;
+}
+
