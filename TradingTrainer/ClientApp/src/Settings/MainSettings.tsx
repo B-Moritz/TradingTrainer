@@ -9,11 +9,14 @@ import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem'
 import { getUserProfile, saveUserProfile } from '../Service/TradingApi';
 import WaitingDisplay from '../WaitingDisplay';
+import { SettingPages } from './Settings';
 //import { Profile, ProfileInput } from './Settings';
 
 type MainSettingsProps = {
-    User : User
-    SetUser : React.Dispatch<React.SetStateAction<User>>
+    User : User,
+    SetUser : React.Dispatch<React.SetStateAction<User>>,
+    CurSettingsPage : number,
+    SetCurSettingsPage : React.Dispatch<React.SetStateAction<number>>
 }
 
 type ProfileInput = {
@@ -144,37 +147,6 @@ function MainSettings(props : MainSettingsProps) : JSX.Element {
         setCurProfile(curObj);
     }
 
-    const saveUserProfileCust = async (user : User) : Promise<any> => {
-        const requestUrl = `/trading/updateUser`;
-        return await fetch(requestUrl, {
-            method: "PUT",
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(user)
-        }).then((response) => {
-            if (!response.ok) {
-                // The server responded with an error
-                if (response.status === 401) {
-                    // User is not authorized to access the endpoint
-                    throw new Error(`${response.status}: ${response.text}`);
-                }
-                const msg = `Error: The server responded with error code: ${response.status}\n \
-                Message: ${response.text}`;
-    
-                throw new Error(msg);
-            }
-            return response.json();
-        }).catch((errorResp) => {
-            if (errorResp.message.slice(3) === "401") {
-                throw(errorResp);
-            }
-            alert(errorResp.message + ". This is the PUT method");
-            console.log(errorResp.message);
-        });
-    }
-
     const getSettings = async () => {
         if (props.User.id > 0) {
             await getUserProfile(props.User.id).then((data : User) => {
@@ -187,7 +159,6 @@ function MainSettings(props : MainSettingsProps) : JSX.Element {
                     FundsAvailable : (data.fundsAvailable ? data.fundsAvailable : ""),
                     FundsSpent : (data.fundsSpent ? data.fundsSpent : "")
                 }
-    
                 newProfileSettings.FirstName.Value = (data.firstName ? data.firstName : "");
                 newProfileSettings.LastName.Value = (data.lastName ? data.lastName : "");
                 newProfileSettings.Email.Value = (data.email ? data.email : "");
@@ -227,6 +198,13 @@ function MainSettings(props : MainSettingsProps) : JSX.Element {
                 newProfileSettings.Currency.Value = (data.currency ? data.currency : "");
                 setCurProfile(newProfileSettings);
                 setIsWaiting(<></>);
+                props.SetUser({
+                    id : 0,
+                    firstName : curProfile.FirstName.Value,
+                    lastName : curProfile.LastName.Value,
+                    email : curProfile.Email.Value,
+                    currency : curProfile.Currency.Value,
+                });
             }).catch((error) => {
                 navigate("/login");
             });
@@ -322,8 +300,8 @@ function MainSettings(props : MainSettingsProps) : JSX.Element {
                 {inputForm}
                 <nav id="SettingsNavigation" className="btn-group">
                     <button className={"btn btn-lg btn-warning " + (someInputIsNotValid ? "disabled" : "")} onClick={(someInputIsNotValid ? () => {} : saveSettings)}>Save Settings</button>
-                    <button className='btn btn-lg btn-danger'>Reset profile</button>
-                    <button className="btn btn-lg btn-primary">Reset password</button>
+                    <button className='btn btn-lg btn-danger' onClick={() => {props.SetCurSettingsPage(SettingPages.ConfirmReset)}}>Reset profile</button>
+                    <button className="btn btn-lg btn-primary" onClick={() => {props.SetCurSettingsPage(SettingPages.PwdChange)}}>Reset password</button>
                 </nav>
             </Box>
             {isWaiting}

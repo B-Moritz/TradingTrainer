@@ -480,7 +480,7 @@ namespace TradingTrainer.Controllers
          *      (int) userId: The user that should be resetted.
          * Return: An updated User object.
          */
-        public async Task<ActionResult> ResetProfile(int userId) {
+        public async Task<ActionResult> ResetProfile([FromBody]int userId) {
             User user;
             try
             {
