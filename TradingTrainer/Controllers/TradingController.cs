@@ -438,28 +438,35 @@ namespace TradingTrainer.Controllers
          *      (int) userId: The user to apply the changes to.
          * Return: An updated User object.
          */
+
         public async Task<ActionResult> UpdateUser([FromBody]User curUser) {
             User user;
-            try
+            if (ModelState.IsValid)
             {
-                user = await _tradingService.UpdateUserAsync(curUser);
-            }
-            catch (InvalidOperationException userNotFoundEx)
-            {
-                // The user was not found
-                _logger.LogWarning("An exception has occured while trying to find the user. \n" +
-                    userNotFoundEx.Message);
-                return NotFound(userNotFoundEx.Message);
-            }
-            catch (Exception generalError)
-            {
-                _logger.LogError("An exception has occured while updating the user.\n" + generalError.Message);
-                return StatusCode(StatusCodes.Status500InternalServerError, generalError.Message);
-            }
-            // Obtaining the user from the database
-            return Ok(user);
-        }
+                try
+                {
+                    user = await _tradingService.UpdateUserAsync(curUser);
+                }
+                catch (InvalidOperationException userNotFoundEx)
+                {
+                    // The user was not found
+                    _logger.LogWarning("An exception has occured while trying to find the user. \n" +
+                        userNotFoundEx.Message);
+                    return NotFound(userNotFoundEx.Message);
+                }
+                catch (Exception generalError)
+                {
 
+                    _logger.LogError("An exception has occured while updating the user.\n" + generalError.Message);
+                    return StatusCode(StatusCodes.Status500InternalServerError, generalError.Message);
+                }
+                // Obtaining the user from the database
+                return Ok(user);
+            }
+            _logger.LogInformation("Updating user not completed");
+            return BadRequest("Feil i inputvalidering");
+        }
+            
         /**
          * 
          */
