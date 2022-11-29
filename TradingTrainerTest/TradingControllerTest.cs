@@ -132,125 +132,7 @@ namespace TradingTrainerTest
             Assert.Equal(obj11, obj22);
 
         }
-        [Fact]
-        public async Task CreateNewStockQuoteEntity()
-        {
-            // arrange
-            var actualStock = new StockQuote
-            {
-                Open = 12.89M,
-                Low = 12.32M,
-                High = 12.895m,
-                Price = 12.4m,
-                Volume = 12439112,
-                PreviousClose = 12.94m,
-                Change = -0.54m,
-                ChangePercent = "-4.1731 %"
-            };
-
-            var expectedStock = new StockQuotes
-            {
-                Open = 12.89M,
-                Low = 12.32M,
-                High = 12.895m,
-                Price = 12.4m,
-                Volume = 12439112,
-                PreviousClose = 12.94m,
-                Change = -0.54m,
-                ChangePercent = "-4.1731 %"
-
-            };
-
-            //tradingRepo.Setup(s => s.CreateNewStockQuoteEntity("fbc"));
-            var tradingServises = new TradingService(tradingRepo.Object, logger.Object, serchRepo.Object, config.Object);
-
-            //act
-            StockQuotes creatNewStockEntity = tradingServises.CreateNewStockQuoteEntity(actualStock);
-            string obj1 = JsonSerializer.Serialize(expectedStock);
-            string obj2 = JsonSerializer.Serialize(creatNewStockEntity);
-
-            //assert
-            Assert.Equal(obj1, obj2);
-
-        }
-
-        [Fact]
-        public async Task CreateCurrentPortfolio()
-        {
-            //arrange
-            DateTime timeNow = DateTime.Now;
-            List<StockPortfolio>? portStock = new List<StockPortfolio>();
-            var currentPortfolio = new StockPortfolio
-            {
-                Quantity = 3,
-                EstPrice = "200",
-                PortfolioPortion = "100",
-                EstTotalMarketValue = "50.00",
-                TotalCost = "1000",
-                UnrealizedPL = "-3.00 %",
-
-            };
-            portStock.Add(currentPortfolio);
-
-            List<Portfolio> expectedPortfolio = new List<Portfolio>();
-            var convertPortfolio = new Portfolio
-            {
-                LastUpdate = timeNow,
-                TotalValueSpent = "100",
-                EstPortfolioValue = "50.00",
-                PortfolioCurrency = "USD",
-                Stocks = portStock,
-                BuyingPower = "10000",
-                UnrealizedPL = "-3.00 %"
-            };
-            expectedPortfolio.Add(convertPortfolio);
-
-
-            // List<Portfolio> stockPortfolio = new List<Portfolio>();
-            List<StockOwnerships>? ownerships = new List<StockOwnerships>();
-            var stockDetail = new StockOwnerships
-            {
-                UsersId = 1,
-                StocksId = "DNB",
-                StockCounter = 3,
-                SpentValue = 100
-            };
-            ownerships.Add(stockDetail);
-            //List<StockOwnerships>? ownerships = new List<StockOwnerships>() { stockDetail };
-            List<Users>? actualPortfolio = new List<Users>();
-            var userid = new Users
-            {
-                FirstName = "Albert",
-                LastName = "Jhone",
-                Email = "test@gmail.com",
-                UsersId = 1,
-                Password = Convert.FromBase64String("FBqAM9fp5mfCjyAjW0ukPtSv7YTIm0lwg02ulO8pKaw="),
-                Salt = Convert.FromBase64String("x2FRQXYkGrIZ0vqUeY103YG2Nnswwp0h"),
-                AlphaVantageApiKey = "FDSFDSSDG5",
-                FundsAvailable = 1000000M,
-                FundsSpent = 0,
-                PortfolioCurrency = "NOK",
-                Portfolio = ownerships
-            };
-            actualPortfolio.Add(userid);
-
-
-
-            //List<StockOwnerships> mockStocks = new List<StockOwnerships>() { stockDetail };
-
-            tradingServiceMoq.Setup(p => p.CreateCurrentPortfolio(1));
-            var tradingService = new TradingService(tradingRepo.Object, logger.Object, serchRepo.Object, config.Object);
-
-            //act
-            Portfolio createCurrentPortfolio = await tradingService.CreateCurrentPortfolio(1);
-            createCurrentPortfolio.LastUpdate = timeNow;
-
-            string obj1 = JsonSerializer.Serialize(expectedPortfolio);
-            string obj2 = JsonSerializer.Serialize(createCurrentPortfolio);
-            // assert
-            Assert.Equal(obj1, obj2);
-
-        }
+        
 
         [Fact]
         public async Task GetAllTradesAsync()
@@ -302,8 +184,6 @@ namespace TradingTrainerTest
             expectedTransaction.Add(currTransaction);
 
 
-
-
             // arrange
             tradingRepo.Setup(t => t.GetUsersAsync(1)).ReturnsAsync(userList);
             var tradingService = new TradingService(tradingRepo.Object, logger.Object, serchRepo.Object, config.Object);
@@ -315,76 +195,6 @@ namespace TradingTrainerTest
             //assert
             Assert.Equal(obj1, obj2);
 
-        }
-
-        [Fact]
-        public async Task GetStockQuoteAsync()
-        {
-            // arrange
-            DateTime timeNow = DateTime.Now;
-
-            //List<TradingTrainer.Model.StockQuote>? expStockQute = new List<TradingTrainer.Model.StockQuote>();
-            // TradingTrainer.Model.StockQuote creatStockQute;
-
-            var stocks = new Stocks //ok
-            {
-                StockName = "facebook",
-                Symbol = "fbc",
-                Type = "Equity",
-                LastUpdated = timeNow,
-                Currency = "USD"
-            };
-
-            StockQuotes actuelStock;
-            actuelStock = new StockQuotes //ok
-            {
-                StocksId = "1",
-                Stock = stocks,
-                Timestamp = timeNow,
-                Open = 13.66m,
-                High = 14.08m,
-                Low = 13.62m,
-                Price = 13.9m,
-                Volume = 1526711,
-                LatestTradingDay = timeNow,
-                PreviousClose = 13.08m,
-                Change = 0.82m,
-                ChangePercent = "6.2691%"
-            };
-            //stockList.Add(actueGetStock);
-
-            var expectedStock = new TradingTrainer.Model.StockQuote //ok
-            {
-                Symbol = "DNBBY",
-                StockName = "DNB ASA",
-                LastUpdated = timeNow,
-                Open = "13.66",
-                High = "14.08",
-                Low = "13.62",
-                Price = "13.9",
-                Volume = 1526711,
-                LatestTradingDay = timeNow,
-                PreviousClose = "13.08",
-                Change = "0.82",
-                ChangePercent = "6.2691%"
-
-            };
-            //expStockQute.Add(creatStockQute);
-
-
-            Console.WriteLine(actuelStock);
-
-
-            tradingServiceMoq.Setup(q => q.GetUpdatedQuoteAsync("DNBBY")).ReturnsAsync(actuelStock);
-            var tradingService = new TradingService(tradingRepo.Object, logger.Object, serchRepo.Object, config.Object);
-            //act
-            TradingTrainer.Model.StockQuote getStockQute = await tradingService.GetStockQuoteAsync("DNBBY");
-
-            string obj1 = JsonSerializer.Serialize(expectedStock);
-            string obj2 = JsonSerializer.Serialize(getStockQute);
-
-            // assert
-            Assert.Equal(obj1, obj2);
         }
 
         [Fact]
@@ -475,8 +285,6 @@ namespace TradingTrainerTest
             var buying = tradingService.BuyStock(1, "fbc", 3);
             //Assert.Equal(newBuyTradeLog, buying);
 
-
-
         }
 
         [Fact]
@@ -532,7 +340,6 @@ namespace TradingTrainerTest
             //Assert.Equal(newSellTrading, selling);
 
         }
-
         [Fact]
         public async Task UpdateUserAsync() // kanskje er unedvendig å teste på
         {
@@ -573,6 +380,202 @@ namespace TradingTrainerTest
             Assert.Equal(obj1, obj2);
 
         }
+
+
+        [Fact]
+        public async Task CreateNewStockQuoteEntity()
+        {
+            // arrange
+            var actualStock = new StockQuote
+            {
+                Open = 12.89M,
+                Low = 12.32M,
+                High = 12.895m,
+                Price = 12.4m,
+                Volume = 12439112,
+                PreviousClose = 12.94m,
+                Change = -0.54m,
+                ChangePercent = "-4.1731 %"
+            };
+           
+
+            var expectedStock = new StockQuotes
+            {
+                Open = 12.89M,
+                Low = 12.32M,
+                High = 12.895m,
+                Price = 12.4m,
+                Volume = 12439112,
+                PreviousClose = 12.94m,
+                Change = -0.54m,
+                ChangePercent = "-4.1731 %"
+
+            };
+            List<StockQuotes> stockQuotes = new List<StockQuotes>() { expectedStock };
+
+            //tradingRepo.Setup(s => s.CreateNewStockQuoteEntity("fbc"));
+            var tradingServises = new TradingService(tradingRepo.Object, logger.Object, serchRepo.Object, config.Object);
+
+            //act
+            StockQuotes creatNewStockEntity = tradingServises.CreateNewStockQuoteEntity(actualStock);
+            string obj1 = JsonSerializer.Serialize(stockQuotes);
+            string obj2 = JsonSerializer.Serialize(creatNewStockEntity);
+
+            //assert
+            Assert.Equal(obj1, obj2);
+
+        }
+
+        [Fact]
+        public async Task CreateCurrentPortfolio()
+        {
+            //arrange
+            DateTime timeNow = DateTime.Now;
+            List<StockPortfolio>? portStock = new List<StockPortfolio>();
+            var currentPortfolio = new StockPortfolio
+            {
+                Quantity = 3,
+                EstPrice = "200",
+                PortfolioPortion = "100",
+                EstTotalMarketValue = "50.00",
+                TotalCost = "1000",
+                UnrealizedPL = "-3.00 %",
+
+            };
+            portStock.Add(currentPortfolio);
+
+            List<Portfolio> expectedPortfolio = new List<Portfolio>();
+            var convertPortfolio = new Portfolio
+            {
+                LastUpdate = timeNow,
+                TotalValueSpent = "100",
+                EstPortfolioValue = "50.00",
+                PortfolioCurrency = "USD",
+                Stocks = portStock,
+                BuyingPower = "10000",
+                UnrealizedPL = "-3.00 %"
+            };
+            expectedPortfolio.Add(convertPortfolio);
+
+
+            // List<Portfolio> stockPortfolio = new List<Portfolio>();
+            List<StockOwnerships>? ownerships = new List<StockOwnerships>();
+            var stockDetail = new StockOwnerships
+            {
+                UsersId = 1,
+                StocksId = "DNB",
+                StockCounter = 3,
+                SpentValue = 100
+            };
+            ownerships.Add(stockDetail);
+            //List<StockOwnerships>? ownerships = new List<StockOwnerships>() { stockDetail };
+            List<Users>? actualPortfolio = new List<Users>();
+            var userid = new Users
+            {
+                FirstName = "Albert",
+                LastName = "Jhone",
+                Email = "test@gmail.com",
+                UsersId = 1,
+                Password = Convert.FromBase64String("FBqAM9fp5mfCjyAjW0ukPtSv7YTIm0lwg02ulO8pKaw="),
+                Salt = Convert.FromBase64String("x2FRQXYkGrIZ0vqUeY103YG2Nnswwp0h"),
+                AlphaVantageApiKey = "FDSFDSSDG5",
+                FundsAvailable = 1000000M,
+                FundsSpent = 0,
+                PortfolioCurrency = "NOK",
+                Portfolio = ownerships
+            };
+            actualPortfolio.Add(userid);
+
+
+
+            //List<StockOwnerships> mockStocks = new List<StockOwnerships>() { stockDetail };
+
+            tradingServiceMoq.Setup(p => p.CreateCurrentPortfolio(1));
+            var tradingService = new TradingService(tradingRepo.Object, logger.Object, serchRepo.Object, config.Object);
+
+            //act
+            Portfolio createCurrentPortfolio = await tradingService.CreateCurrentPortfolio(1);
+            createCurrentPortfolio.LastUpdate = timeNow;
+
+            string obj1 = JsonSerializer.Serialize(expectedPortfolio);
+            string obj2 = JsonSerializer.Serialize(createCurrentPortfolio);
+            // assert
+            Assert.Equal(obj1, obj2);
+
+        }
+
+        [Fact]
+        public async Task GetStockQuoteAsync()
+        {
+            // arrange
+            DateTime timeNow = DateTime.Now;
+
+            //List<TradingTrainer.Model.StockQuote>? expStockQute = new List<TradingTrainer.Model.StockQuote>();
+            // TradingTrainer.Model.StockQuote creatStockQute;
+
+            var stocks = new Stocks //ok
+            {
+                StockName = "facebook",
+                Symbol = "fbc",
+                Type = "Equity",
+                LastUpdated = timeNow,
+                Currency = "USD"
+            };
+
+            StockQuotes actuelStock;
+            actuelStock = new StockQuotes //ok
+            {
+                StocksId = "1",
+                Stock = stocks,
+                Timestamp = timeNow,
+                Open = 13.66m,
+                High = 14.08m,
+                Low = 13.62m,
+                Price = 13.9m,
+                Volume = 1526711,
+                LatestTradingDay = timeNow,
+                PreviousClose = 13.08m,
+                Change = 0.82m,
+                ChangePercent = "6.2691%"
+            };
+            //stockList.Add(actueGetStock);
+
+            var expectedStock = new TradingTrainer.Model.StockQuote //ok
+            {
+                Symbol = "DNBBY",
+                StockName = "DNB ASA",
+                LastUpdated = timeNow,
+                Open = "13.66",
+                High = "14.08",
+                Low = "13.62",
+                Price = "13.9",
+                Volume = 1526711,
+                LatestTradingDay = timeNow,
+                PreviousClose = "13.08",
+                Change = "0.82",
+                ChangePercent = "6.2691%"
+
+            };
+            //expStockQute.Add(creatStockQute);
+
+
+            Console.WriteLine(actuelStock);
+
+
+            tradingServiceMoq.Setup(q => q.GetUpdatedQuoteAsync("DNBBY")).ReturnsAsync(actuelStock);
+            var tradingService = new TradingService(tradingRepo.Object, logger.Object, serchRepo.Object, config.Object);
+            //act
+            TradingTrainer.Model.StockQuote getStockQute = await tradingService.GetStockQuoteAsync("DNBBY");
+
+            string obj1 = JsonSerializer.Serialize(expectedStock);
+            string obj2 = JsonSerializer.Serialize(getStockQute);
+
+            // assert
+            Assert.Equal(obj1, obj2);
+        }
+
+        
+        
 
 
     }

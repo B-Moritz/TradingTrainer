@@ -51,7 +51,7 @@ namespace TradingTrainer.BLL
             }
             if (!newPwd.Any(c => specialChars.Contains(c)))
             {
-                throw new ArgumentException("The provided password does not contain secial characters.");
+                throw new ArgumentException("The provided password does not contain special characters.");
             }
             return true;
         }
