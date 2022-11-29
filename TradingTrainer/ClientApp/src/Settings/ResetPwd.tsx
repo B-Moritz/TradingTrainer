@@ -70,7 +70,7 @@ function ResetPwd(props : ResetPwdProps) : JSX.Element {
             returnObj.ErrorMsg = "The password does not contain any word characters!";
             return returnObj;
         }
-        if (!(/[$&+,:;=?@#|'<>.-^*()%!]/.test(pwd))) {
+        if (!(/[$&+,:;=?@#|'<>-^*()%!]/.test(pwd))) {
             // The password does not contain any special characters
             returnObj.IsValid = false;
             returnObj.ErrorMsg = "The password does not contain any special characters!";
