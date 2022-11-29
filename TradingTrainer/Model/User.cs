@@ -10,16 +10,17 @@ namespace TradingTrainer.Model
     {
         // UsersId
         public int Id { get; set; }
-        [RegularExpression(@"^([\\w\\s]{2,50})$")]
+        [RegularExpression(@"^[\w\s]{2,50}$")]
         public string? FirstName { get; set; }
-        [RegularExpression(@"^([\\w\\s]{2,50})$")]
+        [RegularExpression(@"^[\w\s]{2,50}$")]
         public string? LastName { get; set; }
-        [RegularExpression(@"^[a-zA-Z\\#\\!\\%\\$\\‘\\&\\+\\*\\–\\/\\=\\?\\^\\_\\`\\.\\{\\|\\}\\~]+@[a-zA-Z0-9\\-\\.]{1,63}$")]
+        [RegularExpression(@"^[a-zA-Z\#\!\%\$\‘\&\+\*\–\/\=\?\^_\`\.\{\|\}\~]+@[a-zA-Z0-9\-\.]{1,63}$")]
         public string? Email { get; set; }
         // password needs minimum eight characters, and at least one letter and one number
         [StringLength(30, MinimumLength = 9, ErrorMessage = "The password must be between 9 and 30 characters")]
         public string? Password { get; set; }
 
+        [StringLength(30, MinimumLength = 1, ErrorMessage = "The Alpha Vantage api key must be less than 30 characters long.")]
         public string? AlphaVantageApiKey { get; set; }
         // The buying power of the user
         public string? FundsAvailable { get; set; }

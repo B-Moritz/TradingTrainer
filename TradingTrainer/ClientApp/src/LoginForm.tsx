@@ -155,7 +155,7 @@ function LoginForm(props : LoginProps) : JSX.Element {
                     // The user has already an active session on the server
                     console.log("User has an active session. Redirecting to dashboard.")
                     // Bypas login procedure
-                    props.SetUser(data.result);
+                    props.SetUser(data);
                     //props.SetIsAuthenticated(true);
                     //navigate("/TradingDashboard");
                 }
@@ -176,7 +176,7 @@ function LoginForm(props : LoginProps) : JSX.Element {
         if (firstRender) {
             setFirstRender(false);
         }
-         const unamePattern : RegExp = /^[a-zA-Z\#\!\%\$\‘\&\+\*\–\/\=\?\^\_\`\.\{\|\}\~]+@[a-zA-Z0-9\-\.]{1,63}$/;
+         const unamePattern : RegExp = /^[a-zA-Z\#\!\%\$\‘\&\+\*\–\/\=\?\^_\`\.\{\|\}\~]+@[a-zA-Z0-9\-\.]{1,63}$/;
          const username : string = e.currentTarget.value;
          if (unamePattern.test(username)) {
             // The username is valid

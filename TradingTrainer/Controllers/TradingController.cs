@@ -629,30 +629,44 @@ namespace TradingTrainer.Controllers
          * Return: An updated User object.
          */
         public async Task<ActionResult> UpdateUser([FromBody]User curUser) {
+            _logger.LogInformation($"Endpoint UpdateUser: Username requested");
+            // Check that the user is signed in 
+            if (HttpContext.Session.GetString(_loginFlag) != "true")
+            {
+                _logger.LogInformation($"Endpoint UpdateUser: The user does not have an active session.");
+                return Unauthorized("User does not have an active session.");
+            }
             User user;
             if (ModelState.IsValid)
             {
                 try
                 {
+                    // Updating user and receiving the updated user object
                     user = await _tradingService.UpdateUserAsync(curUser);
                 }
                 catch (InvalidOperationException userNotFoundEx)
                 {
                     // The user was not found
-                    _logger.LogWarning("An exception has occured while trying to find the user. \n" +
+                    _logger.LogWarning("Endpoint UpdateUser: An exception has occured while trying to find the user. \n" +
                         userNotFoundEx.Message);
                     return NotFound(userNotFoundEx.Message);
+                }
+                catch (ArgumentException inputInvalid)
+                {
+                    _logger.LogWarning($"Endpoint UpdateUser: {inputInvalid.Message}");
+                    return BadRequest(inputInvalid.Message);
                 }
                 catch (Exception generalError)
                 {
 
-                    _logger.LogError("An exception has occured while updating the user.\n" + generalError.Message);
+                    _logger.LogError("Endpoint UpdateUser: An exception has occured while updating the user.\n" + generalError.Message);
                     return StatusCode(StatusCodes.Status500InternalServerError, generalError.Message);
                 }
                 // Obtaining the user from the database
+                _logger.LogInformation($"Endpoint UpdateUser: The user {curUser.Id} was updated.");
                 return Ok(user);
             }
-            _logger.LogInformation("Updating user not completed");
+            _logger.LogWarning("Invalid input values for the update user process.");
             return BadRequest("The provided user object is not valid!");
         }
             

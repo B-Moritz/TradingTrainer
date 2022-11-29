@@ -1,6 +1,8 @@
 ﻿using Castle.DynamicProxy.Generators.Emitters.SimpleAST;
 using System.Diagnostics.Metrics;
 using System.Text.RegularExpressions;
+using AlphaVantageInterface;
+using AlphaVantageInterface.Models;
 
 namespace TradingTrainer.BLL
 {
@@ -56,6 +58,24 @@ namespace TradingTrainer.BLL
                 // Search keyword not valid
                 throw new ArgumentException("The provided username is not valid");
             }
+            return true;
+        }
+
+        /**
+         * This method tries to make a call to the alpha vantage api using the provided key.
+         * Throws an ArgumentException if it does not work.
+         */
+        public async Task<bool> ValidateAlphaKey(string key) {
+            AlphaVantageConnection alphaObj = await AlphaVantageConnection.BuildAlphaVantageConnectionAsync(key, true, 122);
+            try
+            {
+                SearchResult test = await alphaObj.FindStockAsync("Microsoft");
+            }
+            catch (AlphaVantageApiCallNotPossible e) {
+                // The key is not valid
+                throw new ArgumentException("The provided api key is not working.");
+            }
+
             return true;
         }
 

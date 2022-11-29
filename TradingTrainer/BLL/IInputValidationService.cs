@@ -12,5 +12,7 @@ namespace TradingTrainer.BLL
         bool ValidateSearchKeyword(string keyword);
 
         bool ValidateUsername(string username);
+
+        Task<bool> ValidateAlphaKey(string key);
     }
 }

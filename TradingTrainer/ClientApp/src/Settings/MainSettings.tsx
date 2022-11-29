@@ -196,19 +196,12 @@ function MainSettings(props : MainSettingsProps) : JSX.Element {
                 newProfileSettings.AlphaVantageApiKey.Value = (data.alphaVantageApiKey ? data.alphaVantageApiKey : "");
                 setCurProfile(newProfileSettings);
                 setIsWaiting(<></>);
-                props.SetUser({
-                    id : 0,
-                    firstName : curProfile.FirstName.Value,
-                    lastName : curProfile.LastName.Value,
-                    email : curProfile.Email.Value,
-                    currency : curProfile.Currency.Value,
-                });
             }).catch((error : Error) => {
                 setIsWaiting(<></>);
                 if (error.message.slice(3) === "401") {
                     navigate("/login");
                 }
-                props.SetErrorMsg(error.message);
+                props.SetErrorMsg(error.toString());
             });
         }
     }

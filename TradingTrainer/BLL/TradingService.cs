@@ -726,6 +726,7 @@ namespace TradingTrainer.BLL
                 FirstName = curUser.FirstName,
                 LastName = curUser.LastName,
                 Email = curUser.Email,
+                AlphaVantageApiKey= curUser.AlphaVantageApiKey,
                 FundsSpent = FormatMonetaryValue(curUser.FundsSpent, curUser.PortfolioCurrency),
                 FundsAvailable = FormatMonetaryValue(curUser.FundsAvailable, curUser.PortfolioCurrency),
                 Currency = curUser.PortfolioCurrency
@@ -735,6 +736,9 @@ namespace TradingTrainer.BLL
 
         public async Task<User> UpdateUserAsync(User curUser)
         {
+            // Validate api key
+            await _validation.ValidateAlphaKey((curUser.AlphaVantageApiKey is not null ? curUser.AlphaVantageApiKey : ""));
+            
             // Update the user in the database
             await _tradingRepo.UpdateUserAsync(curUser);
             // Returning the updated user object

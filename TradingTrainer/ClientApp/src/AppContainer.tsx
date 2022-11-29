@@ -72,13 +72,25 @@ function AppContainer(props : AppContainerProps) : JSX.Element {
     }
 
     const logout = async () => {
+        const cleardUser : User = {
+            id : 0,
+            firstName : "",
+            lastName : "",
+            email : "",
+            alphaVantageApiKey : "",
+            fundsAvailable : "",
+            fundsSpent : "",
+            currency : ""
+        }
         setReconnectingWaiting(<WaitingDisplay WaitingText={"Signing out...."}></WaitingDisplay>);
         await logoutApiCall().then(() => {
             setReconnectingWaiting(<></>);
+            props.SetUser(cleardUser);
             navigate("/");
         }).catch((error : Error) => {
             setReconnectingWaiting(<></>);
             if (error.message.slice(3) === "401") {
+                props.SetUser(cleardUser);
                 navigate("/");
             }
             props.SetErrorMsg(error.message);
