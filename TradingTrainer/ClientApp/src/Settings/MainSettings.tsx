@@ -33,6 +33,7 @@ type Profile = {
     FirstName : ProfileInput
     LastName : ProfileInput
     Email : ProfileInput
+    AlphaVantageApiKey : ProfileInput
   // The buying power of the user
     FundsAvailable : string
   // The total amount of funds that have been invested by the user since the last reset.
@@ -68,6 +69,14 @@ function MainSettings(props : MainSettingsProps) : JSX.Element {
             Label : "Email/Username",
             RegexPattern : "^[a-zA-Z\\#\\!\\%\\$\\‘\\&\\+\\*\\–\\/\\=\\?\\^\\_\\`\\.\\{\\|\\}\\~]+@[a-zA-Z0-9\\-\\.]{1,63}$"
         },
+        AlphaVantageApiKey : {
+            Id : "AlphaVantageApiKey",
+            Value : "", 
+            IsValid : true, 
+            ErrorMsg : "The provided api key is not valid!",
+            Label : "Alpha Vantage Api Key",
+            RegexPattern : "^[A-Z0-9a-z]{2, 50}$"
+        },
       // The buying power of the user
         FundsAvailable : "",
       // The total amount of funds that have been invested by the user since the last reset.
@@ -92,6 +101,7 @@ function MainSettings(props : MainSettingsProps) : JSX.Element {
             FirstName : curProfile.FirstName,
             LastName : curProfile.LastName,
             Email : curProfile.Email,
+            AlphaVantageApiKey : curProfile.AlphaVantageApiKey,
             Currency : curProfile.Currency,
             FundsAvailable : (props.User.fundsAvailable ? props.User.fundsAvailable : ""),
             FundsSpent : (props.User.fundsSpent ? props.User.fundsSpent : "")
@@ -101,6 +111,7 @@ function MainSettings(props : MainSettingsProps) : JSX.Element {
         newProfileSettings.LastName.Value = (props.User.lastName ? props.User.lastName : "");
         newProfileSettings.Email.Value = (props.User.email ? props.User.email : "");
         newProfileSettings.Currency.Value = (props.User.currency ? props.User.currency : "");
+        newProfileSettings.AlphaVantageApiKey.Value = (props.User.alphaVantageApiKey ? props.User.alphaVantageApiKey : "");
         setCurProfile(newProfileSettings);
     }, [props.User]);
 
@@ -111,6 +122,7 @@ function MainSettings(props : MainSettingsProps) : JSX.Element {
             FirstName : curProfile.FirstName,
             LastName : curProfile.LastName,
             Email : curProfile.Email,
+            AlphaVantageApiKey : curProfile.AlphaVantageApiKey,
             Currency : curProfile.Currency,
             FundsAvailable : curProfile.FundsAvailable,
             FundsSpent : curProfile.FundsSpent
@@ -142,9 +154,13 @@ function MainSettings(props : MainSettingsProps) : JSX.Element {
             case "Email/Username":
                 curObj.Email = curProfileInput;
                 break;
+            case "Alpha Vantage Api Key":
+                curObj.AlphaVantageApiKey = curProfileInput;
+                break;
             default:
                 curObj.Currency = curProfileInput;
         }
+        // Setting the current values of the input fields - component is reloaded
         setCurProfile(curObj);
     }
 
@@ -155,16 +171,19 @@ function MainSettings(props : MainSettingsProps) : JSX.Element {
             id : curProfile.Id,
             firstName : curProfile.FirstName.Value,
             lastName : curProfile.LastName.Value,
+            alphaVantageApiKey : curProfile.AlphaVantageApiKey.Value,
             email : curProfile.Email.Value,
             currency : curProfile.Currency.Value,
         } 
         if (props.User.id > 0) {
             await saveUserProfile(newUserObj).then((data) => {
+                // Create a new object for the profile state - consisting of old values 
                 const newProfileSettings : Profile = {
                     Id : data.id,
                     FirstName : curProfile.FirstName,
                     LastName : curProfile.LastName,
                     Email : curProfile.Email,
+                    AlphaVantageApiKey : curProfile.AlphaVantageApiKey,
                     Currency : curProfile.Currency,
                     FundsAvailable : (data.fundsAvailable ? data.fundsAvailable : ""),
                     FundsSpent : (data.fundsSpent ? data.fundsSpent : "")
@@ -174,6 +193,7 @@ function MainSettings(props : MainSettingsProps) : JSX.Element {
                 newProfileSettings.LastName.Value = (data.lastName ? data.lastName : "");
                 newProfileSettings.Email.Value = (data.email ? data.email : "");
                 newProfileSettings.Currency.Value = (data.currency ? data.currency : "");
+                newProfileSettings.AlphaVantageApiKey.Value = (data.alphaVantageApiKey ? data.alphaVantageApiKey : "");
                 setCurProfile(newProfileSettings);
                 setIsWaiting(<></>);
                 props.SetUser({
@@ -195,7 +215,7 @@ function MainSettings(props : MainSettingsProps) : JSX.Element {
     
     let inputForm : JSX.Element[] = [];
     let someInputIsNotValid = false;
-    const inputValues = [curProfile.FirstName, curProfile.LastName, curProfile.Email];
+    const inputValues = [curProfile.FirstName, curProfile.LastName, curProfile.Email, curProfile.AlphaVantageApiKey];
     for (const curValue of inputValues) {
         if (!curValue.IsValid) {
             inputForm.push(<TextField 

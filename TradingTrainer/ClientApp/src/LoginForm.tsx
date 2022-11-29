@@ -8,6 +8,7 @@ type User = {
     firstName? : string
     lastName? : string
     email? : string
+    alphaVantageApiKey? : string
     // The buying power of the user
     fundsAvailable? : string
     // The total amount of funds that have been invested by the user since the last reset.
@@ -19,7 +20,7 @@ type LoginProps = {
     // Function used to set the current loged in user
     SetUser : React.Dispatch<React.SetStateAction<User>>
     User : User
-    //SetIsAuthenticated : React.Dispatch<React.SetStateAction<boolean>>
+    SetErrorMsg : React.Dispatch<React.SetStateAction<string>>
 }
 
 function LoginForm(props : LoginProps) : JSX.Element {

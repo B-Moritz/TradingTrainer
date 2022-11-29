@@ -20,6 +20,7 @@ function Main(props: MainProps) : JSX.Element {
         firstName : "",
         lastName : "",
         email : "",
+        alphaVantageApiKey : "",
         fundsAvailable : "",
         fundsSpent : "",
         currency : ""
@@ -53,6 +54,7 @@ function Main(props: MainProps) : JSX.Element {
                     element: <LoginForm 
                                 SetUser={setAuthenticatedUser}
                                 User={authenticatedUser}
+                                SetErrorMsg={setErrorMsg}
                                 //SetIsAuthenticated={setIsAuthenticated}
                             />,
                 },
@@ -67,6 +69,7 @@ function Main(props: MainProps) : JSX.Element {
             element: <AppContainer 
                         User={authenticatedUser}
                         SetUser={setAuthenticatedUser}
+                        SetErrorMsg={setErrorMsg}
                     />,
             errorElement: <ErrorComponent />,
             children: [
@@ -84,6 +87,7 @@ function Main(props: MainProps) : JSX.Element {
                     element: <Settings 
                                 User={authenticatedUser}
                                 SetUser={setAuthenticatedUser}
+                                SetErrorMsg={setErrorMsg}
                             />
                 }
             ]

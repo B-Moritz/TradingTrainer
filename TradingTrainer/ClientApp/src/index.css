@@ -347,7 +347,7 @@ body {
 .settingsFormContainer {
     display: grid;
     grid-template-areas: 'FirstName LastName' 
-                         'Email .' 
+                         'Email AlphaVantageApiKey' 
                          'Currency .' 
                          'FundsSpent FundsAvailable'
                          'SettingsNavigation SettingsNavigation';
@@ -366,6 +366,9 @@ body {
 }
 #Currency {
     grid-area: Currency;
+}
+#AlphaVantageApiKey {
+    grid-area: AlphaVantageApiKey;
 }
 #FundsSpent {
     grid-area: FundsSpent;
