@@ -409,3 +409,30 @@ body {
     display: table;
     clear: both;
 }
+
+
+
+/* Error display */
+#ErrorContainer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    background-color:rgba(212, 231, 244, 0.9);
+    z-index: 2000;
+}
+
+#ErrorDialog {
+    background-color: white;
+    margin-top: 10%;
+    margin-left: 10rem;
+    margin-right: 10rem;
+    padding: 3rem;
+    z-index: 3000;
+    border-radius: var(--Dashboard-border-radius);
+}
+
+.removeScrolbar {
+    overflow: hidden;
+}

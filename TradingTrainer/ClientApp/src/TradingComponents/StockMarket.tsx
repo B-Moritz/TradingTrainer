@@ -8,6 +8,7 @@ import { Navigate } from 'react-router-dom';
 
 type StockMarketProps = {
     User : User
+    SetErrorMsg : React.Dispatch<React.SetStateAction<string>>
 }
 
 type SearchResult = {
@@ -42,7 +43,7 @@ function StockMarket(props : StockMarketProps) : JSX.Element {
             const outList : JSX.Element[] = [];
             data.stockList.forEach((stock : SearchResultStock, index : number) => {
                 outList.push(
-                    <SearchResultRow key={"Stock_" + stock.symbol} Stock={stock} UserId={userId}></SearchResultRow>
+                    <SearchResultRow key={"Stock_" + stock.symbol} Stock={stock} UserId={userId} SetErrorMsg={props.SetErrorMsg}></SearchResultRow>
                 )
             });
             if (outList.length === 0) {
@@ -51,8 +52,12 @@ function StockMarket(props : StockMarketProps) : JSX.Element {
             }
             setCurStockList(outList);
             setWaitDisplay(<></>)
-        }).catch(() => {
-            navigate("/login");
+        }).catch((error : Error) => {
+            setWaitDisplay(<></>)
+            if (error.message.slice(3) === "401") {
+                navigate("/login");
+            }
+            props.SetErrorMsg(error.message);
         });
     }
 
@@ -101,5 +106,5 @@ function StockMarket(props : StockMarketProps) : JSX.Element {
 
     );
 }
-export { SearchResultStock };
+export type { SearchResultStock };
 export default StockMarket;

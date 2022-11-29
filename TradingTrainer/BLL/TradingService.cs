@@ -14,6 +14,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Text;
 using System.Security.Cryptography;
 using Microsoft.AspNetCore.Cryptography.KeyDerivation;
+using System;
 
 namespace TradingTrainer.BLL
 {
@@ -92,12 +93,15 @@ namespace TradingTrainer.BLL
             // Create the api object used to obtain new stock quotes
             AlphaVantageConnection AlphaV = await AlphaVantageConnection.BuildAlphaVantageConnectionAsync(_apiKey, true, _alphaVantageDailyCallLimit);
             // Trying to get the latest stock object from the the database
+            _logger.LogInformation($"TradingService.GetUpdatedQuoteAsync: Trying to get Stock quote from the server (symbo={symbol})");
             StockQuotes? curStockQuote = await _tradingRepo.GetStockQuoteAsync(symbol);
             if (curStockQuote is null)
             {
                 // Getting a new quote from Alpha vantage api if the stock quote was not found the in the database
+                _logger.LogInformation($"TradingService.GetUpdatedQuoteAsync: No cached stock quote found. " +
+                    $"Trying to get Stock quote from AlphaVantage api (symbo ={ symbol})");
                 AlphaVantageInterface.Models.StockQuote newQuote = await AlphaV.GetStockQuoteAsync(symbol);
-                // Adding stock quote to db and get the StockQuotes object 
+                // Adding stock quote to db and get the StockQuotes object
                 StockQuotes newQuotesEntity = CreateNewStockQuoteEntity(newQuote);
                 StockQuotes newConvertedQuote = await _tradingRepo.AddStockQuoteAsync(newQuotesEntity);
                 // Set the new StockQuotes object as current quote
@@ -112,6 +116,8 @@ namespace TradingTrainer.BLL
                 {
                     // If the quote was not updated within the specified _quoteCachedTime, then a new quote is obtained from api
                     // Remove the existing stock quotes from db
+                    _logger.LogInformation($"TradingService.GetUpdatedQuoteAsync: Old stock quote found in database. " +
+                        $"Trying to get Stock quote from AlphaVantage api (symbo ={symbol})");
                     _tradingRepo.RemoveStockQuotes(symbol);
                     AlphaVantageInterface.Models.StockQuote newQuote = await AlphaV.GetStockQuoteAsync(symbol);
                     // Adding stock quote to db
@@ -123,6 +129,9 @@ namespace TradingTrainer.BLL
             return curStockQuote;
         }
 
+        /**
+         * This method converts an AlphaVantageInterface.ModelStockQuote object to an DAL.StockQuotes Object (db entity).
+         */
         public StockQuotes CreateNewStockQuoteEntity(AlphaVantageInterface.Models.StockQuote stockQuote)
         {
             // Parse the LatestTradingDay to datetime object
@@ -164,13 +173,8 @@ namespace TradingTrainer.BLL
             // Input validation is not implemented jet
 
             // Obtaining the user entity from the database
-            Users? curUser = await _tradingRepo.GetUsersAsync(userId);
-
-            if (curUser == null)
-            {
-                _logger.LogInformation($"User {userId} was not found in the database");
-                throw new KeyNotFoundException($"The user with UserId {userId}, was not found in the database");
-            }
+            Users curUser = await GetUserObject(userId);
+            _logger.LogInformation($"TradingService.CreateUserSearchResult: User object was obtained (Email={curUser.Email}), creating portfolio object");
 
             // Definition and initialization of the Portfolio object that should be returned
             Portfolio outPortfolio = new Portfolio();
@@ -288,6 +292,7 @@ namespace TradingTrainer.BLL
             AlphaVantageConnection AlphaV = await AlphaVantageConnection.BuildAlphaVantageConnectionAsync(_apiKey, true, _alphaVantageDailyCallLimit);
             // Fetch stocks from api using the given name 
             var alphaObject = await AlphaV.FindStockAsync(keyword);
+            _logger.LogInformation($"TradingService.GetNewExternalSearchResult: New search result obtained from the AlphaVantage api.");
             // Initiate a new searchResult object
             modelSearchResult.SearchKeyword = keyword;
             modelSearchResult.SearchTime = DateTime.Now;
@@ -310,6 +315,7 @@ namespace TradingTrainer.BLL
             modelSearchResult.StockList = StockDetailsList;
 
             // SearchResult is passed to a function in searchResultRepositry to be added to the database
+            _logger.LogInformation($"TradingService.GetNewExternalSearchResult: Adding the new search result to the database.");
             await _searchResultRepo.SaveSearchResultAsync(modelSearchResult);
 
             return modelSearchResult;
@@ -320,7 +326,7 @@ namespace TradingTrainer.BLL
         * and checking if record matching exixst in database. 
         * If it exist already it checks its last update, if last update is greater than 24 
         * then removes existing record and add new one by creating a new object of search result and passing it to saveSearchResult in repository.
-        * If there is no such record, it fetches data from api using the keyword and save it by passing it to saveSearchResult function
+        * If there is no such record, it fetches data from api using the keyword and saves it by passing it to saveSearchResult function.
         */
         public async Task<Model.SearchResult> CreateOneSearchResult(string keyword)
         {
@@ -337,6 +343,7 @@ namespace TradingTrainer.BLL
             // Alpha vantage api
             if (res is null)
             {
+                _logger.LogInformation($"TradingService.CreateOneSearchResult: There is no cached searchresult with keyword {keyword}. Obtaining search result from AlphaVantage.");
                 return await GetNewExternalSearchResult(keyword);
             }
 
@@ -345,12 +352,29 @@ namespace TradingTrainer.BLL
             if (timeSinceLastUpdate >= _quoteCacheTime)
             {
                 // If the search result is older than the QuoteCacheTime, delete the search resutl and create a new one.
+                _logger.LogInformation($"TradingService.CreateOneSearchResult: Cached search result was too old");
                 _searchResultRepo.DeleteSearchResult(keyword);
                 return await GetNewExternalSearchResult(keyword);
             }
+            _logger.LogInformation($"TradingService.CreateOneSearchResult: A valid cached search result was found in the database.");
             return res;
         }
 
+        /**
+         * This method obtians a Users object from the server based on a user id provided as argument.
+         * KeyNotFoundException is thrown if the user is not found.
+         */
+        private async Task<Users> GetUserObject(int userId) {
+            // Obtaining the Users object (entity)             
+            Users? curUser = await _tradingRepo.GetUsersAsync(userId);
+            if (curUser is null)
+            {
+                // If the value returned from repository is null, throw an KeyNotFoundException
+                _logger.LogInformation($"User {userId} was not found in the database");
+                throw new KeyNotFoundException("The specified user was not recognized");
+            }
+            return curUser;
+        }
 
         /**
          * This method defines the service used to create a SearchResult for a specific user.
@@ -370,18 +394,12 @@ namespace TradingTrainer.BLL
                 // Return an empty SearchResult object
                 return new Model.SearchResult();
             }
-            // Obtaining the Users object (entity)             
-            Users? curUser = await _tradingRepo.GetUsersAsync(userId);
-            if (curUser is null)
-            {
-                _logger.LogInformation($"User {userId} was not found in the database");
-                throw new KeyNotFoundException("The specified user was not recognized");
-            }
+            Users curUser = await GetUserObject(userId);
+            _logger.LogInformation($"TradingService.CreateUserSearchResult: User object was obtained (Email={curUser.Email})");
             // Obtaining the watchlist of the user, adding an empty list if the favorites property is null
             List<Stocks> favoriteStockList = (curUser.Favorites is null ? new List<Stocks>() : curUser.Favorites);
             // Executing the search and making sure that the search result is stored in the database
             Model.SearchResult result = await CreateOneSearchResult(keyword);
-
             // Going through the stocks in the search results
             foreach (StockSearchResult curStock in result.StockList)
             {
@@ -406,20 +424,22 @@ namespace TradingTrainer.BLL
         public async Task<List<Model.SearchResult>> GetAllSearchResults()
         {
             // Collecting all search result objects stored in the database
+            _logger.LogInformation("TradingService.GetAllSearchResults: Obtaining seearch results from database");
             var list = _searchResultRepo.GetAllKeywordsAsync();
             return await list;
         }
 
 
         // -----[ Favorites ] --------------------------------------------------------------------
+        /**
+         * This method creates a FavoriteList (watchlist) containing a list of stock stat the user (userId is provided as argument)
+         * has added as favorite.
+         */
         public async Task<FavoriteList> CreateFavoriteListAsync(int userId)
         {
-            // Input validation needs to be implemented
-
-
             // The favorite list is obtained from the repository
             List<Stocks> favorites = await _tradingRepo.GetFavoriteListAsync(userId);
-
+            _logger.LogInformation($"TradingService.CreateFavoriteListAsync: List of favorite stocks obtained from database (userId={userId}).");
             // Declaring the new favorite list containing StockBase objects
             List<StockBase>? stockFavorite = new List<StockBase>();
             StockBase currentStockDetail;
@@ -446,9 +466,12 @@ namespace TradingTrainer.BLL
             return currentFavorite;
 
         }
+        
+        /**
+         * This method removes a stock from the watchlist for a given user. The userId and stock symbol is provided as arguments.
+         */
         public async Task<FavoriteList> DeleteFromFavoriteListAsync(int userId, string symbol)
         {
-            // Input validation needs to be implemented
 
             // Removing the stock from the favorite list in the database
             await _tradingRepo.DeleteFromFavoriteListAsync(userId, symbol);

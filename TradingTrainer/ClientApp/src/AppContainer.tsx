@@ -5,10 +5,12 @@ import TradingTrainerFooter from './TradingTrainerFooter';
 import WaitingDisplay from './WaitingDisplay';
 import { User } from './LoginForm';
 import logo from './img/icons8-track-and-field-48.png';
+import { logoutApiCall } from './Service/TradingApi';
 
 type AppContainerProps = {
     User : User
     SetUser : React.Dispatch<React.SetStateAction<User>>
+    SetErrorMsg : React.Dispatch<React.SetStateAction<string>>
 }
 
 function AppContainer(props : AppContainerProps) : JSX.Element {
@@ -52,9 +54,12 @@ function AppContainer(props : AppContainerProps) : JSX.Element {
                 //props.SetIsAuthenticated(true);
                 //navigate("/TradingDashboard");
             }
-        }).catch((errorResp) => {
-            console.log(errorResp.message);
+        }).catch((error : Error) => {
             setReconnectingWaiting(<></>);
+            if (error.message.slice(3) === "401") {
+                navigate("/login");
+            }
+            props.SetErrorMsg(error.message);
         });
     }
     
@@ -66,6 +71,20 @@ function AppContainer(props : AppContainerProps) : JSX.Element {
         navigate("/tradingDashboard");
     }
 
+    const logout = async () => {
+        setReconnectingWaiting(<WaitingDisplay WaitingText={"Signing out...."}></WaitingDisplay>);
+        await logoutApiCall().then(() => {
+            setReconnectingWaiting(<></>);
+            navigate("/");
+        }).catch((error : Error) => {
+            setReconnectingWaiting(<></>);
+            if (error.message.slice(3) === "401") {
+                navigate("/");
+            }
+            props.SetErrorMsg(error.message);
+        });
+    }
+
     return(
         <>
             <header id="DashboardHeader">
@@ -74,7 +93,7 @@ function AppContainer(props : AppContainerProps) : JSX.Element {
                     <h1 id="TradingTrainerNavTitle">Trading Trainer</h1>
                     <div id="UserSettings" className="navLink" onClick={() => navigateToTradingDashboard()}>Dashboard</div>
                     <div id="UserSettings" className="navLink" onClick={() => navigateToSettings()}>Settings</div>
-                    <div id="LogoutNav" className="navLink">Logout</div>
+                    <div id="LogoutNav" className="navLink" onClick={() => logout()}>Logout</div>
                 </nav>
             </header>
             <main id="TradingDashboardContainer">

@@ -385,7 +385,6 @@ namespace TradingTrainerTest
 
             // assert
             Assert.Equal(obj1, obj2);
-
         }
 
         [Fact]

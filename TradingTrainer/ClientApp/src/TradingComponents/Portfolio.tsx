@@ -55,6 +55,7 @@ type PortfolioStock = {
 type PortfolioProps = {
         SetCurSelectedStock : React.Dispatch<React.SetStateAction<PortfolioStock | undefined>>
         SetStockListTab : React.Dispatch<React.SetStateAction<number[]>>
+        SetErrorMsg : React.Dispatch<React.SetStateAction<string>>
         UpdateQuoteDisplay : (symbol : string) => Promise<any>
         User : User
         CurSelectedPortfolioStock : PortfolioStock | undefined
@@ -103,10 +104,12 @@ function Portfolio(props: PortfolioProps) : JSX.Element {
         getPortfolio(props.User.id).then((data : PortfolioResponse) => {
             setPortfolioData(data);
             setIsWaiting(<></>);
-        }).catch(
-            // The Service module has responded with 401 error - user does not hava access to the portfolio - try to login again
-            () => navigate("/login")
-        );
+        }).catch((error : Error) => {
+            if (error.message.slice(3) === "401") {
+                navigate("/login");
+            }
+            props.SetErrorMsg(error.message);
+        });
         //selectStock(props.CurSelectedPortfolioStock);
     }
     
@@ -193,5 +196,5 @@ function Portfolio(props: PortfolioProps) : JSX.Element {
         </>
     );
 }
-export {PortfolioStock};
+export type { PortfolioStock };
 export default Portfolio;

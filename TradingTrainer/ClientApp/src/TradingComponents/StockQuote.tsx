@@ -40,3 +40,4 @@ function StockQuote(props : StockQuoteProps) : JSX.Element {
 }
 export {StockQuote};
 export default StockQuote;*/
+export {}

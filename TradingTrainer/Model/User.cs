@@ -10,13 +10,12 @@ namespace TradingTrainer.Model
     {
         // UsersId
         public int Id { get; set; }
-        [RegularExpression(@"^[a-zA-ZæøåÆØÅ. \-]{2,20}$")]
+        [RegularExpression(@"^([\\w\\s]{2,50})$")]
         public string FirstName { get; set; }
-        [RegularExpression(@"^[a-zA-ZæøåÆØÅ. \-]{2,20}$")]
+        [RegularExpression(@"^([\\w\\s]{2,50})$")]
         public string LastName { get; set; }
-        [RegularExpression(@"^([\w\.\-]+)@([\w\-]+)((\.(\w){2,3})+)$")]
+        [RegularExpression(@"^[a-zA-Z\\#\\!\\%\\$\\‘\\&\\+\\*\\–\\/\\=\\?\\^\\_\\`\\.\\{\\|\\}\\~]+@[a-zA-Z0-9\\-\\.]{1,63}$")]
         public string Email { get; set; }
-        [RegularExpression(@"^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$")]
         // password needs minimum eight characters, and at least one letter and one number
         public string Password { get; set; }
 

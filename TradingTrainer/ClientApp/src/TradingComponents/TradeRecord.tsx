@@ -28,5 +28,5 @@ function TradeRecord(props : TradeRecordProps) : JSX.Element {
     );
 }
 
-export { TradeRecordData }
+export type { TradeRecordData }
 export default TradeRecord;

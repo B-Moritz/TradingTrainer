@@ -1,15 +1,18 @@
 import { SearchResultStock } from './StockMarket';
 import {useState, useEffect} from 'react';
+import { useNavigate } from 'react-router-dom';
 
 
 type SearchResultRowProps = {
     Stock : SearchResultStock
     UserId : number
+    SetErrorMsg : React.Dispatch<React.SetStateAction<string>>
 }
 
 function SearchResultRow(props : SearchResultRowProps) : JSX.Element {
     const [isFavorite, setIsFavorite] = useState(props.Stock.isFavorite);
     const [isWaiting, setIsWaiting] = useState(false);
+    const navigate = useNavigate();
     const addToWatchlist = (e : React.MouseEvent) => {
         setIsWaiting(true);
         fetch(`/trading/addToFavoriteList?userId=${props.UserId}&symbol=${props.Stock.symbol}`, {
@@ -24,8 +27,12 @@ function SearchResultRow(props : SearchResultRowProps) : JSX.Element {
                 }
                 setIsFavorite(true);
                 setIsWaiting(false);
-            }).catch((errorResp) => {
-                    console.log(errorResp.message);
+            }).catch((error : Error) => {
+                setIsWaiting(false);
+                if (error.message.slice(3) === "401") {
+                    navigate("/login");
+                }
+                props.SetErrorMsg(error.message);
             });
     }
 
@@ -43,8 +50,12 @@ function SearchResultRow(props : SearchResultRowProps) : JSX.Element {
                 }
                 setIsFavorite(false);
                 setIsWaiting(false);
-            }).catch((errorResp) => {
-                    console.log(errorResp.message);
+            }).catch((error : Error) => {
+                setIsWaiting(false);
+                if (error.message.slice(3) === "401") {
+                    navigate("/login");
+                }
+                props.SetErrorMsg(error.message);
             });
     }
     let button;

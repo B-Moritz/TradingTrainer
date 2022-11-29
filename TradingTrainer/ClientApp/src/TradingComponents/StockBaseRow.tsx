@@ -49,5 +49,6 @@ function StockBaseRow(props : StockBaseRowProps) : JSX.Element {
         </tr>
     );
 }
-export {StockBase, StockBaseHeader};
+export { StockBaseHeader };
+export type { StockBase };
 export default StockBaseRow;

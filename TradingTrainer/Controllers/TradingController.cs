@@ -5,9 +5,11 @@
 // It contains all the REST endpoints used to trade stocks (buying, selling and searching for stocks) 
 
 using System.Diagnostics;
+using System.Text.RegularExpressions;
 using AlphaVantageInterface;
 using AlphaVantageInterface.Models;
 using EcbCurrencyInterface;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging.Configuration;
 using TradingTrainer.BLL;
@@ -43,9 +45,28 @@ namespace TradingTrainer.Controllers
          */
         public async Task<ActionResult> GetAllSearchResultsFromDB()
         {
-            // Collecting all search result objects stored in the database
-            List<Model.SearchResult> results = await _tradingService.GetAllSearchResults();
-                   return Ok(results);
+            _logger.LogInformation($"Endpoint GetAllSearchResultsFromDB: Handeling a request for all cached search results.");
+            // Check that the user is signed in 
+            if (HttpContext.Session.GetString(_loginFlag) != "true") {
+                _logger.LogInformation($"Endpoint GetAllSearchResultsFromDB: The user does not have an active session.");
+                return BadRequest("User does not have an active session.");
+            }
+
+            List<Model.SearchResult> results;
+
+            try {
+                // Collecting all search result objects stored in the database
+                results = await _tradingService.GetAllSearchResults();
+            }
+            catch (Exception generalError)
+            {
+                // Return internal server error if an exception was thrown
+                _logger.LogError("An exception has occured while searching the stock.\n" + generalError.Message);
+                return StatusCode(StatusCodes.Status500InternalServerError, generalError.Message);
+            }
+            _logger.LogInformation($"Endpoint GetAllSearchResultsFromDB: Returning list containing all search results to the client");
+            return Ok(results);
+
         }
 
         /**
@@ -60,23 +81,50 @@ namespace TradingTrainer.Controllers
          */
         public async Task<ActionResult> GetUserSearchResult(string keyword, int userId) 
         {
+            _logger.LogInformation($"Endpoint GetUserSearchResult: User {userId} initiated a stock search with keyword {keyword}");
+            if (keyword.Length > 50) {
+                // Search keyword not valid
+                _logger.LogWarning($"Endpoint GetUserSearchResult: Invalid keyword: {keyword}");
+                return BadRequest("The provided search keyword is not valid (longer than 50 characters)");
+            }
+            if (userId < 1) {
+                // User id is not valid
+                _logger.LogWarning($"Endpoint GetUserSearchResult: Invalid userId: {userId}");
+                return BadRequest("The provided userId is not valid.");
+            }
+
+            // Check that the user is signed in 
+            if (HttpContext.Session.GetString(_loginFlag) != "true")
+            {
+                _logger.LogInformation($"Endpoint GetUserSearchResult: The user does not have an active session.");
+                return BadRequest("User does not have an active session.");
+            }
+
             Model.SearchResult searchResult;
             try
             {
+                // Get search results from the business layer
                 searchResult = await _tradingService.CreateUserSearchResult(keyword, userId);
             }
             catch (KeyNotFoundException userNotFoundEx)
             {
                 // The user was not found
-                _logger.LogWarning("An exception has occured while trying to find the user. \n" +
+                _logger.LogWarning("Endpoint GetUserSearchResult: An exception has occured while trying to find the user. \n" +
                     userNotFoundEx.Message);
-                return NotFound(userNotFoundEx.Message);
+                return NotFound($"Endpoint GetUserSearchResult: User with userId={userId}, was not found");
+            }
+            catch (AlphaVantageApiCallNotPossible alphaVantageError) 
+            {
+                // An error wiht the AlphaVantage Interface was identified
+                _logger.LogWarning(alphaVantageError.Message);
+                return StatusCode(StatusCodes.Status503ServiceUnavailable, alphaVantageError.Message);
             }
             catch (Exception generalError)
             {
-                _logger.LogError("An exception has occured while searching the stock.\n" + generalError.Message);
+                _logger.LogError("Endpoint GetUserSearchResult: An exception has occured while searching the stock.\n" + generalError.Message);
                 return StatusCode(StatusCodes.Status500InternalServerError, generalError.Message);
             }
+            _logger.LogInformation("Endpoint GetUserSearchResult: The Search result is returned to the client.");
             return Ok(searchResult);
         }
 
@@ -92,27 +140,50 @@ namespace TradingTrainer.Controllers
          */
         public async Task<ActionResult> GetPortfolio(int userId)
         {
+            _logger.LogInformation($"Endpoint GetPortfolio: The portfolio of user {userId} was requested.");
+            if (userId < 1)
+            {
+                // User id is not valid
+                _logger.LogWarning($"Endpoint GetPortfolio: Invalid userId: {userId}");
+                return BadRequest("The provided userId is not valid.");
+            }
+
+            // Check that the user is signed in 
+            if (HttpContext.Session.GetString(_loginFlag) != "true")
+            {
+                _logger.LogInformation($"Endpoint GetPortfolio: The user does not have an active session.");
+                return BadRequest("User does not have an active session.");
+            }
+
             Portfolio outPortfolio;
             try
             {
+                // Create the portfolio object in the business layer object from the business layer
                 outPortfolio = await _tradingService.CreateCurrentPortfolio(userId);
             }
             catch (KeyNotFoundException userNotFoundEx)
             {
                 // The user was not found
-                _logger.LogWarning("An exception has occured while trying to find the user. \n" +
+                _logger.LogWarning("Endpoint GetPortfolio: An exception has occured while trying to find the user.\n" +
                     userNotFoundEx.Message);
                 return NotFound(userNotFoundEx.Message);
+            }
+            catch (AlphaVantageApiCallNotPossible alphaVantageError)
+            {
+                // An error wiht the AlphaVantage Interface was identified
+                _logger.LogWarning(alphaVantageError.Message);
+                return StatusCode(StatusCodes.Status503ServiceUnavailable, alphaVantageError.Message);
             }
             catch (Exception generalError)
             {
                 // An unexpected exception was thrown, log exception and respond with InternalServerError (500)
-                _logger.LogError("An exception has occured while creating the current portfolio " +
+                _logger.LogError("Endpoint GetPortfolio: An exception has occured while creating the current portfolio " +
                                  "(TradingService.CreateCurrentPortfolio):\n" + generalError.Message);
                 return StatusCode(StatusCodes.Status500InternalServerError, generalError.Message);
             }
-            
+
             // The Portfolio object is returned
+            _logger.LogInformation($"Endpoint GetPortfolio: The Portfolio object for user {userId} is returned to client.");
             return Ok(outPortfolio);        
         }
 
@@ -125,25 +196,42 @@ namespace TradingTrainer.Controllers
          */
         public async Task<ActionResult> GetFavoriteList(int userId)
         {
+            _logger.LogInformation($"Endpoint GetFavoriteList: The watchlist of user {userId} was requested.");
+            if (userId < 1)
+            {
+                // User id is not valid
+                _logger.LogWarning($"Endpoint GetFavoriteList: Invalid userId: {userId}");
+                return BadRequest("The provided userId is not valid.");
+            }
+
+            // Check that the user is signed in 
+            if (HttpContext.Session.GetString(_loginFlag) != "true")
+            {
+                _logger.LogInformation($"Endpoint GetFavoriteList: The user does not have an active session.");
+                return BadRequest("User does not have an active session.");
+            }
+
             FavoriteList outFavoriteList;
             try
             {
+                // Obtaining watchlist form the business layer
                 outFavoriteList = await _tradingService.CreateFavoriteListAsync(userId);
             }
             catch (InvalidOperationException userNotFound)
             {
                 // The user was not found
-                _logger.LogWarning("An exception has occured while trying to find the user. \n" +
+                _logger.LogWarning("Endpoint GetPortfolio: An exception has occured while trying to find the user. \n" +
                     userNotFound.Message);
                 return NotFound(userNotFound.Message);
             }
             catch (Exception generalError)
             {
                 // An unexpected exception was thrown, log exception and respond with InternalServerError (500)
-                _logger.LogError("An exception has occured while creating the current favoriteList " +
-                    "(TradingService.CreateCurrentPortfolio):\n" + generalError.Message);
+                _logger.LogError("Endpoint GetPortfolio: An exception has occured while creating the current favoriteList " +
+                     generalError.Message);
                 return StatusCode(StatusCodes.Status500InternalServerError, generalError.Message);
             }
+            _logger.LogError("Endpoint GetPortfolio: Returing watchlist to client.");
             return Ok(outFavoriteList);
         }
 
@@ -157,6 +245,26 @@ namespace TradingTrainer.Controllers
          */
         public async Task<ActionResult> DeleteFromFavoriteList(int userId, string symbol)
         {
+            _logger.LogInformation($"Endpoint DeleteFromFavoriteList: User {userId} is removing stock {symbol} from the watchlist.");
+            Regex symbolPattern = new Regex("^[A-Z\\.]{1,20}$");
+            if (!symbolPattern.IsMatch(symbol))
+            {
+                // Search keyword not valid
+                _logger.LogWarning($"Endpoint DeleteFromFavoriteList: Invalid symbol: {symbol}");
+                return BadRequest("The provided search symbol is not valid.");
+            }
+            if (userId < 1)
+            {
+                // User id is not valid
+                _logger.LogWarning($"Endpoint DeleteFromFavoriteList: Invalid userId: {userId}");
+                return BadRequest("The provided userId is not valid.");
+            }
+            // Check that the user is signed in 
+            if (HttpContext.Session.GetString(_loginFlag) != "true")
+            {
+                _logger.LogInformation($"Endpoint DeleteFromFavoriteList: The user does not have an active session.");
+                return BadRequest("User does not have an active session.");
+            }
             FavoriteList deleteFromFavoriteList;
             try
             {
@@ -318,7 +426,9 @@ namespace TradingTrainer.Controllers
             catch (Exception generalError)
             {
                 _logger.LogError("An exception has occured while searching the stock.\n" + generalError.Message);
-                return StatusCode(StatusCodes.Status500InternalServerError, generalError.Message);
+                ObjectResult resp = StatusCode(StatusCodes.Status500InternalServerError, generalError.Message);
+                object? test = resp.Value;
+                return resp;
             }
             return Ok(quotes);
         }
@@ -359,8 +469,21 @@ namespace TradingTrainer.Controllers
          */
         public async Task<ActionResult> ClearAllTradeHistory(int userId)
         {
-            // skal man ikke feilhåndtere om man ikke finner en user ????????????????????????????????????????????????????????
-
+            try {
+                _tradingService.ClearAllTradeHistoryAsync(userId);
+            }
+            catch (KeyNotFoundException userNotFoundEx)
+            {
+                // The user was not found
+                _logger.LogWarning("An exception has occured while trying to find the user. \n" +
+                    userNotFoundEx.Message);
+                return NotFound(userNotFoundEx.Message);
+            }
+            catch (Exception generalError)
+            {
+                _logger.LogError("An exception has occured with getUser.\n" + generalError.Message);
+                return StatusCode(StatusCodes.Status500InternalServerError, generalError.Message);
+            }
             // Removing the trade records connected to the provided userId
             return Ok($"The trade history was cleared for user {userId}");
         }
@@ -427,7 +550,6 @@ namespace TradingTrainer.Controllers
          *      (int) userId: The user to apply the changes to.
          * Return: An updated User object.
          */
-
         public async Task<ActionResult> UpdateUser([FromBody]User curUser) {
             User user;
             if (ModelState.IsValid)
@@ -453,7 +575,7 @@ namespace TradingTrainer.Controllers
                 return Ok(user);
             }
             _logger.LogInformation("Updating user not completed");
-            return BadRequest("Feil i inputvalidering");
+            return BadRequest("The provided user object is not valid!");
         }
             
         /**
@@ -523,9 +645,43 @@ namespace TradingTrainer.Controllers
             }
         }
 
-        public ActionResult LogOut() {
+        public async Task<ActionResult> LogOut() {
             HttpContext.Session.SetString(_loginFlag, "");
+            string testval = HttpContext.Session.GetString(_loginFlag);
             return Ok("true");
         }
+
+        /**
+         * This method is used as an endpoint to change the password of a specified user. Use the 
+         */
+        public async Task<ActionResult> ResetPwd([FromBody]UserPwd user) {
+            // Check that the user has an active session
+            if (HttpContext.Session.GetString(_loginFlag) != "true") {
+                return Unauthorized("The user does not have an active session on the server!");
+            }
+            bool isChanged = false;
+            try
+            {
+                isChanged = await _authenticationService.ResetPasswordAsync(user.UserId, user.Password);
+            }
+            catch (ArgumentException e) {
+                return BadRequest("The provided password is not valid.");
+            }
+            catch (InvalidOperationException userNotFoundEx)
+            {
+                // The user was not found
+                _logger.LogWarning("An exception has occured while trying to find the user. \n" +
+                    userNotFoundEx.Message);
+                return NotFound(userNotFoundEx.Message);
+            }
+            catch (Exception generalError)
+            {
+                _logger.LogError("An exception has occured while reseting the profile of the user.\n" + generalError.Message);
+                return StatusCode(StatusCodes.Status500InternalServerError, generalError.Message);
+            }
+            HttpContext.Session.SetString(_loginFlag, "");
+            return (Ok(isChanged));
+        }
+
     }
 }

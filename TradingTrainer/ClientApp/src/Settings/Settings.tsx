@@ -8,7 +8,8 @@ import ResetPwd from './ResetPwd';
 
 type SettingsProps = {
     User : User,
-    SetUser : React.Dispatch<React.SetStateAction<User>>
+    SetUser : React.Dispatch<React.SetStateAction<User>>,
+    SetErrorMsg : React.Dispatch<React.SetStateAction<string>>
 }
 
 class SettingPages {
@@ -23,13 +24,13 @@ function Settings(props : SettingsProps) : JSX.Element {
     let currentDisplay = <></>; 
     switch (curSettingsPage) {
         case SettingPages.PwdChange:
-            currentDisplay = <ResetPwd User={props.User} SetUser={props.SetUser} CurSettingsPage={curSettingsPage} SetCurSettingsPage={setCurSettingsPage} />
+            currentDisplay = <ResetPwd User={props.User} SetUser={props.SetUser} CurSettingsPage={curSettingsPage} SetCurSettingsPage={setCurSettingsPage} SetErrorMsg={props.SetErrorMsg} />
             break;
         case SettingPages.ConfirmReset:
-            currentDisplay = <ConfirmReset User={props.User} SetUser={props.SetUser} CurSettingsPage={curSettingsPage} SetCurSettingsPage={setCurSettingsPage} />
+            currentDisplay = <ConfirmReset User={props.User} SetUser={props.SetUser} CurSettingsPage={curSettingsPage} SetCurSettingsPage={setCurSettingsPage} SetErrorMsg={props.SetErrorMsg}/>
             break;
         default:
-            currentDisplay = <MainSettings User={props.User} SetUser={props.SetUser} CurSettingsPage={curSettingsPage} SetCurSettingsPage={setCurSettingsPage}/>
+            currentDisplay = <MainSettings User={props.User} SetUser={props.SetUser} CurSettingsPage={curSettingsPage} SetCurSettingsPage={setCurSettingsPage} SetErrorMsg={props.SetErrorMsg}/>
     }
 
     return(

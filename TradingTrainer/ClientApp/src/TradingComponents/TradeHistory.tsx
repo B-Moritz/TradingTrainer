@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react';
 import { User } from '../LoginForm';
-import { getTradeHistory } from '../Service/TradingApi';
+import { getTradeHistory, resetTradeHistory } from '../Service/TradingApi';
 import { useNavigate } from 'react-router-dom';
 import WaitingDisplay from '../WaitingDisplay';
 import TradeRecord, {TradeRecordData} from './TradeRecord'; 
 
 type TradingHistoryProps = {
-    User : User
+    User : User,
+    SetErrorMsg : React.Dispatch<React.SetStateAction<string>>
 }
 
 function TradeHistory(props : TradingHistoryProps) {
@@ -21,9 +22,26 @@ function TradeHistory(props : TradingHistoryProps) {
         getTradeHistory(props.User.id).then((data) => {
             setTradeData(data);
             setIsWaiting(<></>);
-        }).catch((err) => {
+        }).catch((error : Error) => {
             setIsWaiting(<></>);
-            navigate("/login");
+            if (error.message.slice(3) === "401") {
+                navigate("/login");
+            }
+            props.SetErrorMsg(error.message);
+        });
+    }
+
+    const clearTradeHistory = async () => {
+        setIsWaiting(<WaitingDisplay WaitingText={"Retreiving trade history from server..."}></WaitingDisplay>);
+        await resetTradeHistory(props.User.id).then(() => {
+            setTradeData([]);
+            setIsWaiting(<></>);
+        }).catch((error : Error) => {
+            setIsWaiting(<></>);
+            if (error.message.slice(3) === "401") {
+                navigate("/login");
+            }
+            props.SetErrorMsg(error.message);
         });
     }
 
@@ -59,7 +77,7 @@ function TradeHistory(props : TradingHistoryProps) {
                 </div>
                 <div className="btn-group">
                     <button className="btn btn-primary" onClick={() => refresh()}>Refresh</button>
-                    <button className='btn btn-danger'>Clear History</button>
+                    <button className='btn btn-danger' onClick={() => clearTradeHistory()}>Clear History</button>
                 </div>
             </div>
             {isWaiting}

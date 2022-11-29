@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 using EcbCurrencyInterface;
 using Microsoft.EntityFrameworkCore.Query.Internal;
+using Microsoft.Extensions.Configuration.UserSecrets;
 
 namespace TradingTrainer.DAL
 {
@@ -114,7 +115,7 @@ namespace TradingTrainer.DAL
          * This metode will obtain favorites for the user that matches the userId.
          * Parameters: 
          *      (int) userId: The user to find the favorite list for.
-         *  Return: FavoriteList object containing the favorite list of the given user
+         *  Return: FavoriteList object containing the favorite list of the given user. Throws InvalidOperationException if no or more than one user was found.
          */
         public async Task<List<Stocks>> GetFavoriteListAsync(int userId)
         {
@@ -381,6 +382,15 @@ namespace TradingTrainer.DAL
                 return false;
             }
            
+        }
+
+        public async Task<bool> updatePwdAsync(Users user, byte[] pwd, byte[] salt) {
+            // Get the user object from db
+            Users dbUser = _db.Users.Single(u => u.UsersId == user.UsersId);
+            dbUser.Salt = salt;
+            dbUser.Password = pwd;
+            await _db.SaveChangesAsync();
+            return true;
         }
         
     }

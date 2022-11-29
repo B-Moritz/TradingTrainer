@@ -16,6 +16,7 @@ type WatchlistResponse = {
 type WatchlistProps = {
     SetCurSelectedStock : React.Dispatch<React.SetStateAction<StockBase>>
     SetStockListTab : React.Dispatch<React.SetStateAction<number[]>>
+    SetErrorMsg : React.Dispatch<React.SetStateAction<string>>
     UpdateQuoteDisplay : (symbol : string) => Promise<any>
     User : User
     CurSelectedStock : StockBase
@@ -66,7 +67,12 @@ function Watchlist(props : WatchlistProps) : JSX.Element {
                     lastUpdated : data.lastUpdated,
                     elements : curOutList
                 });
-            }).catch(() => navigate("/login"));
+            }).catch((error : Error) => {
+                if (error.message.slice(3) === "401") {
+                    navigate("/login");
+                }
+                props.SetErrorMsg(error.message);
+            });
         } else {
             setOutList({
                 lastUpdated : "Not awailable",
@@ -106,7 +112,12 @@ function Watchlist(props : WatchlistProps) : JSX.Element {
                         elements : curOutList
                     });
                 }
-            }).catch(() => navigate("/login"));
+            }).catch((error : Error) => {
+                if (error.message.slice(3) === "401") {
+                    navigate("/login");
+                }
+                props.SetErrorMsg(error.message);
+            });
         } else {
             setOutList({
                 lastUpdated : "Not awailable",
@@ -141,5 +152,5 @@ function Watchlist(props : WatchlistProps) : JSX.Element {
     );
 }
 
-export { WatchlistResponse };
+export type { WatchlistResponse };
 export default Watchlist;
