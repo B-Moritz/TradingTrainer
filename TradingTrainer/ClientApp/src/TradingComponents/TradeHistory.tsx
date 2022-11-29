@@ -48,7 +48,7 @@ function TradeHistory(props : TradingHistoryProps) {
     const outList : JSX.Element[] = [];
     if (tradeData) {
         tradeData.forEach((record : TradeRecordData, index : number) => {
-            outList.push(<TradeRecord Data={record}></TradeRecord>)
+            outList.push(<TradeRecord key={"record" + index} Data={record}></TradeRecord>)
         });
     } else {
         outList.push(<tr><td>No history was found</td></tr>);

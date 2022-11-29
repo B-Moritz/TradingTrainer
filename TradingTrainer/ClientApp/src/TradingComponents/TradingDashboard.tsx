@@ -87,8 +87,6 @@ function TradingDashboard(props: DashboardProps) : JSX.Element {
         change : "",
         changePercent : ""
     }
-    
-    //const [stockList, setStockList] = useState<JSX.Element>(<></>);
     const [curSelectedStock, setCurSelectedStock] = useState<StockBase>(initialStock);
     const [curSelectedPortfolioStock, setCurSelectedPortfolioStock] = useState<PortfolioStock>();
     const [curStockQuote, setStockQuote] = useState<StockQuote>(initialQuote);

@@ -268,18 +268,20 @@ namespace TradingTrainer.Controllers
             FavoriteList deleteFromFavoriteList;
             try
             {
+                // Obtaining the updated favorite list from the business layer
                 deleteFromFavoriteList = await _tradingService.DeleteFromFavoriteListAsync(userId, symbol);
             }
             catch (InvalidOperationException userOrStockNotFound)
             {
-                _logger.LogWarning("User or stock not found in database.\n" + userOrStockNotFound.Message);
+                _logger.LogWarning("Endpoint DeleteFromFavoriteList: User or stock not found in database.\n" + userOrStockNotFound.Message);
                 return NotFound(userOrStockNotFound.Message);
             }
             catch(Exception generalError)
             {
-                _logger.LogWarning("There was en error while trying to delete from favoriteList" + generalError.Message);
+                _logger.LogWarning("Endpoint DeleteFromFavoriteList: There was en error while trying to delete from favoriteList" + generalError.Message);
                 return StatusCode(StatusCodes.Status500InternalServerError, generalError.Message);
             }
+            _logger.LogWarning($"Endpoint DeleteFromFavoriteList: The updated favorite list for user {userId} is returned to client");
             return Ok(deleteFromFavoriteList);
         }
 

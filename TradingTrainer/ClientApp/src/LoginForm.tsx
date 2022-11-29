@@ -19,7 +19,7 @@ type LoginProps = {
     // Function used to set the current loged in user
     SetUser : React.Dispatch<React.SetStateAction<User>>
     User : User
-    //SetIsAuthenticated : React.Dispatch<React.SetStateAction<boolean>>
+    SetErrorMsg : React.Dispatch<React.SetStateAction<string>>
 }
 
 function LoginForm(props : LoginProps) : JSX.Element {
