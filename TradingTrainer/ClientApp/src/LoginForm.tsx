@@ -8,6 +8,7 @@ type User = {
     firstName? : string
     lastName? : string
     email? : string
+    alphaVantageApiKey? : string
     // The buying power of the user
     fundsAvailable? : string
     // The total amount of funds that have been invested by the user since the last reset.

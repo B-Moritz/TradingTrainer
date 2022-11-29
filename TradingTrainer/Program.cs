@@ -13,6 +13,8 @@ builder.Services.AddScoped<ITradingRepository, TradingRepository>();
 builder.Services.AddScoped<ISearchResultRepositry, SearchResultRepositry>();
 builder.Services.AddScoped<ITradingService, TradingService>();
 builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
+builder.Services.AddScoped<IInputValidationService, InputValidationService>();
+
 // Disable the implicit validatio of models
 builder.Services.Configure<ApiBehaviorOptions>(options
     => options.SuppressModelStateInvalidFilter = true);

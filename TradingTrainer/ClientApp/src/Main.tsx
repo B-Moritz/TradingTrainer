@@ -20,6 +20,7 @@ function Main(props: MainProps) : JSX.Element {
         firstName : "",
         lastName : "",
         email : "",
+        alphaVantageApiKey : "",
         fundsAvailable : "",
         fundsSpent : "",
         currency : ""

@@ -22,10 +22,12 @@ namespace TradingTrainer.DAL
     {
         // The DbContext reference
         private readonly TradingContext _db;
+        private readonly ILogger<TradingRepository> _logger;
 
-        public TradingRepository(TradingContext db)
+        public TradingRepository(TradingContext db, ILogger<TradingRepository> logger)
         {
             _db = db;
+            _logger = logger;
         }
 
         /**
@@ -218,6 +220,7 @@ namespace TradingTrainer.DAL
             StockOwnerships curOwnership = await _db.StockOwnerships.SingleAsync<StockOwnerships>(t => (t.StocksId == symbol) && (t.UsersId == userId));
             if (curOwnership.StockCounter < count) {
                 // Check that the user has enough shares of the stock to compleate the transaction
+                _logger.LogWarning($"TradingRepository.SellStockTransactionAsync: The user {userId} tried to more share than is currently owned.");
                 throw new ArgumentException("The specified amount of stocks to sell exceeds the amount of shares owned!");
             }
             // Substract from the stock counter of the ownership

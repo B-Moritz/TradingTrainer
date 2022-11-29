@@ -30,6 +30,8 @@ namespace TradingTrainer.BLL
         private readonly IConfiguration _config;
         // The searchResult repository used to access the database
         private readonly ISearchResultRepositry _searchResultRepo;
+        // The Validation service used to validate input
+        private readonly IInputValidationService _validation;
         // The api key used for the AlphaVantageInterface
         private readonly string _apiKey;
         // The allowed number Alpha Vantage API calls per day
@@ -38,12 +40,14 @@ namespace TradingTrainer.BLL
         public TradingService(ITradingRepository tradingRepo, 
                               ILogger<TradingService> logger,
                               ISearchResultRepositry searchResultRepo, 
-                              IConfiguration config) {
+                              IConfiguration config,
+                              IInputValidationService validation) {
 
             _tradingRepo = tradingRepo;
             _logger = logger;
             _searchResultRepo = searchResultRepo;
             _config = config;
+            _validation = validation;
             _apiKey = _config["AlphaVantageApi:ApiKey"];
         }
 
@@ -155,7 +159,6 @@ namespace TradingTrainer.BLL
                 Change = stockQuote.Change,
                 ChangePercent = stockQuote.ChangePercent,
             };
-
             return newStockQuoteEntity;
         }
 
@@ -170,7 +173,8 @@ namespace TradingTrainer.BLL
          */
         public async Task<Portfolio> CreateCurrentPortfolio(int userId) 
         {
-            // Input validation is not implemented jet
+            // Input validation
+            _validation.ValidateUserId(userId);
 
             // Obtaining the user entity from the database
             Users curUser = await GetUserObject(userId);
@@ -286,6 +290,8 @@ namespace TradingTrainer.BLL
          */
         private async Task<Model.SearchResult> GetNewExternalSearchResult(string keyword)
         {
+            // Input validation
+            _validation.ValidateSearchKeyword(keyword);
             // Search result object from Model 
             var modelSearchResult = new Model.SearchResult();
             // Connection to alpha vantage api
@@ -330,6 +336,8 @@ namespace TradingTrainer.BLL
         */
         public async Task<Model.SearchResult> CreateOneSearchResult(string keyword)
         {
+            // Validate input
+            _validation.ValidateSearchKeyword(keyword);
             // The search results are stored with keyword name as uppercase uppercase. Thus we operate with keyword in uppercase
             // to implement a non-casesensitive search feature
             keyword = keyword.ToUpper();
@@ -370,7 +378,7 @@ namespace TradingTrainer.BLL
             if (curUser is null)
             {
                 // If the value returned from repository is null, throw an KeyNotFoundException
-                _logger.LogInformation($"User {userId} was not found in the database");
+                _logger.LogWarning($"User {userId} was not found in the database");
                 throw new KeyNotFoundException("The specified user was not recognized");
             }
             return curUser;
@@ -388,6 +396,9 @@ namespace TradingTrainer.BLL
          */
         public async Task<Model.SearchResult> CreateUserSearchResult(string keyword, int userId)
         {
+            // Validating input
+            _validation.ValidateUserId(userId);
+            _validation.ValidateSearchKeyword(keyword);
             // Checking that the keyword is not an empty string
             if (keyword == "")
             {
@@ -437,6 +448,8 @@ namespace TradingTrainer.BLL
          */
         public async Task<FavoriteList> CreateFavoriteListAsync(int userId)
         {
+            // Validate input
+            _validation.ValidateUserId(userId);
             // The favorite list is obtained from the repository
             List<Stocks> favorites = await _tradingRepo.GetFavoriteListAsync(userId);
             _logger.LogInformation($"TradingService.CreateFavoriteListAsync: List of favorite stocks obtained from database (userId={userId}).");
@@ -472,41 +485,55 @@ namespace TradingTrainer.BLL
          */
         public async Task<FavoriteList> DeleteFromFavoriteListAsync(int userId, string symbol)
         {
-
+            // Validate input
+            _validation.ValidateUserId(userId);
+            _validation.ValidateStockSymbol(symbol);
             // Removing the stock from the favorite list in the database
+            _logger.LogInformation($"TradingService.DeleteFromFavoriteListAsync: Deleting {symbol} from favorite list of user {userId}");
             await _tradingRepo.DeleteFromFavoriteListAsync(userId, symbol);
             // Return the current favorite list of the user
             return await CreateFavoriteListAsync(userId);
         }
+        
+        /**
+         * This method adds a stock to the watchlist of a given user. The user id and the stock symbol 
+         * is passed to the method as arguments.
+         */
         public async Task<FavoriteList> AddToFavoriteListAsync(int userId, string symbol)
         {
+            // Validate input
+            _validation.ValidateUserId(userId);
+            _validation.ValidateStockSymbol(symbol);
             // Adding the stock to the favorite list in the database
+            _logger.LogInformation($"TradingService.DeleteFromFavoriteListAsync: Adding stock {symbol} to the watchlist of user {userId}");
             await _tradingRepo.AddToFavoriteListAsync(userId, symbol);
             // Returning the current favorite list of the user
             return await CreateFavoriteListAsync(userId);
         }
 
         // -----[ Buy/sell/quotes stocks ] --------------------------------------------------------------
+        /**
+         * This method performs a buy operation of a given stock by a given user. The user id, stock symbol and the amount of shares 
+         * is given as argument to this method.
+         */
         public async Task BuyStock(int userId, string symbol, int count)
         {
             // Validate count input value
-            if (count < 1)
-            {
-                throw new ArgumentException("The provided count value is not valid. It must be an integer greater than 0.");
-            }
+            _validation.ValidateStockCount(count);
+            // Validate user id
+            _validation.ValidateUserId(userId);
+            // Validate stock symbol
+            _validation.ValidateStockSymbol(symbol);
+
             // Get the user object from database
-            Users? curUser = await _tradingRepo.GetUsersAsync(userId);
-            // Verifying that a user was found
-            if (curUser is null)
-            {
-                throw new ArgumentException("The provided userId did not match any user in the database!");
-            }
+            Users curUser = await GetUserObject(userId);
             // Get the stock
             Stocks? curStock = await _tradingRepo.GetStockAsync(symbol);
             // Verify that a stock with the specified stock symbol was found
             if (curStock is null)
             {
-                throw new ArgumentException("The specified stock was not found in the database");
+                _logger.LogWarning($"TradingService BuyStock: Stock {symbol} was not found in the database");
+                throw new KeyNotFoundException("The specified stock was not found in the database");
             }
 
             // Calculating the saldo required to buy the specified amount of shares
@@ -526,35 +553,39 @@ namespace TradingTrainer.BLL
             // Checking that the user has the funds needed to perform the transaction
             if (curUser.FundsAvailable - saldo < 0)
             {
-                throw new Exception("The user has not enough funds to perform this transaction!");
+                _logger.LogWarning($"TradingService.BuyStock: The user {userId} has not enough funds.");
+                throw new ArgumentException("The user has not enough funds to perform this transaction!");
             }
             // Execute the buy transaction with the database
+            _logger.LogInformation($"TradingService.BuyStock: Executing buy transaction: saldo: {saldo}, count: {count}, stock: {curStock.StockName}");
             await _tradingRepo.BuyStockTransactionAsync(curUser, curStock, saldo, count); 
         }
+        
+        /**
+         * This method performs the sell operation of a given stock by a given user. The user is not 
+         */
         public async Task SellStock(int userId, string symbol, int count)
         {
-            // Check if the stock exists in the database
+            // Validate count input value
+            _validation.ValidateStockCount(count);
+            // Validate user id
+            _validation.ValidateUserId(userId);
+            // Validate stock symbol
+            _validation.ValidateStockSymbol(symbol);
+
+            // Get the user object from database
+            Users identifiedUser = await GetUserObject(userId);
+            // Get the stock
             Stocks? curStock = await _tradingRepo.GetStockAsync(symbol);
+            // Verify that a stock with the specified stock symbol was found
             if (curStock is null)
             {
-                throw new NullReferenceException("The stock was not found in the database");
-            }
-            // Validate stock counter. It must be an positive integer greather than or equal to 1
-            if (count < 1)
-            {
-                throw new ArgumentException("The provided count value is invalid");
+                _logger.LogWarning($"TradingService.SellStock: Stock {symbol} was not found in the database");
+                throw new KeyNotFoundException("The specified stock was not found in the database");
             }
 
             // Get the updated quote for the stock
             StockQuotes curQuote = await GetUpdatedQuoteAsync(symbol);
-
-            // Get user
-            Users? identifiedUser = await _tradingRepo.GetUsersAsync(userId);
-            // Verifying that a user was found
-            if (identifiedUser is null)
-            {
-                throw new ArgumentException("The provided userId did not match any user in the database!");
-            }
 
             // Finding the total that needs to be added to the users funds
             decimal exchangeRate = 1;
@@ -567,10 +598,18 @@ namespace TradingTrainer.BLL
             decimal saldo = (decimal)curQuote.Price * count * exchangeRate;
 
             // Execute the sell transaction against the database
+            _logger.LogInformation($"TradingService.SellStock: Executing sell transaction: saldo: {saldo}, count: {count}, stock: {curStock.StockName}");
             await _tradingRepo.SellStockTransactionAsync(userId, symbol, saldo, count);
         }
+        
+        /**
+         * This method get an updated quote and convert it to the Client stock quote object (Model.StockQuote)
+         */
         public async Task<Model.StockQuote> GetStockQuoteAsync(string symbol)
         {
+            // Validate input
+            _validation.ValidateStockSymbol(symbol);
+
             // Get the latest stock quote
             StockQuotes curQuote = await GetUpdatedQuoteAsync(symbol);
             // Getting the stock currency
@@ -604,8 +643,10 @@ namespace TradingTrainer.BLL
          */
         public async Task<List<Trade>> GetAllTradesAsync(int userId)
         {
+            // Validate Input
+            _validation.ValidateUserId(userId);
             // Get the user entity from server
-            Users? curUser = await _tradingRepo.GetUsersAsync(userId);
+            Users curUser = await GetUserObject(userId);
             // Getting the trades list containing the Trade records
             List<Trades> curTrades = curUser.Trades;
             // Definition of the new transaction list containing Trade objects
@@ -631,23 +672,39 @@ namespace TradingTrainer.BLL
             return transactions;
         }
 
+        /**
+         * This method removes all transaction records associated with a user (userId is used to identify the user)
+         */
         public async Task ClearAllTradeHistoryAsync(int userId)
         {
+            // validate input
+            _validation.ValidateUserId(userId);
             // Removing the trade records connected to the provided userId
+            _logger.LogInformation($"TradingService.ClearAllTradeHistoryAsync: Removing all trade records for user {userId}");
             await _tradingRepo.ClearAllTradeHistoryAsync(userId);
         }
 
         // -------[ User ] ------------------------------------------------------------------------
 
+        /**
+         * This method obtains the user object corresponding to the userId provided as argument
+         */
         public async Task<User> GetUserAsync(int userId)
         {
+            // Validate input
+            _validation.ValidateUserId(userId);
             // Obtaining the user from the database
-            Users? curUser =  await _tradingRepo.GetUsersAsync(userId);
+            Users curUser =  await GetUserObject(userId);
             return CreateUserObject(curUser);
         }
 
+        /**
+         * This method obtains the user object corresponding to the username/email provided as argument
+         */
         public async Task<User> GetUserAsync(string username) 
         {
+            // Validate input
+            _validation.ValidateUsername(username);
             // Obtaining the user from the database
             Users? curUser = await _tradingRepo.GetUsersAsync(username);
             if (curUser is null)
@@ -658,6 +715,9 @@ namespace TradingTrainer.BLL
             return CreateUserObject(curUser);
         }
 
+        /**
+         * This method convert a user entity to the model.User objects.
+         */
         public User CreateUserObject(Users curUser) {
             User convertedUser = new User
             {
