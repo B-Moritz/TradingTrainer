@@ -16,8 +16,9 @@ namespace TradingTrainer.Model
         public string? LastName { get; set; }
         [RegularExpression(@"^[a-zA-Z\#\!\%\$\‘\&\+\*\–\/\=\?\^_\`\.\{\|\}\~]+@[a-zA-Z0-9\-\.]{1,63}$")]
         public string? Email { get; set; }
+        // Backup løsning [StringLength(30, MinimumLength = 9, ErrorMessage = "The password must be between 9 and 30 characters")]
         // password needs minimum eight characters, and at least one letter and one number
-        [StringLength(30, MinimumLength = 9, ErrorMessage = "The password must be between 9 and 30 characters")]
+        [RegularExpression(@"^(?=.*[0-9])(?=.*[a-zA-Z])(?=.*[$&+,:;=?@#|'<>.-^*()%!]).{9,32}$")]
         public string? Password { get; set; }
 
         [StringLength(30, MinimumLength = 1, ErrorMessage = "The Alpha Vantage api key must be less than 30 characters long.")]
