@@ -325,6 +325,7 @@ namespace TradingTrainer.Controllers
          *      (int) count: The amount of shares that should be bought of the specified stock.
          * Return: An updated Portfolio object that reflects the latest buy operation for the user.
          */
+
         public async Task<ActionResult> BuyStock(int userId, string symbol, int count)
         {
             _logger.LogInformation($"Endpoint BuyStock: User {userId} is buying {symbol} (count={count})");
