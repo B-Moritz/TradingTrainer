@@ -211,17 +211,6 @@ namespace TradingTrainer.Controllers
          *      (string) symbol: The identity of the stock that should be bought.
          *      (int) count: The amount of shares that should be bought of the specified stock.
          * Return: An updated Portfolio object that reflects the latest buy operation for the user.
-         */
-        /*
-         * 
-         * 
-         * 
-         * 
-         * public async Task<ActionResult> BuyStock(int userId, string symbol, int count)
-        {
-            await _tradingService.BuyStock(userId, symbol, count);
-            return Ok(await _tradingService.CreateCurrentPortfolio(userId));
-        }
         */
         public async Task<ActionResult> BuyStock(int userId, string symbol, int count)
         {
