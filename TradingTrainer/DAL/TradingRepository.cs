@@ -115,7 +115,7 @@ namespace TradingTrainer.DAL
          * This metode will obtain favorites for the user that matches the userId.
          * Parameters: 
          *      (int) userId: The user to find the favorite list for.
-         *  Return: FavoriteList object containing the favorite list of the given user
+         *  Return: FavoriteList object containing the favorite list of the given user. Throws InvalidOperationException if no or more than one user was found.
          */
         public async Task<List<Stocks>> GetFavoriteListAsync(int userId)
         {

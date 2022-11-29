@@ -3,6 +3,7 @@ using TradingSchemaSp;
 using TradingTrainer.BLL;
 using TradingTrainer.DAL;
 using Microsoft.Extensions.Logging;
+using Microsoft.AspNetCore.Mvc;
 
 var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
@@ -12,6 +13,9 @@ builder.Services.AddScoped<ITradingRepository, TradingRepository>();
 builder.Services.AddScoped<ISearchResultRepositry, SearchResultRepositry>();
 builder.Services.AddScoped<ITradingService, TradingService>();
 builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
+// Disable the implicit validatio of models
+builder.Services.Configure<ApiBehaviorOptions>(options
+    => options.SuppressModelStateInvalidFilter = true);
 
 //Adding sessions
 builder.Services.AddSession(options => {
