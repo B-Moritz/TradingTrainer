@@ -179,6 +179,7 @@ namespace TradingTrainer.DAL
             oldUser.FirstName = curUser.FirstName;
             oldUser.LastName = curUser.LastName;
             oldUser.Email = curUser.Email;
+            oldUser.AlphaVantageApiKey = curUser.AlphaVantageApiKey;
 
             // Change currency
             decimal exchangeRate = 1;

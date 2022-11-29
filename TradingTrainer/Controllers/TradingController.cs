@@ -692,26 +692,46 @@ namespace TradingTrainer.Controllers
          * Return: An updated User object.
          */
         public async Task<ActionResult> ResetProfile(int userId) {
+            _logger.LogInformation($"Endpoint ResetProfile: Profile reset requested for {userId}");
+            // Check that the user is signed in 
+            if (HttpContext.Session.GetString(_loginFlag) != "true")
+            {
+                _logger.LogInformation($"Endpoint ResetProfile: The user does not have an active session.");
+                return Unauthorized("User does not have an active session.");
+            }
+
             User user;
             try
             {
+                // Resetting profile and obtaining the updated user object
                 user = await _tradingService.ResetProfileAsync(userId);
             }
             catch (InvalidOperationException userNotFoundEx)
             {
                 // The user was not found
-                _logger.LogWarning("An exception has occured while trying to find the user. \n" +
+                _logger.LogWarning("Endpoint ResetProfile: An exception has occured while trying to find the user. \n" +
                     userNotFoundEx.Message);
                 return NotFound(userNotFoundEx.Message);
             }
+            catch (ArgumentException inputInvalid)
+            {
+                _logger.LogWarning($"Endpoint ResetProfile: {inputInvalid.Message}");
+                return BadRequest(inputInvalid.Message);
+            }
             catch (Exception generalError)
             {
-                _logger.LogError("An exception has occured while reseting the profile of the user.\n" + generalError.Message);
+                _logger.LogError("Endpoint ResetProfile: An exception has occured while reseting the profile of the user.\n" + generalError.Message);
                 return StatusCode(StatusCodes.Status500InternalServerError, generalError.Message);
             }
+            _logger.LogInformation("Endpoint ResetProfile: User was successfully resetted. Returning updated profile information.");
             return Ok(user);
         }
 
+        /**
+         * This method works as an endpoint to authenticate and initiate a new session for the app user.
+         * The method takes the Credentials object as innput (username and password).
+         * 
+         */
         public async Task<ActionResult> LogIn([FromBody]Credentials curCredentials) {
             try
             {

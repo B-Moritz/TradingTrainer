@@ -75,7 +75,7 @@ function MainSettings(props : MainSettingsProps) : JSX.Element {
             IsValid : true, 
             ErrorMsg : "The provided api key is not valid!",
             Label : "Alpha Vantage Api Key",
-            RegexPattern : "^[A-Z0-9a-z]{2, 50}$"
+            RegexPattern : "^[A-Z0-9a-z]{2,50}$"
         },
       // The buying power of the user
         FundsAvailable : "",

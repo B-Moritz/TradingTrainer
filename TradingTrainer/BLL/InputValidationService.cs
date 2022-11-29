@@ -17,7 +17,10 @@ namespace TradingTrainer.BLL
          * Throws an ArgumentException exception if the value is not valid
          */
         public bool ValidateStockCount(int count) {
-            
+
+            /**
+             * This method validates the stock count given as input to the trading controller.
+             */
             if (count < 1)
             {
                 // input value is not valid
@@ -26,6 +29,9 @@ namespace TradingTrainer.BLL
             return true;
         }
 
+        /**
+         * This method validates the user id given as input to the trading controller.
+         */
         public bool ValidateUserId(int userId) {
             if (userId < 1)
             {
@@ -35,6 +41,9 @@ namespace TradingTrainer.BLL
             return true;
         }
 
+        /**
+         * This method validates the stock symbol given as input to the TradingController endpoints
+         */
         public bool ValidateStockSymbol(string symbol) {
             if (!_symbolPattern.IsMatch(symbol))
             {
@@ -44,6 +53,9 @@ namespace TradingTrainer.BLL
             return true;
         }
 
+        /**
+         * This method validates the search keywords given as input to the search endpoints
+         */
         public bool ValidateSearchKeyword(string keyword) {
             if (keyword.Length > 50)
             {

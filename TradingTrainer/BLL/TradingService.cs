@@ -734,20 +734,32 @@ namespace TradingTrainer.BLL
             return convertedUser;
         }
 
+        /**
+         * This method updates the user profile of the given user.
+         * Throws ArgumentException if the provided api key is not working
+         */
         public async Task<User> UpdateUserAsync(User curUser)
         {
             // Validate api key
             await _validation.ValidateAlphaKey((curUser.AlphaVantageApiKey is not null ? curUser.AlphaVantageApiKey : ""));
-            
+
             // Update the user in the database
+            _logger.LogInformation($"TradingService.UpdateUserAsync: User {curUser.Id} is updated.");
             await _tradingRepo.UpdateUserAsync(curUser);
             // Returning the updated user object
             return await GetUserAsync(curUser.Id);
         }
 
+        /**
+         * This method resets the profile of the given user (userId).
+         * Throws ArgumentException for invalid input.
+         */
         public async Task<User> ResetProfileAsync(int userId)
         {
+            // Validate input
+            _validation.ValidateUserId(userId);
             // Reset data through the data access layer
+            _logger.LogInformation($"TradingService.ResetProfileAsync: User {userId} is resetted to default.");
             Users curUser = await _tradingRepo.ResetProfileAsync(userId);
             // Convert the returned user entity to the User object used for presentation
             User convertedUser = new User
