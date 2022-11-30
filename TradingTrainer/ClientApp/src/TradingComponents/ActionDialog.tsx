@@ -95,7 +95,7 @@ function ActionDialog(props : ActionDialogProps) : JSX.Element {
                             >Confirm Transaction</button>
                     <button className={"btn btn-lg btn-secondary"} 
                             onClick={() => {props.SetStockListTab([props.CallbackTab, props.CallbackTab]);}}
-                            >Cancle</button>
+                            >Cancel</button>
                 </div>
             </div>
             {isWaiting}
