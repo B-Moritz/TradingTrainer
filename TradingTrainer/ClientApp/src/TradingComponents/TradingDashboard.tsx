@@ -167,11 +167,14 @@ function TradingDashboard(props: DashboardProps) : JSX.Element {
     }
     
     let stockList;
+    // Determine what components should be rendered
     switch(stockListTab[0]) {
         case DashboardTabNames.StockMarket:
+            //Rendering the stock market component
             stockList = <StockMarket User={props.User} SetErrorMsg={props.SetErrorMsg}></StockMarket>
             break;
         case DashboardTabNames.PortfolioList:
+            // Rendeirng the portfolio component
             stockList = <Portfolio 
                 SetStockListTab={setStockListTab}
                 UpdateQuoteDisplay={updateQuoteDisplay}
@@ -183,19 +186,23 @@ function TradingDashboard(props: DashboardProps) : JSX.Element {
             ></Portfolio>
             break;
         case DashboardTabNames.TradeHistory:
+            // Rendering the Trade history  component
             stockList = <TradeHistory User={props.User} SetErrorMsg={props.SetErrorMsg}></TradeHistory>
             break;
         case DashboardTabNames.BuyDisplay:
+            // Rendering the buyDialog Component
             stockList = createBuyDialog();
             break;
         case DashboardTabNames.SellDisplay:
+            // Rendering the selldialog component
             stockList = createSellDialog();
             break;
         default:
+            // Render the wathclist component per default.
             stockList = <Watchlist 
                             SetStockListTab={setStockListTab}
                             SetCurSelectedStock={setCurSelectedStock}
-                            // Sending dow callback to update the quote - used by the watchlist row component
+                            // Sending down callback to update the quote - used by the watchlist row component
                             UpdateQuoteDisplay={updateQuoteDisplay}
                             CurSelectedStock={curSelectedStock}
                             User={props.User}

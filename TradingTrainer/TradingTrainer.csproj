@@ -49,7 +49,6 @@
     <None Remove="ClientApp\src\PrimaryContainer.tsx" />
     <None Remove="ClientApp\src\RegisterForm.tsx" />
     <None Remove="ClientApp\src\TradingComponents\TradingDashboard.tsx" />
-    <None Remove="ClientApp\src\TradingComponents\Validation.ts" />
   </ItemGroup>
 
   <ItemGroup>

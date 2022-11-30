@@ -96,7 +96,7 @@ function ResetPwd(props : ResetPwdProps) : JSX.Element {
             FirstPwd : curInput.FirstPwd,
             LastPwd : newInputObj
         }
-        // Verify that the two input values are equal
+        // Verify that the two inputs values are equal
         if (newPwdObj.FirstPwd.PwdVal !== newPwdObj.LastPwd.PwdVal) {
             newPwdObj.LastPwd.ErrorMsg = "The provided passwords are not equal!";
             newPwdObj.LastPwd.IsValid = false;
