@@ -18,34 +18,6 @@ function TradingTrainerFooter() : JSX.Element {
                             </li>                                                              
                         </ul>
                     </div>
-
-                    <div className="col">
-                        <h4>Product</h4>
-                        <ul className="list-unstyled">
-                            <li>
-                                <a href="https://icons8.com/icon/DnhznTvrGRgU/trading">AAAAAAA </a>
-
-                            </li>
-
-                        </ul>
-                    </div>
-
-                    <div className="col">
-                        <h4>Service</h4>
-                        <ul className="list-unstyled">
-                            <li>
-                                <a href="https://icons8.com/icon/DnhznTvrGRgU/trading">BBBBBBB </a>
-                            </li>
-                        </ul>
-                    </div>
-
-                    <div className="col">
-                        <h4>Support</h4>
-                        <ul className="list-unstyled">
-                            <li>99999999</li>
-                        </ul>
-                    </div>
-
                 </div>
 
                 <hr />

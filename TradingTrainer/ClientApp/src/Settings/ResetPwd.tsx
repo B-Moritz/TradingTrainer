@@ -96,7 +96,7 @@ function ResetPwd(props : ResetPwdProps) : JSX.Element {
             FirstPwd : curInput.FirstPwd,
             LastPwd : newInputObj
         }
-        // Verify that the two input values are equal
+        // Verify that the two inputs values are equal
         if (newPwdObj.FirstPwd.PwdVal !== newPwdObj.LastPwd.PwdVal) {
             newPwdObj.LastPwd.ErrorMsg = "The provided passwords are not equal!";
             newPwdObj.LastPwd.IsValid = false;
@@ -177,7 +177,7 @@ function ResetPwd(props : ResetPwdProps) : JSX.Element {
             }
             <nav className="btn-group">
                 <button className="btn btn-warning" onClick={() => {executeReset()}}>Confirm</button>
-                <button className="btn btn-secondary" onClick={() => {props.SetCurSettingsPage(SettingPages.Main)}}>Cancle</button>
+                <button className="btn btn-secondary" onClick={() => {props.SetCurSettingsPage(SettingPages.Main)}}>Cancel</button>
             </nav>
         </>
     );

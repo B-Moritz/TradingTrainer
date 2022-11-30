@@ -37,13 +37,14 @@ function ConfirmReset(props : ConfirmResetProps) : JSX.Element {
         });
     }
 
+    // Gir brukeren mulighet til å avbryte tilbakestilling av profilen.
     return(
         <>
             <h2>Reseting your profile</h2>
             <p>Are your sure you want to reset your profile?</p>
             <nav className="btn-group">
                 <button className="btn btn-danger" onClick={() => {executeReset()}}>Confirm</button>
-                <button className="btn btn-secondary" onClick={() => {props.SetCurSettingsPage(SettingPages.Main)}}>Cancle</button>
+                <button className="btn btn-secondary" onClick={() => {props.SetCurSettingsPage(SettingPages.Main)}}>Cancel</button>
             </nav>
             {isWaiting}
         </>
