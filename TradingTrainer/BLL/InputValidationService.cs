@@ -57,7 +57,7 @@ namespace TradingTrainer.BLL
          * This method validates the search keywords given as input to the search endpoints
          */
         public bool ValidateSearchKeyword(string keyword) {
-            if (keyword.Length > 50)
+            if (keyword is null || keyword.Length > 50)
             {
                 // Search keyword not valid
                 throw new ArgumentException("The provided search keyword is not valid (longer than 50 characters)");

@@ -38,7 +38,14 @@ function StockMarket(props : StockMarketProps) : JSX.Element {
     const [curKeyword, setCurKeyword] = useState("");
 
     const updateSearchResult =  async (userId : number, keyword : string) : Promise<any> => {
+        // If the keyword is empty - display empty table
+        if (keyword === "") {
+            setCurStockList([<tr className="emptyTableDisp" key="EmptySearchResult"><td>No stock was found.</td><td></td><td></td></tr>]);
+            return;
+        }
+        // Displaying waiting before the http call is made
         setWaitDisplay(<WaitingDisplay WaitingText={"Retreiving search results from server..."}></WaitingDisplay>);
+        // Make the http call towards the server
         getSearchResult(userId, keyword).then((data) => {
             const outList : JSX.Element[] = [];
             data.stockList.forEach((stock : SearchResultStock, index : number) => {

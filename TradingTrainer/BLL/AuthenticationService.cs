@@ -1,4 +1,8 @@
-﻿using Microsoft.AspNetCore.Cryptography.KeyDerivation;
+﻿// 29.11.2022   OsloMet 
+// This file contains the service methods used to deliver authentication service to the Trading Trainer app
+
+
+using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 using System.Security.Cryptography;
 using System.Text.RegularExpressions;
 using TradingTrainer.DAL;
@@ -17,6 +21,7 @@ namespace TradingTrainer.BLL
 
         public async Task<bool> LogInAsync(string username, string pwd) {
             // Get the user from the database
+            _logger.LogInformation($"AuthenticationService.LogInAsync: Obtain the user matchng the username {username}.");
             Users? curUser = await _tradingRepo.GetUsersAsync(username);
 
             if (curUser is null) {
@@ -25,12 +30,13 @@ namespace TradingTrainer.BLL
             }
             // Generate hash for the provided password
             byte[] pwdHash = IAuthenticationService.GetHash(pwd, curUser.Salt);
+            // Compare the passwordhash
             if (pwdHash.SequenceEqual(curUser.Password))
             {
                 return true;
             }
+            // Passwords are not matching
             return false;
-
         }
 
         private bool ValidateNewPassword(string newPwd) {

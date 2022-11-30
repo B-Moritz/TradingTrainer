@@ -558,7 +558,7 @@ namespace TradingTrainer.BLL
             }
             // Execute the buy transaction with the database
             _logger.LogInformation($"TradingService.BuyStock: Executing buy transaction: saldo: {saldo}, count: {count}, stock: {curStock.StockName}");
-            await _tradingRepo.BuyStockTransactionAsync(curUser, curStock, saldo, count); 
+            await _tradingRepo.BuyStockTransactionAsync(curUser, curStock, saldo, count);
         }
         
         /**
@@ -833,6 +833,7 @@ namespace TradingTrainer.BLL
 
             return hashed;
         }
+
         private async Task<byte[]> SaltGenerator()
         {
             byte[] salt = RandomNumberGenerator.GetBytes(128/8);

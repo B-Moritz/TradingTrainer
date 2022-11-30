@@ -5,7 +5,8 @@ import TradingTrainerFooter from './TradingTrainerFooter';
 import WaitingDisplay from './WaitingDisplay';
 import { User } from './LoginForm';
 import logo from './img/icons8-track-and-field-48.png';
-import { logoutApiCall } from './Service/TradingApi';
+import { logoutApiCall, getUsername } from './Service/TradingApi';
+
 
 type AppContainerProps = {
     User : User
@@ -37,20 +38,11 @@ function AppContainer(props : AppContainerProps) : JSX.Element {
     const checkExistingSession = async () => {
         // Check if the user has an active session
         // If the user has an active session -> redirect to application
-        await fetch("/trading/getUsername").then((response) => {
-            if (!response.ok) {
-                if (response.status === 401) {
-                    console.log("User needs authentication");
-                    navigate('/login');
-                }
-                throw new Error(`The server responded with status code ${response.status}: ${response.text}`);
-            }
-            return response.json();
-        }).then((data) => {
+        await getUsername().then((data) => {
             if (data) {
                 // The user has already an active session on the server
                 // Bypas login procedure
-                props.SetUser(data.result);
+                props.SetUser(data);
                 //props.SetIsAuthenticated(true);
                 //navigate("/TradingDashboard");
             }

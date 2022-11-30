@@ -7,6 +7,7 @@ type ValidatedResponse = {
     Data : Promise<any>
 }
 
+// Method used to execute a get request towards the server
 async function fetchFromTradingApi(requestUrl : string) : Promise<any> {
     const response = await fetch(requestUrl, {
         method: "GET",
@@ -28,11 +29,12 @@ async function fetchFromTradingApi(requestUrl : string) : Promise<any> {
     // User is not authorized to access the endpoint
     const msg = `Error: The server responded with error code: ${curResponseObj.Code}\n\n \
     Message: ${curResponseObj.Data}`;
-    alert(msg);
+    //alert(msg);
     console.log(msg);
     throw new Error(`${curResponseObj.Code}: ${curResponseObj.Title}: ${curResponseObj.Data}`);    
 }
 
+// Method used to execute a put request towards the server
 async function putTradingApi(requestUrl : string, newObject : any) : Promise<any> {
     const response = await fetch(requestUrl, {
         method: "PUT",
@@ -55,11 +57,12 @@ async function putTradingApi(requestUrl : string, newObject : any) : Promise<any
     // User is not authorized to access the endpoint
     const msg = `Error: The server responded with error code: ${curResponseObj.Code}\n\n \
     Message: ${curResponseObj.Data}`;
-    alert(msg);
+    //alert(msg);
     console.log(msg);
     throw new Error(`${curResponseObj.Code}: ${curResponseObj.Title}: ${curResponseObj.Data}`);  
 }
 
+// Method used to execute a patch request towards the server
 async function patchTradingApi(requestUrl : string, newObject : any) : Promise<any> {
     const response = await fetch(requestUrl, {
         method: "PATCH",
@@ -82,11 +85,12 @@ async function patchTradingApi(requestUrl : string, newObject : any) : Promise<a
     // User is not authorized to access the endpoint
     const msg = `Error: The server responded with error code: ${curResponseObj.Code}\n\n \
     Message: ${curResponseObj.Data}`;
-    alert(msg);
+    //alert(msg);
     console.log(msg);
     throw new Error(`${curResponseObj.Code}: ${curResponseObj.Title}: ${curResponseObj.Data}`);  
 }
 
+// Method used to execute a pathc request towards the server. This version does not send a body (parameters in request url)
 async function patchTradingApiSimple(requestUrl : string) : Promise<any> {
     const response = await fetch(requestUrl, {
         method: "PATCH",
@@ -108,10 +112,12 @@ async function patchTradingApiSimple(requestUrl : string) : Promise<any> {
     // User is not authorized to access the endpoint
     const msg = `Error: The server responded with error code: ${curResponseObj.Code}\n\n \
     Message: ${curResponseObj.Data}`;
-    alert(msg);
+    //alert(msg);
     console.log(msg);
     throw new Error(`${curResponseObj.Code}: ${curResponseObj.Title}: ${curResponseObj.Data}`);  
 }
+
+// Below are the functions used to make requests towards the diffferent endpoints on the server.
 
 export async function getWatchlist(userId : number) : Promise<any> {
     const requestUrl = `/trading/getFavoriteList?userId=${userId}`;
@@ -149,7 +155,7 @@ export async function saveUserProfile(user : User) : Promise<User> {
 }
 
 export async function resetUserProfile(userId : number) : Promise<User> {
-    const requestUrl = `/trading/resetProfile?userId={userId}`;
+    const requestUrl = `/trading/resetProfile?userId=${userId}`;
     return await patchTradingApiSimple(requestUrl);
 }
 
@@ -176,5 +182,15 @@ export async function deleteFromFavorite(userId : number, symbol : string) : Pro
 export async function addToFavorite(userId : number, symbol : string) : Promise<any> {
     const requestUrl = `/trading/addToFavoriteList?userId=${userId}&symbol=${symbol}`;
     return await patchTradingApiSimple(requestUrl);
+}
+
+export async function getUsername() : Promise<any> {
+    const requestUrl = "/trading/getUsername";
+    return await fetchFromTradingApi(requestUrl);
+}
+
+export async function authenticate(credentials : any) : Promise<any> {
+    const requestUrl = "/trading/login";
+    return await patchTradingApi(requestUrl, credentials);
 }
  
