@@ -374,6 +374,7 @@ namespace TradingTrainerTest
         // This method tests the GetStockQuoteAsync method which obtains a stock quote object from the database
         // or alphaVantage.
         [Fact]
+
         public async Task GetStockQuoteAsync()
         {
             // arrange
@@ -437,6 +438,7 @@ namespace TradingTrainerTest
 
         // This method tests the ResetProfileAsync method used to reset the user (funds available, portfolio, watchlist, ...)
         [Fact]
+
         public async Task ResetProfileAsync()
         {
             User expectedUser = new User
