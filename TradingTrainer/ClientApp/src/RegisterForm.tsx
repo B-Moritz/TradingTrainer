@@ -247,12 +247,7 @@ const RegisterForm: React.FC = () => {
     }
 
    
-    
-   
-
-    
-
-
+  
 
 
     /**
