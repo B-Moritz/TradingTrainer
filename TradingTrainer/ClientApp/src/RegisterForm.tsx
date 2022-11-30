@@ -1,6 +1,6 @@
 ﻿import React, { ReactNode, Component, useState, ChangeEvent } from 'react';
 import Box from '@mui/material/Box';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import TextField from '@mui/material/TextField';
 import {Button, Typography } from '@mui/material';
 import IUserData from './Models/Iuser';
@@ -22,6 +22,8 @@ const RegisterForm: React.FC = () => {
         password: "",
         alphaVantageApiKey: ""
     };
+
+    const navigate = useNavigate();
 
  
     //name error state and name error message state to handle validation and error message showing. This state used by the error and helpertext props of the text feild.
@@ -196,7 +198,6 @@ const RegisterForm: React.FC = () => {
         pwdSetStateError(false);
         pwdSetErrorMsg("");
         return true;
-
     }
 
 
@@ -280,8 +281,8 @@ const RegisterForm: React.FC = () => {
         }
 
 
-      //user object
-      const user = {
+        //user object
+        const user = {
             firstName: users.firstName,
             lastName: users.lastName,
             email: users.email,
@@ -303,6 +304,7 @@ const RegisterForm: React.FC = () => {
        
             setUser(initialUserState);
             setSubmitted(false);
+            navigate("/login");
         
    }
            
