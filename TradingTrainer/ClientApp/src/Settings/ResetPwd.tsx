@@ -177,7 +177,7 @@ function ResetPwd(props : ResetPwdProps) : JSX.Element {
             }
             <nav className="btn-group">
                 <button className="btn btn-warning" onClick={() => {executeReset()}}>Confirm</button>
-                <button className="btn btn-secondary" onClick={() => {props.SetCurSettingsPage(SettingPages.Main)}}>Cancle</button>
+                <button className="btn btn-secondary" onClick={() => {props.SetCurSettingsPage(SettingPages.Main)}}>Cancel</button>
             </nav>
         </>
     );
