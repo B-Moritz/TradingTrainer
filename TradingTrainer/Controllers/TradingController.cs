@@ -679,10 +679,6 @@ namespace TradingTrainer.Controllers
             return await _tradingService.CreateUser(user);
         }
 
-        public async Task DeleteUser(int userId) {
-            throw new NotImplementedException();
-        }
-
         /**
          * This method is used as an endpoint to reset the profile of a given user. 
          * This will reset the valueSpent property to 0, the BuyingPower to 1,000,000.00 NOK and the 
@@ -730,37 +726,59 @@ namespace TradingTrainer.Controllers
         /**
          * This method works as an endpoint to authenticate and initiate a new session for the app user.
          * The method takes the Credentials object as innput (username and password).
-         * 
          */
         public async Task<ActionResult> LogIn([FromBody]Credentials curCredentials) {
+            User curUser;
             try
             {
+                // Try to authenticate the user
                 bool isAuthenticated = await _authenticationService.LogInAsync(curCredentials.Username, curCredentials.Password);
                 if (isAuthenticated)
                 {
+                    // If authentication was successfull - set the login flag to true
                     _logger.LogInformation($"The authentication was positive using username {curCredentials.Username} and pwd {curCredentials.Password}");
                     HttpContext.Session.SetString(_loginFlag, "true");
+                    // Add the username to the session cockie
                     HttpContext.Session.SetString("username", curCredentials.Username);
-                    return Ok(_tradingService.GetUserAsync(curCredentials.Username));
+                    // Getting the user from database
+                    curUser = await _tradingService.GetUserAsync(curCredentials.Username);
                 }
-                _logger.LogInformation($"The authentication was negative using username {curCredentials.Username} and pwd {curCredentials.Password}");
-                HttpContext.Session.SetString(_loginFlag, "");
-                HttpContext.Session.SetString("username", "");
-                return Unauthorized();
+                else 
+                {
+                    // Authentication failed
+                    _logger.LogInformation($"Endpoint LogIn: The authentication was negative using username {curCredentials.Username} and pwd {curCredentials.Password}");
+                    HttpContext.Session.SetString(_loginFlag, "");
+                    HttpContext.Session.SetString("username", "");
+                    return Unauthorized("Negative authentication atempt.");
+                }
+
+            }
+            catch (KeyNotFoundException userNotFoundEx)
+            {
+                // The user was not found
+                _logger.LogWarning("Endpoint LogIn: An exception has occured while trying to find the user. \n" +
+                    userNotFoundEx.Message);
+                // Note that Unauthorized is returned instead of not found -> does not indicate that the username was wrong
+                return Unauthorized(userNotFoundEx.Message);
             }
             catch (Exception ex)
             {
                 // An exception was caught while trying to authenitcate the user
-                _logger.LogInformation($"An exception was thrown while authenticating the user with username {curCredentials.Username} and pwd {curCredentials.Password}");
+                _logger.LogWarning($"Endpoint LogIn: An exception was thrown while authenticating the user with username {curCredentials.Username} and pwd {curCredentials.Password}");
                 HttpContext.Session.SetString(_loginFlag, "");
                 HttpContext.Session.SetString("username", "");
                 return Unauthorized();
             }
+            _logger.LogInformation($"Endpoint LogIn: Authentication was successfull. Returning the user object.");
+            return Ok(curUser);
         }
 
-        public async Task<ActionResult> LogOut() {
+        /**
+         * This method sets the login flag to "", denying the user access to the endpoints until 
+         * next authentication of user done again. 
+         */
+        public ActionResult LogOut() {
             HttpContext.Session.SetString(_loginFlag, "");
-            string testval = HttpContext.Session.GetString(_loginFlag);
             return Ok("true");
         }
 

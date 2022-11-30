@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import WaitingDisplay from './WaitingDisplay';
+import { getUsername, authenticate } from './Service/TradingApi';
 
 
 type User = {
@@ -78,86 +79,51 @@ function LoginForm(props : LoginProps) : JSX.Element {
     // This method executes the call to /trading/login through the fetch api.
     const authenticateUser = async (usr: string, pwd: string) : Promise<void> => {
         const endpoint = "/trading/login";
+        // Defining the payload to be sent to the server
         const credentials = {
             username: usr,
             password: pwd
         };
-        await fetch(endpoint, {
-            method: "POST",
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(credentials)
-        }).then(
-            (resp) => {
-                if (!resp.ok) {
-                    // The server responded with an error
-                    const msg = `Error: The server responded with error code: ${resp.status}\n \
-                                 Message: ${resp.text}`;
-                    if (resp.status == 401) {
-                        setAuthFailed(true);
-                    }
-                    throw new Error(msg);
-                }
-                console.log("Logon successful!");
-                if (authFailed) {
-                    //  If the authentication failed state is active, make sure to disable it.
-                    setAuthFailed(false);
-                }
-                return resp.json();
+        // Make the authentication http patch request
+        await authenticate(credentials).then((data) => {
+            // Authentication was successfull 
+            if (authFailed) {
+                //  If the authentication failed state is active, make sure to disable it.
+                setAuthFailed(false);
             }
-        ).then((data) => {
             setTimeout(() => {
                 setIsWaiting({
                     active : false,
                     msg : defaultWaitMsg
                 });
-                //setLoginWaitingDisplay(<></>);
-                console.log("Redirecting to dashboard.");
-                props.SetUser(data.result);
-                //props.SetIsAuthenticated(true);
-                //navigate("/TradingDashboard");
+                props.SetUser(data);
             }, waitDelay)
         }).catch(errorResp => {
-            alert(errorResp.message);
+            // An error occured during authentication
             setTimeout(() => {
-                //setLoginWaitingDisplay(<></>);
+                if (errorResp.message.slice(3) === "401") {
+                    // The server responded with unauthorized -> indicates tha the password or username is wrong
+                    setAuthFailed(true);
+                }
+                // Disable waiting display
                 setIsWaiting({
                     active : false, 
                     msg : defaultWaitMsg
                 });
-                console.log("Authentication failed");
             }, waitDelay);
         });
     }
 
-    const checkExistingSession = () => {
+
+    const checkExistingSession = async () => {
         // Check if the user has an active session
         // If the user has an active session -> redirect to application
-        fetch("/trading/getUsername").then((response) => {
-            if (!response.ok) {
-                if (response.status === 401) {
-                    console.log("User needs authentication");
-                    setIsWaiting({
-                        active : false, 
-                        msg : defaultWaitMsg
-                    });
-                    return;
-                }
-                throw new Error(`The server responded with status code ${response.status}: ${response.text}`);
-            }
-            return response.json();
-        }).then((data) => {
+        await getUsername().then((data) => {
             setTimeout(() => {
                 //setLoginWaitingDisplay(<></>);
                 if (data) {
                     // The user has already an active session on the server
-                    console.log("User has an active session. Redirecting to dashboard.")
-                    // Bypas login procedure
                     props.SetUser(data);
-                    //props.SetIsAuthenticated(true);
-                    //navigate("/TradingDashboard");
                 }
             }, waitDelay);
         }).catch((errorResp) => {
@@ -169,7 +135,7 @@ function LoginForm(props : LoginProps) : JSX.Element {
                     msg : defaultWaitMsg
                 });
             }, waitDelay);
-        });
+        })
     }
 
     const validateUsername = (e : React.FormEvent<HTMLInputElement>) : void => {

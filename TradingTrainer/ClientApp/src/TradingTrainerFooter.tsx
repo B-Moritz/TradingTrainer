@@ -11,12 +11,10 @@ function TradingTrainerFooter() : JSX.Element {
                 <div className="row">
 
                     <div className="col">
-                        <h4>Trading</h4>
+                        <h4>References</h4>
                         <ul className="list-unstyled">
                             <li>
-                                <a href="https://icons8.com/icon/DnhznTvrGRgU/trading">
-                                    <img src="https://static.thenounproject.com/png/3861549-200.png" style={{ width: "100px", margin: "0px" }}/>
-                                </a>
+                                <a target="_blank" href="https://icons8.com/icon/Q7ahXtQQtuqz/track-and-field">Track and Field</a> icon by <a target="_blank" href="https://icons8.com">Icons8</a>
                             </li>                                                              
                         </ul>
                     </div>
