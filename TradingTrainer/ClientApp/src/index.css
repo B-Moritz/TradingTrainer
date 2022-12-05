@@ -143,6 +143,11 @@ body {
     padding: 2rem;
 }
 
+#QuoteContainer label {
+    margin-right: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
 #EmptyQuote {
     background-color:rgba(212, 231, 244, 0.9);
     text-align: center;
@@ -229,6 +234,8 @@ body {
     border-radius: var(--Dashboard-border-radius);
     cursor: pointer;
 }
+
+
 
 #StockSymbolPortfolio {
     grid-area: stockSymbol;

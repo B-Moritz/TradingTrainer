@@ -186,7 +186,7 @@ const RegisterForm: React.FC = () => {
             return false;
 
         }
-        if (!(/[$&+,:;=?@#|'<>-^*()%!]/.test(e.target.value))) {
+        if (!(/[\$\&\+\,\:\;\=\?\@\#\|\'\<\>\-\^\*\(\)\%\!]/.test(e.target.value))) {
             // The password does not contain any special characters
             pwdSetStateError(true);
             setSubmitted(false);

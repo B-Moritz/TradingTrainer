@@ -98,10 +98,10 @@ function LoginForm(props : LoginProps) : JSX.Element {
                 });
                 props.SetUser(data);
             }, waitDelay)
-        }).catch(errorResp => {
+        }).catch((errorResp) => {
             // An error occured during authentication
             setTimeout(() => {
-                if (errorResp.message.slice(3) === "401") {
+                if (/401/g.test(errorResp.message)) {
                     // The server responded with unauthorized -> indicates tha the password or username is wrong
                     setAuthFailed(true);
                 }
