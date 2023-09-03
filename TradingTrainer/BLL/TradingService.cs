@@ -826,9 +826,9 @@ namespace TradingTrainer.BLL
             byte[] hashed = KeyDerivation.Pbkdf2(
                 password: stringPassword!,
                 salt: toSalt,
-                prf: KeyDerivationPrf.HMACSHA256,
-                iterationCount: 100000,
-                numBytesRequested: 256 / 8
+                prf: KeyDerivationPrf.HMACSHA512,
+                iterationCount: 1000,
+                numBytesRequested: 32
             );
 
             return hashed;

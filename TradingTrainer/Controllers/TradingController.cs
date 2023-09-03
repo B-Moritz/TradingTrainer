@@ -746,7 +746,7 @@ namespace TradingTrainer.Controllers
                 else 
                 {
                     // Authentication failed
-                    _logger.LogInformation($"Endpoint LogIn: The authentication was negative using username {curCredentials.Username} and pwd {curCredentials.Password}");
+                    _logger.LogInformation($"Endpoint LogIn: The authentication was negative using username {curCredentials.Username}.");
                     HttpContext.Session.SetString(_loginFlag, "");
                     HttpContext.Session.SetString("username", "");
                     return Unauthorized("Negative authentication atempt.");
